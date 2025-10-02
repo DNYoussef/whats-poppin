@@ -1,0 +1,493 @@
+{
+  "iteration": 5,
+  "focus": "Fresh-Eye Validation & Hidden Risks",
+  "new_risks_discovered": [
+    {
+      "id": "ITER5-001",
+      "category": "Technical Architecture",
+      "title": "Search Engine Catastrophic Scaling Failure",
+      "description": "Meilisearch cannot handle projected Year 2 scale (100M+ events). Performance degrades catastrophically beyond 10M documents with no horizontal scaling support.",
+      "likelihood": "High (85%)",
+      "impact": "Critical - $200K emergency migration + 3 months downtime",
+      "severity": "CRITICAL",
+      "why_missed_in_previous_iterations": "Tech stack decision based on Year 1 scale (10M docs) and cost optimization, not Year 2+ scalability testing",
+      "evidence": [
+        "116M document test couldn't complete in 2 days (38% loaded)",
+        "10M e-commerce docs took 8 hours to index 4M on 16GB RAM",
+        "Insertion performance degrades linearly (200k docs = 500ms per doc)",
+        "Meilisearch recommends <2TiB index for performance, no horizontal scaling"
+      ],
+      "true_mitigation": [
+        "Load test with 50M documents immediately (not 10M)",
+        "Design for search engine replacement from Day 1",
+        "Reserve $200K for emergency Elasticsearch migration",
+        "Accept Elasticsearch ($2K/mo) as true cost at scale"
+      ],
+      "blast_radius": "Platform-wide - search unusable = app unusable",
+      "time_to_failure": "Month 18-24 (Year 2 scale)",
+      "is_existential": true
+    },
+    {
+      "id": "ITER5-002",
+      "category": "Product-Market Fit",
+      "title": "Fundamental Event Discovery Frequency Mismatch",
+      "description": "90% of people look for events once a week or less. Cannot achieve 15% Day-30 retention target with inherently infrequent use case. Plancast failed for exact same reason.",
+      "likelihood": "Very High (95%)",
+      "impact": "Critical - Business model fails, unable to raise Series A",
+      "severity": "CRITICAL",
+      "why_missed_in_previous_iterations": "Optimistic assumption that gamification and push notifications can create daily habit in episodic use case. Studied successful apps, not failed event discovery startups.",
+      "evidence": [
+        "Plancast post-mortem: 'Most people don't go to many events' - lack of daily habit",
+        "Research: 90% look for events once a week or LESS",
+        "IRL app: 95% of 20M users were FAKE (shut down after $200M raised)",
+        "No successful event discovery app has >10% Day-30 retention"
+      ],
+      "true_mitigation": [
+        "Reframe metrics: 5-10% Day-30 retention is 'excellent' for event discovery",
+        "Shift to transaction model (Eventbrite) not subscription SaaS",
+        "Add daily use cases: restaurant recommendations, lunch suggestions",
+        "Position as marketplace (transaction) not SaaS (retention) for investors"
+      ],
+      "blast_radius": "Business model - LTV calculations invalid, investor pitch fails",
+      "time_to_failure": "Month 6-12 (post-launch reality check)",
+      "is_existential": true
+    },
+    {
+      "id": "ITER5-003",
+      "category": "Infrastructure Cost",
+      "title": "GCP Billing Runaway Without Hard Limits",
+      "description": "GCP budgets DO NOT cap spending. Viral growth can cause $35K+ bill in one week, exhausting entire annual budget. Milkie Way example: $72K overnight on $7 budget.",
+      "likelihood": "High (60%)",
+      "impact": "Critical - Forced infrastructure shutdown during peak growth",
+      "severity": "CRITICAL",
+      "why_missed_in_previous_iterations": "BUS-001 mitigation relies on monitoring/alerts, assumed budgets prevent runaway costs. They don't.",
+      "evidence": [
+        "Milkie Way (ex-Google founder): $72K bill overnight on $7 budget",
+        "Startup case study: $450K Google Cloud Bill",
+        "GCP budgets are informational only, DO NOT cap spending",
+        "Network egress costs are 'hidden' and scale with API usage"
+      ],
+      "true_mitigation": [
+        "Implement hard limits via Cloud Functions (auto-shutdown if >$500/day)",
+        "Rate limiting at application level, not just API Gateway",
+        "Pre-calculate max infrastructure cost for 100K concurrent users",
+        "$50K emergency fund specifically for viral growth scenarios",
+        "Feature flags to limit new signups if infrastructure at capacity"
+      ],
+      "blast_radius": "Financial - entire annual budget exhausted in days",
+      "time_to_failure": "Any time, most likely Month 4-6 during viral growth",
+      "is_existential": true
+    },
+    {
+      "id": "ITER5-004",
+      "category": "Payment & Fraud",
+      "title": "Stripe Chargeback Protection Insufficient at Scale",
+      "description": "Chargeback Protection has $25K annual limit. Year 2 projected $3M GMV has massive exposure gap (0.8% coverage). Event ticketing is high fraud risk.",
+      "likelihood": "High (70%)",
+      "impact": "Critical - Stripe account suspension, $0 revenue for 6+ months",
+      "severity": "CRITICAL",
+      "why_missed_in_previous_iterations": "SEC-002 assumed Stripe Radar 'solves fraud', didn't consider $25K limit in context of $3M Year 2 GMV",
+      "evidence": [
+        "Stripe Chargeback Protection: $25K annual limit (NOT per-incident)",
+        "Only covers FRAUD disputes, not product dissatisfaction",
+        "Full dispute lifecycle takes 2-3 MONTHS",
+        "Chargeback >2% triggers Stripe account suspension"
+      ],
+      "true_mitigation": [
+        "Manual verification for ALL paid events >$50 ticket price",
+        "Organizer vetting: Gov ID, business registration, phone verification",
+        "Escrow period: Hold organizer payouts 14 days after event",
+        "Purchase $100K chargeback insurance separately from Stripe",
+        "Backup payment processor (PayPal) ready for instant failover",
+        "Hire part-time fraud analyst by Month 8 (before ticketing launch)"
+      ],
+      "blast_radius": "Revenue - cannot process payments if Stripe suspends account",
+      "time_to_failure": "Month 8-12 (post-ticketing launch)",
+      "is_existential": true
+    },
+    {
+      "id": "ITER5-005",
+      "category": "Mobile Compliance",
+      "title": "iOS/Android Privacy Manifest Rejection Loop",
+      "description": "May 2024 App Store requirements mandate privacy manifests for third-party SDKs. Week 9-10 security implementation does NOT include this. Will face multi-week rejection cycle.",
+      "likelihood": "Very High (80%)",
+      "impact": "High - Launch delayed 4+ weeks, competitive disadvantage",
+      "severity": "HIGH",
+      "why_missed_in_previous_iterations": "Development plan based on 2023 knowledge, May 2024 policy change not reflected. No buffer for rejection cycles.",
+      "evidence": [
+        "May 1, 2024: Privacy manifests REQUIRED for third-party SDKs",
+        "Apps without required reason API description REJECTED after May 1, 2024",
+        "Background location requires clear Info.plist explanations (Guideline 5.1.5)",
+        "Google Play also rejects for Data Safety Section location issues"
+      ],
+      "true_mitigation": [
+        "Implement privacy manifest in Week 6-7 (not Week 9-10)",
+        "Required: Privacy manifest for ALL third-party SDKs",
+        "Required: Required reason API descriptions",
+        "Required: Info.plist for background location + Data Safety Section",
+        "Week 12: Pre-submission review with Apple/Google consultants",
+        "Add 4 weeks buffer for rejection cycles (Week 13-17, not 13-14)",
+        "Budget $3K for privacy consultant review"
+      ],
+      "blast_radius": "Time-to-market - launch delayed, first-mover advantage lost",
+      "time_to_failure": "Week 13-14 (App Store submission)",
+      "is_existential": false
+    },
+    {
+      "id": "ITER5-006",
+      "category": "Real-Time Infrastructure",
+      "title": "Supabase Realtime Peak Load Collapse",
+      "description": "Supabase disconnects if 'too many messages per second'. Peak events (Friday 6pm, major ticket sales) will exceed throughput limits, causing failures exactly when most valuable.",
+      "likelihood": "High (65%)",
+      "impact": "High - Poor UX during peak usage destroys trust",
+      "severity": "HIGH",
+      "why_missed_in_previous_iterations": "Selected Supabase for 'free tier 50K MAU', didn't load test under peak concurrent load. Assumed managed service handles scale.",
+      "evidence": [
+        "Supabase disconnects if 'generating too many messages per second'",
+        "Python client: 'keepalive ping timeout' and 'join push timeout' failures",
+        "September 2024: Production instability in Realtime Cluster",
+        "Rate limiting causes disconnections, auto-reconnect only after throughput decreases"
+      ],
+      "true_mitigation": [
+        "Message batching: Aggregate attendance updates every 30s (not real-time)",
+        "Client-side throttling: Limit to 1 WebSocket message/second per client",
+        "HTTP polling fallback if WebSocket fails",
+        "Contact Supabase for higher message throughput limits",
+        "Alternative: Pusher Channels for high-throughput scenarios",
+        "Load test: 50K concurrent WebSockets sending 10 messages/second"
+      ],
+      "blast_radius": "User experience - real-time features fail during peak demand",
+      "time_to_failure": "Any Friday 6pm or major event launch",
+      "is_existential": false
+    },
+    {
+      "id": "ITER5-007",
+      "category": "Database Performance",
+      "title": "PostgreSQL TOAST Table Query Degradation",
+      "description": "Query planner weakness with TOAST tables (complex geometries). Queries degrade from 200ms to 8s at scale. Workaround 'SET enable_seqscan TO off' indicates planner issues.",
+      "likelihood": "Medium (55%)",
+      "impact": "High - User experience severely degraded",
+      "severity": "HIGH",
+      "why_missed_in_previous_iterations": "TECH-001 focuses on indexing/connection pooling, doesn't address TOAST tables. Load testing used simple geometries (points), not complex polygons.",
+      "evidence": [
+        "PostgreSQL query optimizer weakness with TOAST tables",
+        "TOAST used for 'complex geometries with lots of vertices'",
+        "Workaround 'SET enable_seqscan TO off' indicates planner issues",
+        "Production: 4.7M records cause slowness in QGIS"
+      ],
+      "true_mitigation": [
+        "Geometry simplification: Store simplified for queries, detailed for display",
+        "TOAST configuration: Tune toast_tuple_target and toast_tuple_threshold",
+        "Query hints: Always use 'SET enable_seqscan TO off' for geospatial",
+        "Separate tables: Complex geometries in separate table, join only when needed",
+        "PostgreSQL tuning: Custom config for geospatial (not default)"
+      ],
+      "blast_radius": "Performance - map queries become unusably slow",
+      "time_to_failure": "Month 12+ with complex venue geometries",
+      "is_existential": false
+    },
+    {
+      "id": "ITER5-008",
+      "category": "Mobile Performance",
+      "title": "Android 14/iOS 17 Battery Drain Enforcement",
+      "description": "Android 14 and iOS 17 enforce STRICTER limitations on background services. 'Optimized' apps still face forced shutdowns. Battery drain is #1 location app complaint.",
+      "likelihood": "High (70%)",
+      "impact": "High - App Store rating collapse to 3 stars, download velocity crashes",
+      "severity": "HIGH",
+      "why_missed_in_previous_iterations": "NFR-009 assumes '<10% battery impact' achievable with optimization. Didn't account for 2024 OS versions being more restrictive.",
+      "evidence": [
+        "Android 14/iOS 17: Stricter limitations on background services",
+        "Apps face forced shutdowns without optimization",
+        "Beta testers commonly complain of battery drain",
+        "Continuous location tracking causes 'severe battery drain'"
+      ],
+      "true_mitigation": [
+        "Geofencing instead of continuous tracking (only on enter/exit)",
+        "Significant location changes only (iOS CLLocationManager reduced accuracy)",
+        "User toggle for 'Background tracking' with clear battery impact warning",
+        "Adaptive polling: 5-min intervals stationary, 30s when moving",
+        "Kill switch: Disable background location if battery <20%",
+        "Test on Android 14 and iOS 17+ (not older versions)",
+        "App Store description: 'Background location uses moderate battery'"
+      ],
+      "blast_radius": "Reputation - poor reviews drive away new users",
+      "time_to_failure": "Month 5-6 (post-launch with background tracking)",
+      "is_existential": false
+    },
+    {
+      "id": "ITER5-009",
+      "category": "Content Moderation",
+      "title": "Perspective API False Positive Crisis",
+      "description": "At threshold 0, Perspective API has 94.7% false positive rate. Will block legitimate events about health (cancer awareness), identity (LGBTQ+, BLM), causing reputation damage.",
+      "likelihood": "Medium (50%)",
+      "impact": "Medium - Brand toxicity, organizer exodus",
+      "severity": "MEDIUM",
+      "why_missed_in_previous_iterations": "SEC-004 assumes AI can 'auto-block >90% toxicity' accurately. Didn't test with sensitive topics common in events.",
+      "evidence": [
+        "Perspective API at threshold 0: 94.7% false positive rate (precision 0.053)",
+        "Nearly all non-uncivil instances incorrectly flagged",
+        "Sensitive topics (health, politics, identity) trigger false positives",
+        "AI is 'not infallible' - produces false positives/negatives"
+      ],
+      "true_mitigation": [
+        "Human review queue: ALL auto-blocked content reviewed within 2 hours",
+        "Allowlist: Pre-approve known organizers (verified nonprofits, government)",
+        "Appeals process: One-click 'Request review' button",
+        "Threshold adjustment: Use 0.95 (not 0.9) to reduce false positives",
+        "Context awareness: Train custom model on event-specific language",
+        "Transparency: Show organizers WHY content was flagged"
+      ],
+      "blast_radius": "Brand reputation - accused of censorship",
+      "time_to_failure": "Month 7-8 (post-moderation launch)",
+      "is_existential": false
+    },
+    {
+      "id": "ITER5-010",
+      "category": "Geographic Scaling",
+      "title": "Single-City Scaling Trap (Yik Yak Pattern)",
+      "description": "Local network effects don't transfer to new cities. Yik Yak and Lantern both succeeded locally but failed to scale. Each city requires $15K+ in partnerships, not $5K projected.",
+      "likelihood": "High (60%)",
+      "impact": "High - Stuck in single market, unable to achieve national scale",
+      "severity": "HIGH",
+      "why_missed_in_previous_iterations": "Assumed successful Austin model 'just replicates'. Underestimated per-city expansion costs and local network effects.",
+      "evidence": [
+        "Yik Yak: Massive campus success, raised $73.5M, SHUT DOWN in 2017",
+        "Lantern: Top in Massachusetts, $40M funding, ceased due to inability to expand",
+        "Local network effects don't transfer geographically",
+        "Each city requires local partnerships, content seeding, community managers"
+      ],
+      "true_mitigation": [
+        "Automated content scraping: Reduce cost from $15K to $3K per city",
+        "Remote community managers: 1 manager for 3 cities (not per-city)",
+        "Partnership playbook: Standardized tourism board outreach",
+        "Viral mechanics: Referral bonuses for new city invites",
+        "City criteria: Only expand to cities with >5K waitlist signups",
+        "Budget: Reserve $100K for Year 2 expansion (not $45K)"
+      ],
+      "blast_radius": "Growth - cannot expand beyond single market profitably",
+      "time_to_failure": "Month 12-18 (multi-city expansion phase)",
+      "is_existential": false
+    },
+    {
+      "id": "ITER5-011",
+      "category": "Data Privacy",
+      "title": "Schrems II Data Transfer Violation (Uber Pattern)",
+      "description": "GCP us-central1 processes EU user data on US servers. Matches Uber's EUR 290M fine for location data transfer violations. GDPR-003 mitigation doesn't address data residency.",
+      "likelihood": "Medium (40%)",
+      "impact": "Critical - EUR 290M+ fine potential",
+      "severity": "CRITICAL",
+      "why_missed_in_previous_iterations": "SEC-003 focuses on consent/retention/deletion, doesn't address Schrems II data transfer restrictions.",
+      "evidence": [
+        "Uber: EUR 290M fine (2024) for transferring location data to US without safeguards",
+        "Schrems II ruling: US data transfers require additional safeguards",
+        "Current plan: GCP us-central1 (US servers) for all users",
+        "Location data + behavioral analysis matches Uber AND LinkedIn violation patterns"
+      ],
+      "true_mitigation": [
+        "GCP europe-west1 for EU users (data residency)",
+        "Geo-routing: Detect user location, route to regional infrastructure",
+        "Standard Contractual Clauses (SCCs) with additional safeguards",
+        "Annual GDPR audit by external law firm",
+        "Budget $10K for GDPR legal compliance (not just $5K in plan)"
+      ],
+      "blast_radius": "Legal - EUR 290M+ fine potential, EU market shutdown",
+      "time_to_failure": "Any time after EU user acquisition",
+      "is_existential": true
+    },
+    {
+      "id": "ITER5-012",
+      "category": "Metrics & Analytics",
+      "title": "Retention Calculation Methodology Flaws",
+      "description": "Single 'Day-30 retention' metric is oversimplified. Cohort analysis doesn't reveal CAUSES of churn. Need early/middle/late breakdown and external factor analysis.",
+      "likelihood": "Medium (45%)",
+      "impact": "Medium - Blind to true retention issues, incorrect business decisions",
+      "severity": "MEDIUM",
+      "why_missed_in_previous_iterations": "SPEC success metrics use single retention number. Retention research shows this hides critical details.",
+      "evidence": [
+        "Common mistake: Grouping cohorts too broadly or not accounting for external factors",
+        "Cohort analysis does NOT point out CAUSES of fluctuations",
+        "Zooming out on retention makes it harder to see what's wrong",
+        "Must break into early, middle, late retention periods"
+      ],
+      "true_mitigation": [
+        "Multi-period retention: Day 1, 7, 14, 30, 60, 90",
+        "Cohort segmentation: By acquisition source, first action, city",
+        "External factors: Track seasonal events, competitor launches, OS updates",
+        "Retention drivers analysis: Which features correlate with retention?",
+        "Automated anomaly detection: Alert if cohort retention deviates >10%"
+      ],
+      "blast_radius": "Decision-making - incorrect conclusions about product changes",
+      "time_to_failure": "Month 6+ (when analyzing retention data)",
+      "is_existential": false
+    }
+  ],
+  "risk_summary": {
+    "total_new_risks": 12,
+    "critical_severity": 5,
+    "high_severity": 5,
+    "medium_severity": 2,
+    "existential_threats": 5,
+    "risks_with_evidence": 12,
+    "risks_with_real_world_examples": 10,
+    "average_likelihood": "68%",
+    "aggregate_failure_probability": "99.7%"
+  },
+  "comparison_to_previous_iterations": {
+    "iteration_1_market": {
+      "risks_identified": 8,
+      "critical_risks": 3,
+      "focus": "Market and user acquisition",
+      "gaps": "Assumed event discovery can achieve daily engagement (contradicts research)"
+    },
+    "iteration_2_technical": {
+      "risks_identified": 5,
+      "critical_risks": 1,
+      "focus": "Database and infrastructure",
+      "gaps": "Didn't test Meilisearch at Year 2 scale, missed TOAST table issues"
+    },
+    "iteration_3_security": {
+      "risks_identified": 5,
+      "critical_risks": 2,
+      "focus": "GDPR and payment fraud",
+      "gaps": "Didn't consider Schrems II data residency, Stripe Chargeback Protection limits"
+    },
+    "iteration_4_business": {
+      "risks_identified": 7,
+      "critical_risks": 1,
+      "focus": "Unit economics and scaling",
+      "gaps": "Assumed GCP budgets prevent runaway costs (they don't)"
+    },
+    "iteration_5_validation": {
+      "risks_identified": 12,
+      "critical_risks": 5,
+      "focus": "Fresh-eye validation of ALL assumptions",
+      "unique_contribution": "Challenged optimistic assumptions with real-world production data and case studies"
+    }
+  },
+  "key_insights": [
+    {
+      "insight": "Technological Optimism Bias",
+      "description": "Previous iterations assumed 'managed services' and 'cloud auto-scaling' solve problems. Reality: Meilisearch has hard scaling limits, Supabase has throughput limits, GCP budgets don't cap costs.",
+      "correction": "Test at 10x projected scale, design for vendor replacement from Day 1, implement hard limits."
+    },
+    {
+      "insight": "Product-Market Fit Wishful Thinking",
+      "description": "Assumed gamification can create daily habit in episodic use case (events). Research shows 90% of people look for events weekly or less. Plancast failed for exact same reason.",
+      "correction": "Accept 5-10% Day-30 retention as 'excellent' for event discovery, shift to transaction model (Eventbrite) not subscription SaaS."
+    },
+    {
+      "insight": "Compliance Knowledge Gap",
+      "description": "May 2024 App Store privacy requirements not reflected in plan. Schrems II data residency not addressed. Android 14/iOS 17 stricter enforcement underestimated.",
+      "correction": "Privacy consultant review, data residency for EU users, test on latest OS versions only."
+    },
+    {
+      "insight": "Third-Party Dependency Blind Spots",
+      "description": "Over-reliance on Stripe Radar (has limits), Perspective API (high false positives), Supabase (has throughput caps). Assumed vendor handles edge cases.",
+      "correction": "Understand vendor limitations deeply, implement fallbacks, purchase additional insurance/services."
+    },
+    {
+      "insight": "Geographic Scaling Naivete",
+      "description": "Local network effects don't transfer. Yik Yak succeeded locally, failed nationally. Each city requires local partnerships ($15K+), not just 'replicate Austin model' ($5K).",
+      "correction": "Automated content scraping, remote community management, only expand to cities with >5K waitlist."
+    }
+  ],
+  "recommended_immediate_actions": [
+    {
+      "priority": 1,
+      "action": "Load test Meilisearch with 50M documents (not 10M)",
+      "deadline": "Week 4 (before committing to architecture)",
+      "cost": "$5K",
+      "owner": "CTO"
+    },
+    {
+      "priority": 2,
+      "action": "Implement GCP hard billing limits via Cloud Functions",
+      "deadline": "Week 1 (before any infrastructure spin-up)",
+      "cost": "$2K",
+      "owner": "Backend Lead"
+    },
+    {
+      "priority": 3,
+      "action": "Revise business model: Transaction (Eventbrite) not Subscription (SaaS)",
+      "deadline": "Week 2 (before investor pitch finalized)",
+      "cost": "$0",
+      "owner": "CEO"
+    },
+    {
+      "priority": 4,
+      "action": "Privacy consultant review + May 2024 App Store compliance",
+      "deadline": "Week 6 (before security implementation)",
+      "cost": "$3K",
+      "owner": "Legal/Compliance"
+    },
+    {
+      "priority": 5,
+      "action": "Purchase $100K chargeback insurance (separate from Stripe)",
+      "deadline": "Month 7 (before ticketing launch)",
+      "cost": "$5K/year",
+      "owner": "CFO"
+    },
+    {
+      "priority": 6,
+      "action": "Implement GCP europe-west1 for EU users (Schrems II compliance)",
+      "deadline": "Week 3 (before database setup)",
+      "cost": "$0 (architecture decision)",
+      "owner": "CTO"
+    },
+    {
+      "priority": 7,
+      "action": "Test battery drain on Android 14 and iOS 17 devices ONLY",
+      "deadline": "Week 8 (during mobile development)",
+      "cost": "$1.5K (devices)",
+      "owner": "Mobile Lead"
+    },
+    {
+      "priority": 8,
+      "action": "Reserve $100K (not $45K) for Year 2 multi-city expansion",
+      "deadline": "Pre-funding (adjust raise amount)",
+      "cost": "$55K additional",
+      "owner": "CFO"
+    }
+  ],
+  "version_and_run_log": {
+    "version": "1.0.0",
+    "timestamp": "2025-10-01T23:58:00-04:00",
+    "agent": "qa-specialist@Claude-Sonnet-4",
+    "change_summary": "Fresh-eye premortem analysis discovering 12 critical blind spots",
+    "artifacts": [
+      "research-validation.json",
+      "failure-modes.md",
+      "edge-cases.md",
+      "premortem.json"
+    ],
+    "status": "OK",
+    "notes": "Iteration 5 discovered 5 existential threats missed in iterations 1-4",
+    "cost": 0.00,
+    "hash": "a9d3e7f"
+  },
+  "receipt": {
+    "status": "OK",
+    "reason_if_blocked": "--",
+    "run_id": "loop1-iteration5-premortem",
+    "inputs": [
+      "WebSearch results (12 queries)",
+      "SPEC.md",
+      "TECH-STACK-DECISION.md",
+      "RISK-REGISTER.md",
+      "DEVELOPMENT-PLAN.md",
+      "iteration1-4 premortem.json files"
+    ],
+    "tools_used": [
+      "WebSearch",
+      "researcher",
+      "qa-specialist",
+      "premortem-analysis",
+      "probability-calculation"
+    ],
+    "versions": {
+      "claude-sonnet-4": "2025-09-29",
+      "research-sources": "60+",
+      "analysis-method": "fresh-eye-validation"
+    }
+  }
+}

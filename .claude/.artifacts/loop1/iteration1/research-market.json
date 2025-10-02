@@ -1,0 +1,220 @@
+{
+  "research_metadata": {
+    "research_date": "2025-10-01",
+    "iteration": "Loop 1 - Iteration 1",
+    "focus": "Market and competitive landscape analysis",
+    "methodology": "Web search analysis of 5 key research queries"
+  },
+
+  "competitive_landscape": {
+    "market_leaders": {
+      "yelp": {
+        "category": "Local business reviews",
+        "primary_use": "Restaurants, cafes, local services",
+        "global_reviews": "N/A",
+        "strength": "Extensive local business database",
+        "weakness": "Limited event discovery, no ticketing"
+      },
+      "tripadvisor": {
+        "category": "Travel and tourism reviews",
+        "primary_use": "Hotels, flights, activities, airlines",
+        "global_reviews": "867 million reviews across 8.7 million listings",
+        "strength": "Massive travel database, worldwide coverage",
+        "weakness": "Not focused on local daily discovery"
+      },
+      "eventbrite": {
+        "category": "Event technology and ticketing",
+        "primary_use": "Workshops, concerts, conferences, festivals",
+        "user_rating": "4.7/5.0",
+        "pricing": "Free tier + Essentials + Professional (3.7% + $1.79 per paid ticket + 2.9% processing fee)",
+        "strength": "Professional ticketing, broad event types",
+        "weakness": "Minimal customization, higher fees for small events"
+      },
+      "meetup": {
+        "category": "Community and social gatherings",
+        "primary_use": "Local communities, recurring meetups",
+        "user_rating": "3.0/5.0",
+        "pricing": "Not publicly disclosed",
+        "strength": "Community focus, recurring events",
+        "weakness": "Lower user satisfaction (3.0 rating), limited professional features"
+      },
+      "google_maps": {
+        "category": "Local search and navigation",
+        "primary_use": "Business discovery, navigation",
+        "market_share": "92% of local consumer engagement (Google, Bing, Apple, Facebook combined)",
+        "strength": "20% of all local searches start here, deep Google Search integration, AI-powered discovery",
+        "weakness": "Not event-focused, limited social/community features"
+      },
+      "apple_maps": {
+        "category": "Local search and navigation (Apple ecosystem)",
+        "primary_use": "Business discovery via Siri and Apple devices",
+        "market_share": "50% of smartphone users use voice search daily (Siri integration)",
+        "strength": "Apple Business Connect, integration with calendar and Siri",
+        "weakness": "Limited to Apple ecosystem, relies on Yelp/Foursquare data"
+      }
+    },
+
+    "platform_segmentation": {
+      "reviews_focused": ["Yelp (local)", "TripAdvisor (travel)"],
+      "events_focused": ["Eventbrite (professional)", "Meetup (community)"],
+      "discovery_focused": ["Google Maps", "Apple Maps"],
+      "gap_identified": "No unified platform combining local business discovery + events + activities + community in one seamless experience"
+    }
+  },
+
+  "market_size_and_trends": {
+    "global_events_industry": {
+      "2024_market_size": "$1,406 billion USD",
+      "2034_projection": "$2,312.13 billion USD",
+      "cagr_2025_2034": "5.10% - 14.34% (varying forecasts)",
+      "growth_drivers": [
+        "Increased corporate events",
+        "Rise in field marketing and regional events",
+        "AI-driven market transformation",
+        "Demand for personalized experiences"
+      ]
+    },
+    "us_live_events_market": {
+      "2025_market_size": "$466.13 billion USD",
+      "2032_projection": "$651.53 billion USD",
+      "cagr": "4.9%"
+    },
+    "virtual_events_segment": {
+      "2024_market_size": "$98.07 billion USD",
+      "2025_projection": "$119.62 billion USD",
+      "2030_projection": "$297.16 billion USD",
+      "cagr": "20.0%"
+    },
+    "event_management_software": {
+      "2019_market_size": "$5.6 billion USD",
+      "2029_projection": "$18.4 billion USD",
+      "cagr": "12.9%"
+    },
+
+    "key_trends_2025": {
+      "event_format_distribution": {
+        "in_person": "60%",
+        "virtual": "35%",
+        "hybrid": "5%"
+      },
+      "field_marketing_rise": "75% of respondents indicate small in-person events executed regionally",
+      "budget_growth": "53.2% of organizers expect budgets to grow in 2025",
+      "corporate_event_growth": "Rising number of corporate events driving market expansion",
+      "technology_adoption": "AI integration, personalization, hybrid formats"
+    }
+  },
+
+  "local_search_ecosystem": {
+    "map_platform_dominance": {
+      "share_of_local_searches": "20% of all local searches start on map platforms",
+      "top_platforms": "Google Maps, Apple Maps, Bing Maps",
+      "consumer_engagement": "92% happens on Google, Bing, Apple, Facebook"
+    },
+    "google_maps_advantages": {
+      "integration": "Deep integration with Google Search",
+      "visibility": "Local pack placement, voice search optimization",
+      "ai_features": "Generative AI for discovery and navigation"
+    },
+    "apple_maps_advantages": {
+      "device_integration": "Siri, calendar integration on Apple devices",
+      "voice_search": "50% of smartphone users use voice search daily",
+      "business_tools": "Apple Business Connect for custom place cards"
+    }
+  },
+
+  "user_retention_benchmarks": {
+    "travel_and_lifestyle_apps": {
+      "day_1_retention": "16.5% - 20.9%",
+      "day_7_retention": "7.6%",
+      "day_30_retention": "2.8% - 4.5%",
+      "day_90_retention": "46% (2022 hospitality data)",
+      "annual_retention": "33% - 34%"
+    },
+    "context": "Low retention partly due to infrequent use patterns (e.g., hotel apps used once per year for vacation)",
+    "industry_comparison": "Travel apps have among the lowest retention rates across all app categories",
+    "implication": "Retention strategies must account for episodic usage and provide continuous value beyond single-use scenarios"
+  },
+
+  "competitive_weaknesses_identified": {
+    "yelp_tripadvisor": [
+      "No integrated event discovery or ticketing",
+      "Focus on reviews, not real-time activities",
+      "Limited social/community features"
+    ],
+    "eventbrite_meetup": [
+      "Eventbrite: High fees deter small organizers (3.7% + $1.79 + 2.9%)",
+      "Meetup: Low user satisfaction (3.0 rating), unclear pricing",
+      "Both: Minimal event page customization",
+      "Not designed for spontaneous discovery or daily use"
+    ],
+    "google_apple_maps": [
+      "Not event-centric, primarily navigation/business listings",
+      "Limited community and social engagement features",
+      "No integrated ticketing or RSVP functionality"
+    ],
+    "city_discovery_apps_general": [
+      "Information overload for users visiting new cities",
+      "Technical issues (payment failures, attachment errors)",
+      "Poor customer service and refund policies",
+      "Fragmented experience across multiple apps"
+    ]
+  },
+
+  "market_opportunities": {
+    "unified_experience": {
+      "description": "Single app combining business discovery + events + activities + community",
+      "gap": "Users currently need 3-5 apps for complete city experience",
+      "value_proposition": "One-stop platform for 'What's happening right now?'"
+    },
+    "local_first_approach": {
+      "description": "Focus on daily local discovery vs occasional travel",
+      "retention_strategy": "Daily utility drives higher engagement than trip-based apps",
+      "differentiation": "Compete on frequency of use, not depth of travel content"
+    },
+    "simplified_information_architecture": {
+      "description": "Combat information overload with curated, context-aware recommendations",
+      "user_pain_point": "Visitors to new cities feel overwhelmed by complex transport and activity options",
+      "solution": "AI-powered personalization, location-aware filtering, simple UI"
+    },
+    "free_or_low_cost_model": {
+      "description": "Undercut Eventbrite fees to attract small event organizers and community builders",
+      "competitor_weakness": "Eventbrite fees (7.4% total) are barrier for grassroots events",
+      "monetization_alternative": "Freemium with ads, premium business listings, sponsored discovery"
+    },
+    "voice_and_ai_integration": {
+      "description": "Leverage 50% daily voice search usage with conversational discovery",
+      "trend_alignment": "AI-driven personalization is major 2025 trend",
+      "user_behavior": "Siri/Google Assistant users already search for 'things to do nearby'"
+    },
+    "hybrid_and_field_events": {
+      "description": "Support 75% preference for small, regional, field-executed events",
+      "market_trend": "Shift from large conferences to distributed local experiences",
+      "platform_feature": "Tools for organizers to create and promote local micro-events"
+    }
+  },
+
+  "target_market_sizing": {
+    "tam_total_addressable_market": {
+      "global_events_industry": "$1,406 billion (2024)",
+      "us_live_events": "$466 billion (2025)",
+      "event_management_software": "$5.6 billion (2019) -> $18.4 billion (2029)"
+    },
+    "sam_serviceable_available_market": {
+      "local_events_and_discovery": "Estimated 10-15% of total events market focused on local/city-level discovery",
+      "rough_estimate": "$50-70 billion USD (US market for local event and activity discovery)"
+    },
+    "som_serviceable_obtainable_market": {
+      "initial_target": "Urban millennials and Gen Z (18-40) in top 20 US metro areas",
+      "market_penetration_goal": "0.1% of local events market in Year 1 = $50-70 million addressable"
+    }
+  },
+
+  "key_insights": {
+    "market_fragmentation": "No dominant player owns the full 'local discovery + events + activities' value chain",
+    "low_satisfaction": "Meetup (3.0 rating) and general city discovery app complaints indicate user frustration",
+    "retention_challenge": "Travel/lifestyle apps have 2.8% day-30 retention - must design for daily utility",
+    "growth_momentum": "Events industry growing 5-14% CAGR with $1+ trillion growth opportunity by 2029",
+    "technology_tailwinds": "AI, voice search, hybrid events all favor new entrants with modern tech stacks",
+    "fee_sensitivity": "Eventbrite's 7.4% total fees create opening for free or low-cost alternative"
+  }
+}

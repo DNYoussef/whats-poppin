@@ -1,0 +1,370 @@
+{
+  "research_summary": {
+    "iteration": 2,
+    "loop": 1,
+    "phase": "technical_architecture_research",
+    "timestamp": "2025-10-01T00:00:00Z",
+    "agent": "architect@sonnet-4"
+  },
+  "technology_selections": {
+    "mobile_framework": {
+      "selected": "React Native",
+      "alternatives_evaluated": ["Flutter"],
+      "decision_factors": [
+        "Superior native API integration for GPS/location services",
+        "Bridgeless architecture (v0.74+) eliminates performance bottleneck",
+        "Code sharing potential with web version",
+        "Larger ecosystem of location-specific libraries",
+        "Better mapping SDK integration (Google Maps, Mapbox)"
+      ],
+      "performance_profile": {
+        "architecture": "JavaScript Interface (JSI) without bridge",
+        "latency": "Reduced with New Architecture",
+        "native_integration": "Seamless with platform APIs",
+        "rendering": "Native components"
+      },
+      "trade_offs": {
+        "accepted": [
+          "Slightly lower animation performance vs Flutter",
+          "Less UI consistency across platforms"
+        ],
+        "mitigations": [
+          "Design system for consistency",
+          "Animation performance acceptable for directory app"
+        ]
+      },
+      "evidence_sources": [
+        "https://www.browserstack.com/guide/flutter-vs-react-native",
+        "https://www.nomtek.com/blog/flutter-vs-react-native"
+      ]
+    },
+    "database": {
+      "selected": "PostgreSQL + PostGIS",
+      "alternatives_evaluated": ["MongoDB Geospatial"],
+      "decision_factors": [
+        "Superior performance with indexes for complex spatial queries",
+        "ACID compliance critical for business listings and reviews",
+        "Comprehensive GIS toolset for future spatial analysis",
+        "Better integration with analytics and BI tools",
+        "Mature ecosystem for production deployments"
+      ],
+      "performance_profile": {
+        "spatial_queries": "Superior with proper indexing",
+        "complex_analysis": "Comprehensive GIS functions",
+        "acid_compliance": "Full transactional integrity",
+        "index_advantage": "Significant with GiST and BRIN indexes"
+      },
+      "implementation_strategy": {
+        "indexes": [
+          "GiST indexes for geospatial columns (location searches)",
+          "BRIN indexes for timestamp columns (business updates)",
+          "B-tree indexes for foreign keys and frequently filtered columns"
+        ],
+        "optimization": [
+          "Materialized views for common query patterns",
+          "Partitioning by geographic region for horizontal scaling",
+          "Connection pooling with PgBouncer",
+          "Read replicas for analytics workloads"
+        ]
+      },
+      "trade_offs": {
+        "accepted": [
+          "Slightly slower simple radius searches vs MongoDB",
+          "More rigid schema structure"
+        ],
+        "mitigations": [
+          "Proper indexing reduces radius search gap",
+          "Rigid schema benefits data integrity"
+        ]
+      },
+      "evidence_sources": [
+        "https://link.springer.com/article/10.1007/s10707-020-00407-w",
+        "https://gis.stackexchange.com/questions/9809/"
+      ]
+    },
+    "search_engine": {
+      "selected": "Meilisearch Cloud Pro",
+      "alternatives_evaluated": ["Algolia", "Elasticsearch"],
+      "decision_factors": [
+        "Predictable $300/month pricing vs usage-based Algolia",
+        "Sub-50ms performance meets real-time search requirements",
+        "Open-source provides migration flexibility",
+        "Built-in typo tolerance critical for UX",
+        "14-day trial for validation"
+      ],
+      "performance_profile": {
+        "search_latency": "<50ms",
+        "features": ["typo_tolerance", "custom_ranking", "faceting", "search_as_you_type"],
+        "deployment": "Managed cloud or self-hosted"
+      },
+      "pricing_comparison": {
+        "meilisearch": {
+          "build_plan": "$30/month",
+          "pro_plan": "$300/month",
+          "custom_plan": "Quote-based"
+        },
+        "algolia": {
+          "free_plan": "10,000 requests",
+          "search_plan": "$1.00 per 1,000 requests",
+          "premium_plan": "$1.50 per 1,000 requests + undisclosed features"
+        },
+        "elasticsearch": {
+          "open_source": "Free + infrastructure costs",
+          "elastic_cloud": "Variable based on resources"
+        }
+      },
+      "implementation_strategy": {
+        "indexed_fields": ["business_name", "category", "tags", "description", "address"],
+        "ranking_formula": "relevance_score + rating_weight + distance_weight + popularity_weight",
+        "facets": ["category", "price_range", "rating", "hours", "features"],
+        "typo_tolerance": "1 char for 1-4 chars, 2 chars for 5+ chars",
+        "update_strategy": "PostgreSQL triggers to Meilisearch API"
+      },
+      "scaling_path": [
+        "Start with Pro plan ($300/month)",
+        "Monitor query volume and P95 latency",
+        "Evaluate Custom plan at 100k+ daily searches",
+        "Consider self-hosted if costs exceed $500/month"
+      ],
+      "trade_offs": {
+        "accepted": [
+          "Less advanced features than Algolia",
+          "Smaller community than Elasticsearch"
+        ],
+        "mitigations": [
+          "Features sufficient for MVP and growth phase",
+          "Excellent documentation compensates for community size"
+        ]
+      },
+      "evidence_sources": [
+        "https://www.meilisearch.com/blog/meilisearch-vs-algolia",
+        "https://typesense.org/typesense-vs-algolia-vs-elasticsearch-vs-meilisearch/"
+      ]
+    },
+    "real_time_sync": {
+      "selected": "Supabase Realtime",
+      "alternatives_evaluated": ["Firebase", "Custom WebSocket (Socket.io)"],
+      "decision_factors": [
+        "Native PostgreSQL integration (already selected database)",
+        "Row-level security for multi-tenant access control",
+        "ACID transactions for consistent real-time updates",
+        "Self-hosting option provides vendor lock-in exit",
+        "Predictable pricing model for budget planning"
+      ],
+      "performance_profile": {
+        "protocol": "WebSocket over PostgreSQL logical replication",
+        "scaling": "Connection pooling, read replicas",
+        "features": ["RLS", "SQL_queries", "ACID_transactions"],
+        "connection_limits": "Scales with PostgreSQL configuration"
+      },
+      "use_cases": [
+        "Live business hours updates",
+        "Real-time review posting",
+        "Occupancy/wait time updates",
+        "Event start notifications",
+        "Special offer alerts"
+      ],
+      "implementation_strategy": {
+        "subscriptions": [
+          "Subscribe to businesses within location bounds",
+          "Filter by user preferences (followed businesses)",
+          "Batch updates with 5-second debounce"
+        ],
+        "fallback": [
+          "Polling if WebSocket connection fails",
+          "Store last-known state for offline resilience",
+          "Exponential backoff for reconnection"
+        ],
+        "optimization": [
+          "Subscribe only to visible viewport businesses",
+          "Unsubscribe on screen navigation",
+          "Consolidate updates to reduce message volume"
+        ]
+      },
+      "comparison": {
+        "firebase": {
+          "pros": ["Easier setup", "Built-in auth", "Offline caching"],
+          "cons": ["NoSQL database", "Cost scaling", "200k-1M connection limits"]
+        },
+        "supabase": {
+          "pros": ["PostgreSQL native", "RLS", "Self-hosting", "Predictable pricing"],
+          "cons": ["More complex than Firebase", "Requires PostgreSQL expertise"]
+        },
+        "custom_websocket": {
+          "pros": ["Maximum flexibility", "Full control"],
+          "cons": ["High complexity", "DevOps overhead", "Scaling challenges"]
+        }
+      },
+      "trade_offs": {
+        "accepted": [
+          "More complex than Firebase",
+          "Requires PostgreSQL expertise"
+        ],
+        "mitigations": [
+          "Complexity offset by SQL power and flexibility",
+          "PostgreSQL expertise already required for PostGIS"
+        ]
+      },
+      "evidence_sources": [
+        "https://supabase.com/alternatives/supabase-vs-firebase",
+        "https://ably.com/compare/firebase-vs-supabase"
+      ]
+    },
+    "cloud_provider": {
+      "selected": "Google Cloud Platform (GCP)",
+      "alternatives_evaluated": ["AWS", "Azure"],
+      "decision_factors": [
+        "Lowest compute costs ($9.62/month baseline vs AWS $12.16)",
+        "Most predictable pricing (0.35 changes/month vs AWS 197)",
+        "Google Maps API synergy for location services",
+        "Best committed use discounts (up to 57%)",
+        "Excellent PostgreSQL managed service (Cloud SQL)"
+      ],
+      "pricing_comparison": {
+        "compute_monthly": {
+          "gcp": {"us_east": "$9.62", "us_west": "$10.27", "uk": "$10.98"},
+          "azure": {"us_east": "$10.11", "us_west": "$12.05", "london": "$11.42"},
+          "aws": {"us_east": "$12.16", "us_west": "$14.49", "uk": "$13.71"}
+        },
+        "storage_monthly": {
+          "gcp": "$4.65 (all regions)",
+          "azure": "Cheapest across regions",
+          "aws_s3": "$5.20-$5.87"
+        },
+        "price_stability": {
+          "gcp": "0.35 changes/month",
+          "azure": "0.76 changes/month",
+          "aws": "197 changes/month"
+        },
+        "discount_programs": {
+          "gcp": "80% for Preemptible VMs, 57% committed use",
+          "aws": "90% for Spot Instances",
+          "azure": "65-69% for Arm CPUs"
+        }
+      },
+      "service_mapping": {
+        "compute": "Cloud Run (serverless) + GKE (Kubernetes)",
+        "database": "Cloud SQL for PostgreSQL with PostGIS",
+        "storage": "Cloud Storage",
+        "cdn": "Cloud CDN",
+        "load_balancing": "Global Load Balancer",
+        "monitoring": "Cloud Monitoring + Logging"
+      },
+      "cost_optimization": [
+        "Start with Cloud Run (pay-per-request, scales to zero)",
+        "Use 1-year Committed Use Discounts (57% savings)",
+        "Enable Preemptible VMs for batch jobs (80% savings)",
+        "Implement Cloud CDN to reduce origin requests",
+        "Proper caching layers (Redis/Memcached)"
+      ],
+      "estimated_monthly_costs_mvp": {
+        "cloud_run": "$50 (10k active users)",
+        "cloud_sql": "$100 (db-n1-standard-1 + 100GB storage)",
+        "cloud_storage": "$20 (100GB + egress)",
+        "meilisearch_cloud": "$300",
+        "cdn_bandwidth": "$10",
+        "monitoring_logging": "$10",
+        "total_infrastructure": "$490"
+      },
+      "trade_offs": {
+        "accepted": [
+          "Smaller market share than AWS",
+          "Fewer third-party integrations"
+        ],
+        "mitigations": [
+          "Excellent documentation and support",
+          "Sufficient integrations for project needs"
+        ]
+      },
+      "evidence_sources": [
+        "https://cast.ai/blog/cloud-pricing-comparison/",
+        "https://cloud.google.com/docs/get-started/aws-azure-gcp-service-comparison"
+      ]
+    },
+    "payment_gateway": {
+      "selected": "Stripe",
+      "alternatives_evaluated": ["Square"],
+      "decision_factors": [
+        "Superior API for marketplace/platform scenarios",
+        "Stripe Connect enables payment splitting (app fee + business)",
+        "Better subscription model support (premium listings)",
+        "Flexible payout schedules for businesses",
+        "Extensive webhook system for real-time tracking"
+      ],
+      "pricing": {
+        "stripe": "2.9% + $0.30 per transaction",
+        "square": "2.9% + $0.30 (online), lower for in-person"
+      },
+      "api_comparison": {
+        "stripe": {
+          "integrations": "700+ partner apps",
+          "customization": "Highly customizable checkout",
+          "payment_methods": "100+ methods, 135 currencies",
+          "developer_tools": ["CLI", "VS Code extension", "REST API", "webhooks"]
+        },
+        "square": {
+          "integrations": "150 marketplace apps",
+          "customization": "Easy-to-use, industry-specific",
+          "payment_methods": "Major cards, digital wallets, BNPL",
+          "developer_tools": ["API", "Sandbox", "POS integration"]
+        }
+      },
+      "implementation_strategy": {
+        "architecture": "Stripe Connect with Express accounts for businesses",
+        "platform_fee": "5-10% application fee on transactions",
+        "payout_schedule": "Immediate payouts to businesses (Stripe handles risk)",
+        "payment_methods": ["Cards", "Apple Pay", "Google Pay"],
+        "compliance": "PCI compliance handled by Stripe"
+      },
+      "use_cases": [
+        "Premium business listing subscriptions ($29-$99/month)",
+        "Featured placement purchases (one-time or recurring)",
+        "Event ticket sales (future expansion)",
+        "Delivery/order payments (if marketplace features added)",
+        "In-app advertising purchases"
+      ],
+      "trade_offs": {
+        "accepted": [
+          "Less in-person POS integration than Square",
+          "Higher complexity for simple use cases"
+        ],
+        "mitigations": [
+          "In-person POS not needed for MVP",
+          "Complexity provides future flexibility"
+        ]
+      },
+      "evidence_sources": [
+        "https://squareup.com/us/en/compare/square-vs-stripe",
+        "https://tipalti.com/resources/learn/stripe-vs-square/"
+      ]
+    }
+  },
+  "architecture_summary": {
+    "stack": {
+      "mobile_framework": "React Native",
+      "database": "PostgreSQL + PostGIS",
+      "search_engine": "Meilisearch Cloud Pro",
+      "real_time_sync": "Supabase Realtime",
+      "cloud_provider": "Google Cloud Platform",
+      "payment_gateway": "Stripe"
+    },
+    "total_monthly_cost_mvp": "$490",
+    "scalability_characteristics": [
+      "Horizontal scaling via Cloud Run and GKE",
+      "Database read replicas for analytics",
+      "Meilisearch cluster for high search traffic",
+      "Supabase connection pooling for real-time scaling",
+      "Cloud CDN for global content distribution"
+    ],
+    "integration_complexity": "Medium-High",
+    "vendor_lock_in_risk": "Low-Medium (open-source options for most components)",
+    "compliance_readiness": "High (ACID transactions, GDPR-ready, PCI via Stripe)"
+  },
+  "next_steps": [
+    "Create detailed system architecture diagrams",
+    "Build cost projections at 10k, 100k, 1M users",
+    "Set up proof-of-concept for critical technical assumptions",
+    "Establish trial accounts with vendors",
+    "Design security and authentication architecture"
+  ]
+}

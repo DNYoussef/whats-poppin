@@ -1,0 +1,613 @@
+{
+  "premortem_id": "security-premortem-20251001",
+  "project": "What's Poppin! City Directory App",
+  "iteration": 3,
+  "loop": 1,
+  "timestamp": "2025-10-01T00:00:00Z",
+  "scenario": "Imagine it's 12 months post-launch and the app has experienced a catastrophic security failure.",
+  "failure_analysis": {
+    "most_likely_failures": [
+      "Data breach exposing user location history",
+      "GDPR violation resulting in regulatory fines",
+      "Payment fraud due to inadequate fraud detection",
+      "User privacy scandal from unauthorized data sharing",
+      "API credential leak exposing system access"
+    ]
+  },
+  "identified_risks": [
+    {
+      "risk_id": "SEC-001",
+      "category": "Data Breach & Unauthorized Access",
+      "severity": "Critical",
+      "likelihood": "Medium",
+      "impact": "Catastrophic",
+      "description": "Unauthorized access to user database exposing personal information including location history, payment tokens, and contact details.",
+      "failure_scenario": "Attacker exploits weak authentication, bypasses RLS policies, or uses SQL injection to access PostgreSQL database. All user data including location history from past 30 days is exfiltrated.",
+      "potential_consequences": [
+        "GDPR fines up to 20M EUR or 4% of annual revenue",
+        "Mandatory breach notification to all users within 72 hours",
+        "App store removal for privacy violations",
+        "Class-action lawsuit from affected users",
+        "Irreparable reputational damage",
+        "Loss of user trust and mass account deletions"
+      ],
+      "root_causes": [
+        "Insufficient Row Level Security (RLS) policy testing",
+        "SQL injection vulnerability in custom queries",
+        "Weak JWT validation allowing token forgery",
+        "Inadequate access controls on admin endpoints",
+        "Unpatched database vulnerabilities"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Defense-in-depth security architecture",
+          "actions": [
+            "Implement and test comprehensive RLS policies for all tables",
+            "Use parameterized queries exclusively (no string concatenation)",
+            "JWT validation with signature verification on every request",
+            "Role-based access control (RBAC) with principle of least privilege",
+            "Regular penetration testing (quarterly minimum)",
+            "Automated vulnerability scanning in CI/CD pipeline"
+          ],
+          "priority": "Critical",
+          "timeline": "Before launch"
+        },
+        {
+          "strategy": "Encryption and data protection",
+          "actions": [
+            "AES-256-GCM encryption for sensitive data at rest",
+            "TLS 1.3 for all data in transit",
+            "End-to-end encryption for location data sync",
+            "Database-level encryption with AWS KMS key management",
+            "Regular encryption key rotation (quarterly)"
+          ],
+          "priority": "Critical",
+          "timeline": "Before launch"
+        },
+        {
+          "strategy": "Security monitoring and incident response",
+          "actions": [
+            "Real-time alerting for failed authentication (>5 attempts in 10 min)",
+            "Anomaly detection for unusual data access patterns",
+            "Comprehensive security logging with 90-day retention",
+            "Incident response plan with 72-hour notification protocol",
+            "Annual third-party security audits"
+          ],
+          "priority": "High",
+          "timeline": "Within 1 month of launch"
+        }
+      ],
+      "detection_methods": [
+        "Real-time failed authentication monitoring",
+        "Anomaly detection for bulk data queries",
+        "Database access audit logs",
+        "Intrusion detection system (IDS)",
+        "User-reported suspicious activity"
+      ],
+      "recovery_plan": {
+        "immediate_actions": [
+          "Isolate affected systems within 1 hour",
+          "Revoke all JWT tokens and force re-authentication",
+          "Patch vulnerability within 4 hours",
+          "Engage forensic security team"
+        ],
+        "user_notification": "Email all affected users within 72 hours per GDPR",
+        "regulatory_notification": "Notify supervisory authority within 72 hours",
+        "recovery_time_objective": "24 hours",
+        "recovery_point_objective": "1 hour (backup frequency)"
+      }
+    },
+    {
+      "risk_id": "SEC-002",
+      "category": "Payment Fraud & Chargebacks",
+      "severity": "High",
+      "likelihood": "Medium",
+      "impact": "Major",
+      "description": "Fraudulent payment transactions using stolen credit cards or exploiting payment flow vulnerabilities, resulting in chargebacks and financial losses.",
+      "failure_scenario": "Attackers use stolen credit cards to create premium business listings. Multiple chargebacks occur within 30 days, triggering Stripe account review and potential suspension. Financial losses from chargebacks, processing fees, and refunds exceed $50,000.",
+      "potential_consequences": [
+        "Stripe account suspension or termination",
+        "Financial losses from chargebacks (transaction amount + $15 fee)",
+        "Increased payment processing fees due to high chargeback ratio",
+        "PCI DSS compliance audit triggered",
+        "Merchant categorized as high-risk",
+        "Difficulty finding alternative payment processors"
+      ],
+      "root_causes": [
+        "Insufficient fraud detection mechanisms",
+        "No velocity checks on payment attempts",
+        "Weak card verification (no 3D Secure/SCA)",
+        "No IP geolocation or device fingerprinting",
+        "Lack of manual review for high-risk transactions"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Multi-layered fraud prevention",
+          "actions": [
+            "Enable Stripe Radar for ML-based fraud detection",
+            "Implement 3D Secure (SCA) for all EU transactions",
+            "Velocity checks: Max 5 payment attempts per user per hour",
+            "IP geolocation checks for suspicious locations",
+            "Device fingerprinting to detect multiple accounts",
+            "Manual review queue for transactions over $100"
+          ],
+          "priority": "Critical",
+          "timeline": "Before payment integration"
+        },
+        {
+          "strategy": "Payment flow security",
+          "actions": [
+            "Idempotency keys for all payment operations",
+            "Webhook signature verification for all Stripe events",
+            "Rate limiting on payment endpoints (10 per IP per hour)",
+            "CAPTCHA for high-risk payment attempts",
+            "Exponential backoff for failed payments"
+          ],
+          "priority": "High",
+          "timeline": "Before payment integration"
+        },
+        {
+          "strategy": "Chargeback management",
+          "actions": [
+            "Real-time chargeback monitoring dashboard",
+            "Dispute management process with evidence submission",
+            "Customer verification for disputed transactions",
+            "Refund policy clearly communicated",
+            "Chargeback ratio monitoring (keep below 1%)"
+          ],
+          "priority": "Medium",
+          "timeline": "Within 1 month of launch"
+        }
+      ],
+      "detection_methods": [
+        "Stripe Radar fraud scoring",
+        "Real-time chargeback notifications",
+        "Payment failure pattern analysis",
+        "Velocity anomaly detection",
+        "Customer complaint monitoring"
+      ],
+      "recovery_plan": {
+        "immediate_actions": [
+          "Suspend payment processing if chargeback ratio > 2%",
+          "Review all recent transactions for fraud patterns",
+          "Implement stricter fraud rules",
+          "Contact Stripe support for account review"
+        ],
+        "user_notification": "Email users about enhanced security measures",
+        "financial_recovery": "Work with Stripe to dispute illegitimate chargebacks",
+        "recovery_time_objective": "7 days to restore payment processing",
+        "recovery_point_objective": "No financial data loss (Stripe retains all)"
+      }
+    },
+    {
+      "risk_id": "SEC-003",
+      "category": "GDPR Violation & Regulatory Fines",
+      "severity": "Critical",
+      "likelihood": "High",
+      "impact": "Catastrophic",
+      "description": "Non-compliance with GDPR due to inadequate consent management, data retention violations, or failure to honor user rights, resulting in regulatory investigation and fines.",
+      "failure_scenario": "EU data protection authority discovers app collects location data without explicit consent, retains data beyond stated periods, and fails to provide data portability. Investigation leads to 10M EUR fine for systematic GDPR violations.",
+      "potential_consequences": [
+        "Regulatory fines up to 20M EUR or 4% of global annual turnover",
+        "Mandatory compliance audit with ongoing monitoring",
+        "Public announcement of violations (reputational damage)",
+        "App store removal in EU markets",
+        "User exodus due to privacy concerns",
+        "Difficulty raising funding due to compliance risk"
+      ],
+      "root_causes": [
+        "Consent mechanism does not meet GDPR standards",
+        "Location tracking enabled by default (not opt-in)",
+        "Pre-checked consent boxes in UI",
+        "Data retention policy not enforced (data kept indefinitely)",
+        "User rights not implemented (no data export/deletion)",
+        "No Data Protection Impact Assessment (DPIA) conducted",
+        "Breach notification process undefined"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "GDPR-compliant consent management",
+          "actions": [
+            "Implement granular consent UI with clear purpose explanations",
+            "Opt-in by default for all data collection (no pre-checked boxes)",
+            "Separate consent for location, analytics, and marketing",
+            "Consent withdrawal mechanism (max 2 taps)",
+            "Log consent timestamps and privacy policy versions",
+            "Age verification for users under 16"
+          ],
+          "priority": "Critical",
+          "timeline": "Before launch"
+        },
+        {
+          "strategy": "User rights implementation",
+          "actions": [
+            "Right to access: Export all user data in JSON format",
+            "Right to rectification: Profile editing functionality",
+            "Right to erasure: Account deletion with 30-day complete removal",
+            "Right to portability: Machine-readable data export",
+            "Right to object: Opt-out of marketing, analytics, location",
+            "Response time: Within 30 days for all requests"
+          ],
+          "priority": "Critical",
+          "timeline": "Before launch"
+        },
+        {
+          "strategy": "Data retention and minimization",
+          "actions": [
+            "Location data: 30 days maximum retention",
+            "Anonymize location data after 7 days",
+            "Delete inactive accounts after 2 years",
+            "Automated data cleanup jobs (daily)",
+            "Data minimization: Collect only necessary data",
+            "Document data retention policies in privacy policy"
+          ],
+          "priority": "High",
+          "timeline": "Before launch"
+        },
+        {
+          "strategy": "GDPR governance",
+          "actions": [
+            "Conduct Data Protection Impact Assessment (DPIA)",
+            "Maintain Records of Processing Activities (Article 30)",
+            "Data Processing Agreements with all third parties (Supabase, Stripe, AWS)",
+            "Designate EU representative if not established in EU",
+            "Breach notification process with 72-hour protocol",
+            "Annual GDPR compliance audits"
+          ],
+          "priority": "High",
+          "timeline": "Before launch"
+        }
+      ],
+      "detection_methods": [
+        "User complaints about privacy violations",
+        "Data protection authority investigation",
+        "Privacy advocate scrutiny",
+        "Internal compliance audits",
+        "Third-party privacy assessments"
+      ],
+      "recovery_plan": {
+        "immediate_actions": [
+          "Engage legal counsel specializing in GDPR",
+          "Conduct full compliance audit within 7 days",
+          "Implement missing compliance measures within 30 days",
+          "Communicate remediation plan to supervisory authority",
+          "Notify users of privacy improvements"
+        ],
+        "user_notification": "Email all users about privacy enhancements",
+        "regulatory_cooperation": "Full cooperation with data protection authority",
+        "recovery_time_objective": "90 days to achieve full compliance",
+        "financial_reserves": "Set aside legal reserves for potential fines"
+      }
+    },
+    {
+      "risk_id": "SEC-004",
+      "category": "Content Spam & Malicious Users",
+      "severity": "Medium",
+      "likelihood": "High",
+      "impact": "Moderate",
+      "description": "Platform becomes overrun with spam content, fake events, scam business listings, and malicious users exploiting moderation gaps, degrading user experience and trust.",
+      "failure_scenario": "Automated bots create thousands of fake events and business listings with malicious links. Content moderation AI has 40% false negative rate, allowing spam to proliferate. User complaints surge, app ratings drop to 2.5 stars, and legitimate users abandon platform.",
+      "potential_consequences": [
+        "App reputation severely damaged (low ratings)",
+        "User churn rate exceeds 60% per month",
+        "Apple/Google flags app for spam policy violations",
+        "Advertising revenue lost due to brand safety concerns",
+        "Manual moderation costs spiral out of control",
+        "Platform becomes unusable for legitimate users"
+      ],
+      "root_causes": [
+        "Weak account creation controls (no email verification)",
+        "No CAPTCHA on high-risk actions (post creation)",
+        "Content moderation thresholds too permissive",
+        "No rate limiting on content creation",
+        "Insufficient human moderation capacity",
+        "No user reputation system to identify bad actors"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Multi-layered content moderation",
+          "actions": [
+            "Text moderation: Perspective API with 0.75 toxicity threshold",
+            "Image moderation: AWS Rekognition with 80% confidence threshold",
+            "Auto-block high-risk content (>90% confidence)",
+            "Human review queue for medium-risk (70-90% confidence)",
+            "24-hour review SLA for flagged content",
+            "Appeal process for false positives"
+          ],
+          "priority": "High",
+          "timeline": "Before launch"
+        },
+        {
+          "strategy": "Abuse prevention mechanisms",
+          "actions": [
+            "Email verification required for account creation",
+            "CAPTCHA for high-risk actions (event/business creation)",
+            "Rate limits: Max 5 events per user per day",
+            "Phone verification for business account upgrades",
+            "Device fingerprinting to detect ban evasion",
+            "User reputation system (trust score)"
+          ],
+          "priority": "High",
+          "timeline": "Before launch"
+        },
+        {
+          "strategy": "User reporting and community moderation",
+          "actions": [
+            "Easy content reporting (1 tap)",
+            "Community moderation guidelines published",
+            "Automated account suspension for repeated violations",
+            "Transparent moderation decisions with explanations",
+            "Moderator dashboard with efficiency metrics"
+          ],
+          "priority": "Medium",
+          "timeline": "Within 1 month of launch"
+        }
+      ],
+      "detection_methods": [
+        "Content moderation AI flagging",
+        "User reports and complaints",
+        "Velocity anomalies (bulk posting)",
+        "Pattern detection (similar content)",
+        "App store review monitoring"
+      ],
+      "recovery_plan": {
+        "immediate_actions": [
+          "Tighten content moderation thresholds within 24 hours",
+          "Hire additional human moderators (contract basis)",
+          "Implement emergency rate limits on content creation",
+          "Bulk delete spam content identified by patterns",
+          "Communicate cleanup efforts to legitimate users"
+        ],
+        "user_notification": "In-app announcement about anti-spam measures",
+        "platform_cleanup": "30-day intensive moderation campaign",
+        "recovery_time_objective": "60 days to restore platform quality",
+        "cost_estimate": "$5,000-10,000 for temporary moderation team"
+      }
+    },
+    {
+      "risk_id":="SEC-005",
+      "category": "API Credential Leak & System Compromise",
+      "severity": "Critical",
+      "likelihood": "Medium",
+      "impact": "Major",
+      "description": "API keys, database credentials, or OAuth secrets are exposed in public GitHub repository, mobile app binary, or developer's laptop, allowing unauthorized system access.",
+      "failure_scenario": "Developer accidentally commits .env file with Supabase admin credentials to public GitHub repo. Automated bot discovers credentials within 10 minutes, gains full database access, and exfiltrates all user data. Incident not detected for 72 hours.",
+      "potential_consequences": [
+        "Complete database compromise (read/write access)",
+        "Financial losses from unauthorized API usage",
+        "Data exfiltration (same as SEC-001)",
+        "Service disruption from resource exhaustion",
+        "Need to rotate all credentials and re-deploy",
+        "GDPR breach notification required"
+      ],
+      "root_causes": [
+        "Hardcoded API keys in source code",
+        "Committing .env files to version control",
+        "API keys visible in mobile app binaries",
+        "No secret scanning in CI/CD pipeline",
+        "Developer laptops not encrypted",
+        "Lack of credential rotation policy"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Secure secret management",
+          "actions": [
+            "Environment variables for all secrets (never hardcode)",
+            "Add .env to .gitignore (verify before every commit)",
+            "Pre-commit hooks to scan for secrets (git-secrets)",
+            "Obfuscate API keys in mobile app binaries",
+            "Use iOS Keychain / Android Keystore for sensitive data",
+            "Secret rotation policy: Quarterly for production keys"
+          ],
+          "priority": "Critical",
+          "timeline": "Immediately"
+        },
+        {
+          "strategy": "Secret scanning and detection",
+          "actions": [
+            "GitHub secret scanning enabled on all repositories",
+            "CI/CD pipeline secret scanning with TruffleHog",
+            "Regular audits of public repositories",
+            "Automated alerts for exposed secrets",
+            "GitHub Advanced Security (if budget allows)"
+          ],
+          "priority": "High",
+          "timeline": "Before launch"
+        },
+        {
+          "strategy": "Access control and least privilege",
+          "actions": [
+            "Separate API keys for frontend vs backend",
+            "Scoped API keys with minimal permissions",
+            "Admin credentials never used in application code",
+            "Service accounts for automated processes",
+            "Regular access review (quarterly)"
+          ],
+          "priority": "High",
+          "timeline": "Before launch"
+        },
+        {
+          "strategy": "Incident response for credential leaks",
+          "actions": [
+            "Immediate credential rotation protocol (<1 hour)",
+            "Automated revocation of leaked credentials",
+            "Database access audit to identify unauthorized queries",
+            "Force re-authentication for all users",
+            "Forensic analysis of what data was accessed"
+          ],
+          "priority": "Critical",
+          "timeline": "Before launch (define protocol)"
+        }
+      ],
+      "detection_methods": [
+        "GitHub secret scanning alerts",
+        "CI/CD pipeline failures from secret detection",
+        "Unusual API usage patterns",
+        "Database access anomalies",
+        "Public disclosure on security forums"
+      ],
+      "recovery_plan": {
+        "immediate_actions": [
+          "Revoke leaked credentials within 15 minutes",
+          "Generate and deploy new credentials within 1 hour",
+          "Audit database for unauthorized access",
+          "Determine scope of data exposure",
+          "Notify affected users if data compromised (72 hours)"
+        ],
+        "user_notification": "Email if user data was accessed",
+        "regulatory_notification": "72 hours if GDPR breach",
+        "recovery_time_objective": "4 hours to restore secure operations",
+        "preventive_redeployment": "Rotate all credentials as precaution"
+      }
+    }
+  ],
+  "cross_cutting_risks": [
+    {
+      "risk_category": "Third-Party Dependency Failures",
+      "description": "Critical service providers (Supabase, Stripe, AWS, Google) experience outages, security breaches, or policy changes impacting our operations.",
+      "examples": [
+        "Supabase database outage prevents user authentication",
+        "Stripe API changes break payment integration",
+        "AWS Rekognition service limits reached during high traffic",
+        "Perspective API quota exhausted"
+      ],
+      "mitigations": [
+        "Service level agreement (SLA) monitoring",
+        "Fallback mechanisms for content moderation",
+        "Graceful degradation for non-critical features",
+        "Multi-region database replication",
+        "Regular vendor security review"
+      ]
+    },
+    {
+      "risk_category": "Mobile Platform Policy Changes",
+      "description": "Apple or Google changes app store policies regarding location tracking, payments, or data privacy, requiring emergency app updates.",
+      "examples": [
+        "iOS 18 requires explicit consent for each location request",
+        "Google Play mandates data safety disclosures not yet implemented",
+        "Apple rejects app update for privacy policy violations",
+        "In-app purchase policy changes affect payment flow"
+      ],
+      "mitigations": [
+        "Monitor platform policy announcements weekly",
+        "Participate in developer beta programs",
+        "Maintain compliance buffer (exceed minimum requirements)",
+        "Legal review of app store agreements",
+        "Emergency update process (24-hour turnaround)"
+      ]
+    },
+    {
+      "risk_category": "Insider Threats & Developer Access",
+      "description": "Malicious or negligent insider with elevated access causes data breach, service disruption, or intellectual property theft.",
+      "examples": [
+        "Disgruntled developer exports user database",
+        "Contractor inadvertently exposes admin credentials",
+        "Ex-employee retains access to production systems",
+        "Social engineering attack compromises developer account"
+      ],
+      "mitigations": [
+        "Principle of least privilege for all access",
+        "Multi-factor authentication (MFA) required for all team members",
+        "Access revocation within 1 hour of termination",
+        "Audit logs for all admin actions",
+        "Background checks for developers with production access",
+        "Code review required for all production deployments"
+      ]
+    }
+  ],
+  "risk_prioritization": {
+    "critical_priority": [
+      "SEC-001: Data Breach & Unauthorized Access",
+      "SEC-003: GDPR Violation & Regulatory Fines",
+      "SEC-005: API Credential Leak & System Compromise"
+    ],
+    "high_priority": [
+      "SEC-002: Payment Fraud & Chargebacks",
+      "SEC-004: Content Spam & Malicious Users"
+    ],
+    "medium_priority": [
+      "Third-Party Dependency Failures",
+      "Mobile Platform Policy Changes"
+    ],
+    "low_priority": [
+      "Insider Threats (mitigated by controls)"
+    ]
+  },
+  "overall_security_posture": {
+    "current_state": "Pre-implementation with comprehensive research completed",
+    "target_state": "Defense-in-depth architecture with multi-layered security controls",
+    "gap_analysis": [
+      "Authentication infrastructure not yet implemented",
+      "Content moderation pipeline not built",
+      "GDPR compliance mechanisms not deployed",
+      "Security monitoring and alerting not configured",
+      "Incident response procedures not tested"
+    ],
+    "estimated_remediation_time": "3-4 months to achieve production-ready security posture",
+    "estimated_cost": "$500-1,500 first year (excluding development labor)"
+  },
+  "success_criteria": {
+    "security_metrics": [
+      "Zero critical security vulnerabilities in production",
+      "GDPR compliance audit score >= 95%",
+      "PCI DSS SAQ A validation completed annually",
+      "Content moderation false positive rate < 10%",
+      "Security incident response time < 4 hours for P1",
+      "Zero successful data breaches in first year"
+    ],
+    "operational_metrics": [
+      "Security scanning in CI/CD pipeline (100% coverage)",
+      "Dependency vulnerabilities patched within 7 days",
+      "Quarterly penetration testing with findings remediated",
+      "Annual third-party security audit with clean report",
+      "Security training completion rate: 100% of developers"
+    ]
+  },
+  "next_steps": [
+    {
+      "action": "Implement authentication with Supabase Auth and RLS",
+      "owner": "Backend developer",
+      "timeline": "Week 1-2",
+      "dependencies": ["Supabase project setup"]
+    },
+    {
+      "action": "Integrate Stripe payment processing (SAQ A compliant)",
+      "owner": "Backend developer",
+      "timeline": "Week 2-3",
+      "dependencies": ["Stripe test account"]
+    },
+    {
+      "action": "Build content moderation pipeline",
+      "owner": "Backend developer",
+      "timeline": "Week 3-4",
+      "dependencies": ["Perspective API key", "AWS Rekognition setup"]
+    },
+    {
+      "action": "Implement GDPR consent management UI",
+      "owner": "Frontend developer",
+      "timeline": "Week 4-5",
+      "dependencies": ["Privacy policy drafted"]
+    },
+    {
+      "action": "Configure security monitoring and alerting",
+      "owner": "DevOps engineer",
+      "timeline": "Week 5-6",
+      "dependencies": ["Logging infrastructure"]
+    },
+    {
+      "action": "Conduct pre-launch security audit",
+      "owner": "Third-party security firm",
+      "timeline": "Week 10-12",
+      "dependencies": ["All features implemented"]
+    }
+  ],
+  "lessons_learned_proactively": [
+    "Security must be designed in from day one, not bolted on later",
+    "GDPR compliance is complex and requires legal review",
+    "Payment security is simplified by using Stripe (PCI DSS SAQ A)",
+    "Content moderation requires both AI and human review",
+    "Secret management is critical - one leak can compromise entire system",
+    "Third-party dependencies introduce risk requiring ongoing monitoring",
+    "Security is a continuous process, not a one-time implementation"
+  ]
+}

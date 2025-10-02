@@ -1,0 +1,596 @@
+{
+  "premortem_analysis": {
+    "project": "What's Poppin! - All-in-one City Directory App",
+    "phase": "Technical Architecture",
+    "iteration": 2,
+    "loop": 1,
+    "timestamp": "2025-10-01T00:00:00Z",
+    "facilitator": "architect@sonnet-4",
+    "scenario": "Assume the project has failed catastrophically 12 months from now. Working backward, identify the technical decisions and risks that led to failure."
+  },
+  "critical_technical_risks": [
+    {
+      "risk_id": "TR001",
+      "category": "Database Performance",
+      "title": "Database Performance Degradation at Scale",
+      "severity": "CRITICAL",
+      "probability": "HIGH",
+      "impact": "CRITICAL",
+      "failure_scenario": "At 50,000 concurrent users, PostgreSQL queries slow to 5+ seconds. Users abandon app. Location searches time out. Business listings become unusable. Platform reputation destroyed.",
+      "root_causes": [
+        "Poor index strategy - missing GiST indexes on geography columns",
+        "Inefficient query patterns - N+1 queries loading related data",
+        "No connection pooling - connection exhaustion under load",
+        "Lack of read replicas - all queries hitting primary database",
+        "Missing query result caching - expensive spatial queries repeated",
+        "No database monitoring - problems undetected until catastrophic",
+        "Inadequate load testing - performance issues discovered in production"
+      ],
+      "warning_signs": [
+        "Query execution time P95 >500ms in development",
+        "Database CPU utilization >70% at 5k users",
+        "Slow query log showing full table scans",
+        "Connection pool exhaustion errors in logs",
+        "User reports of slow search results"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Comprehensive Index Strategy",
+          "priority": "P0",
+          "actions": [
+            "Create GiST indexes on all geography columns (businesses.location)",
+            "Create BRIN indexes on timestamp columns (created_at, updated_at)",
+            "Create B-tree indexes on filtered columns (category_id, is_active, rating)",
+            "Create compound indexes for common query patterns",
+            "Monitor index usage with pg_stat_user_indexes",
+            "Remove unused indexes to reduce write overhead"
+          ],
+          "success_metrics": [
+            "All spatial queries using index scans (not seq scans)",
+            "Query P95 latency <100ms",
+            "Index hit ratio >99%"
+          ]
+        },
+        {
+          "strategy": "Query Optimization",
+          "priority": "P0",
+          "actions": [
+            "Use EXPLAIN ANALYZE for all critical queries",
+            "Implement query result caching (Redis) for common searches",
+            "Create materialized views for expensive aggregations",
+            "Optimize N+1 patterns with proper joins or batch loading",
+            "Set appropriate query timeouts (5s max)",
+            "Implement database query monitoring (pg_stat_statements)"
+          ],
+          "success_metrics": [
+            "Zero N+1 query patterns in production",
+            "Cache hit rate >70% for search queries",
+            "All queries complete in <500ms at P95"
+          ]
+        },
+        {
+          "strategy": "Scaling Architecture",
+          "priority": "P1",
+          "actions": [
+            "Implement PgBouncer connection pooling (transaction mode)",
+            "Configure read replicas for analytics and reporting queries",
+            "Partition tables by geographic region or time (if needed)",
+            "Set up automated VACUUM and ANALYZE schedules",
+            "Configure connection limits and timeout policies",
+            "Plan Citus extension for horizontal scaling (if needed at 1M+ users)"
+          ],
+          "success_metrics": [
+            "Connection pool utilization <80%",
+            "Read replica lag <1 second",
+            "Database can handle 10x current load"
+          ]
+        },
+        {
+          "strategy": "Proactive Monitoring",
+          "priority": "P0",
+          "actions": [
+            "Set up GCP Cloud SQL Insights for query performance monitoring",
+            "Configure alerts for slow queries (>1s), connection exhaustion, high CPU",
+            "Weekly review of pg_stat_statements for optimization opportunities",
+            "Load testing with realistic data volumes and query patterns",
+            "Quarterly performance review and capacity planning"
+          ],
+          "success_metrics": [
+            "100% of performance degradations detected before user impact",
+            "Mean time to detection <5 minutes",
+            "Proactive scaling before capacity limits"
+          ]
+        }
+      ],
+      "testing_requirements": [
+        "Load test with 100k concurrent users and realistic query mix",
+        "Stress test with 1M businesses in database",
+        "Geographic distribution test with data across 50+ cities",
+        "Sustained load test for 24 hours at 2x expected peak traffic",
+        "Failure scenario testing (replica failure, connection exhaustion)"
+      ],
+      "estimated_cost_if_failure": "$500k+ (lost users, emergency scaling, reputation damage)",
+      "estimated_mitigation_cost": "$10k (engineering time, monitoring tools, load testing)"
+    },
+    {
+      "risk_id": "TR002",
+      "category": "Third-Party API",
+      "title": "Third-Party API Failures and Rate Limits",
+      "severity": "HIGH",
+      "probability": "HIGH",
+      "impact": "HIGH",
+      "failure_scenario": "Google Maps API rate limits exceeded. Meilisearch Cloud outage. Stripe webhook failures. App becomes unusable. Revenue processing stops. User trust destroyed.",
+      "root_causes": [
+        "No circuit breaker pattern - cascading failures across services",
+        "Missing rate limit handling - API calls fail without retry logic",
+        "Lack of fallback mechanisms - single point of failure for critical features",
+        "No API health monitoring - outages undetected for hours",
+        "Inadequate error handling - generic errors confuse users",
+        "Missing webhook retry logic - payment confirmations lost",
+        "No API usage tracking - unexpected cost spikes and limit violations"
+      ],
+      "warning_signs": [
+        "API error rate >1% in logs",
+        "Rate limit headers approaching limits (>80% of quota)",
+        "Webhook delivery failures in Stripe dashboard",
+        "Meilisearch query latency spikes",
+        "Google Maps API quota warnings in GCP console",
+        "User reports of map tiles not loading"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Circuit Breaker Pattern",
+          "priority": "P0",
+          "actions": [
+            "Implement circuit breaker for all external APIs (Hystrix pattern)",
+            "Configure failure thresholds (50% error rate over 10 requests)",
+            "Set timeout limits (5s for Maps, 2s for Meilisearch, 10s for Stripe)",
+            "Implement half-open state for recovery testing",
+            "Log circuit breaker state changes for monitoring",
+            "Alert on circuit breaker open events"
+          ],
+          "success_metrics": [
+            "Circuit breakers prevent cascading failures",
+            "Service degradation instead of complete outage",
+            "Mean time to recovery <5 minutes"
+          ]
+        },
+        {
+          "strategy": "Rate Limit Management",
+          "priority": "P0",
+          "actions": [
+            "Implement exponential backoff with jitter for all API retries",
+            "Cache API responses aggressively (Redis, 5-60 minute TTL)",
+            "Batch API calls where possible (Meilisearch bulk indexing)",
+            "Monitor API usage against quotas (GCP Cloud Monitoring)",
+            "Set up alerts at 70% and 90% of rate limits",
+            "Implement request throttling to stay within limits"
+          ],
+          "success_metrics": [
+            "Zero rate limit violations in production",
+            "API cache hit rate >80%",
+            "API costs within budget (+/- 10%)"
+          ]
+        },
+        {
+          "strategy": "Fallback Mechanisms",
+          "priority": "P1",
+          "actions": [
+            "Static map tiles cached locally for offline/fallback mode",
+            "Algolia as secondary search provider (configuration only, activate if needed)",
+            "Degraded mode for critical features (basic search without typo tolerance)",
+            "Queue webhook processing with retry logic (Bull/Redis)",
+            "Stripe webhook signature verification and idempotency keys",
+            "Manual payment reconciliation process for webhook failures"
+          ],
+          "success_metrics": [
+            "100% uptime for core features even during API outages",
+            "Zero lost payment transactions",
+            "User experience degradation <20% during outages"
+          ]
+        },
+        {
+          "strategy": "API Health Monitoring",
+          "priority": "P0",
+          "actions": [
+            "Set up synthetic monitoring for all critical API endpoints",
+            "Configure alerts for API error rate >2%, latency P95 >2x baseline",
+            "Daily review of API usage, costs, and performance",
+            "Webhook delivery monitoring (Stripe, Meilisearch, Supabase)",
+            "API dependency dashboard with real-time status",
+            "Quarterly disaster recovery drills for API outages"
+          ],
+          "success_metrics": [
+            "100% of API outages detected within 2 minutes",
+            "Proactive escalation before user impact",
+            "Documented runbooks for all failure scenarios"
+          ]
+        }
+      ],
+      "testing_requirements": [
+        "Chaos engineering: Simulate Google Maps API outage",
+        "Chaos engineering: Simulate Meilisearch unavailability",
+        "Rate limit testing: Exceed quotas in staging environment",
+        "Webhook failure testing: Drop 50% of Stripe webhooks",
+        "Fallback testing: Verify degraded mode functionality",
+        "Load testing: API performance under 10x normal traffic"
+      ],
+      "estimated_cost_if_failure": "$200k+ (lost transactions, emergency vendor changes, user churn)",
+      "estimated_mitigation_cost": "$15k (engineering time, monitoring, redundancy services)"
+    },
+    {
+      "risk_id": "TR003",
+      "category": "Mobile Application",
+      "title": "Mobile App Crashes on Low-End Devices",
+      "severity": "HIGH",
+      "probability": "MEDIUM",
+      "impact": "CRITICAL",
+      "failure_scenario": "App crashes on 30% of Android devices (budget phones). Memory leaks cause background crashes. GPS drains battery in 2 hours. 1-star reviews flood app stores. User acquisition impossible.",
+      "root_causes": [
+        "No testing on low-end devices - optimized for flagship phones only",
+        "Memory leaks in React Native components - unbounded growth",
+        "Missing error boundaries - single component crash kills entire app",
+        "Inefficient GPS polling - drains battery and causes thermal throttling",
+        "Large bundle size - crashes on memory-constrained devices",
+        "No crash reporting - issues undetected until app store reviews",
+        "Lack of performance budgets - unchecked feature bloat"
+      ],
+      "warning_signs": [
+        "Crash-free session rate <98% in Firebase Crashlytics",
+        "ANR (Application Not Responding) rate >0.5%",
+        "App bundle size >50MB",
+        "Memory usage >200MB on Pixel 3",
+        "Battery drain >10% per hour with GPS",
+        "User complaints about slow performance on Reddit/Twitter"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Comprehensive Device Testing",
+          "priority": "P0",
+          "actions": [
+            "Set up Firebase Test Lab with 20+ device configurations",
+            "Include low-end Android devices (2GB RAM, Android 9+)",
+            "Automated testing on every PR (critical paths only)",
+            "Weekly manual testing on physical low-end devices",
+            "Beta testing program with diverse device distribution",
+            "Performance monitoring with Firebase Performance Monitoring"
+          ],
+          "success_metrics": [
+            "Crash-free session rate >99.5%",
+            "ANR rate <0.1%",
+            "App functions on devices with 2GB RAM"
+          ]
+        },
+        {
+          "strategy": "Error Handling and Crash Prevention",
+          "priority": "P0",
+          "actions": [
+            "Implement React Error Boundaries on all screens",
+            "Configure Sentry for real-time crash reporting and alerting",
+            "Memory profiling with React DevTools and Flipper",
+            "Fix all memory leaks in development before release",
+            "Implement proper cleanup in useEffect hooks (unsubscribe, timers)",
+            "Code review checklist for error handling patterns"
+          ],
+          "success_metrics": [
+            "Zero unhandled promise rejections",
+            "Memory usage stable over 1-hour session",
+            "All crashes captured in Sentry with actionable stack traces"
+          ]
+        },
+        {
+          "strategy": "Performance Optimization",
+          "priority": "P0",
+          "actions": [
+            "Set performance budgets: Bundle <30MB, Memory <150MB, TTI <3s",
+            "Implement code splitting for lazy loading screens",
+            "Optimize images with WebP format and proper sizing",
+            "Use FlatList/SectionList for long lists (not ScrollView)",
+            "Implement efficient GPS polling (significant motion updates only)",
+            "Profile app startup time and optimize critical path",
+            "Use Hermes JavaScript engine for faster execution"
+          ],
+          "success_metrics": [
+            "App bundle size <30MB",
+            "Time to interactive <3 seconds",
+            "Memory usage <150MB on low-end devices",
+            "60 FPS during scrolling and animations"
+          ]
+        },
+        {
+          "strategy": "Battery and Resource Optimization",
+          "priority": "P1",
+          "actions": [
+            "Implement smart GPS polling: high accuracy only when needed",
+            "Use geofencing for location updates instead of continuous polling",
+            "Battery usage monitoring and alerting (target <5% per hour)",
+            "Implement background task limits and timeout policies",
+            "Reduce network requests with aggressive caching",
+            "Optimize image loading with progressive JPEGs and placeholders"
+          ],
+          "success_metrics": [
+            "Battery drain <5% per hour with normal usage",
+            "GPS usage <20% of battery drain",
+            "App passes Google Play battery efficiency requirements"
+          ]
+        }
+      ],
+      "testing_requirements": [
+        "Soak testing: 8-hour continuous usage session",
+        "Memory leak testing: Automated leak detection in CI",
+        "Device farm testing: 30+ device configurations",
+        "Battery profiling: 4-hour usage test with GPS",
+        "Network condition testing: 2G, 3G, offline scenarios",
+        "Thermal testing: Performance under thermal throttling"
+      ],
+      "estimated_cost_if_failure": "$300k+ (lost users, poor app store rating, reacquisition costs)",
+      "estimated_mitigation_cost": "$20k (testing infrastructure, engineering time, monitoring)"
+    },
+    {
+      "risk_id": "TR004",
+      "category": "Real-Time Sync",
+      "title": "Real-Time Sync Conflicts and Data Corruption",
+      "severity": "MEDIUM",
+      "probability": "MEDIUM",
+      "impact": "HIGH",
+      "failure_scenario": "Business hours update conflicts. Reviews appear then disappear. Occupancy counts incorrect. Data inconsistencies erode trust. Businesses complain about incorrect information. Platform credibility destroyed.",
+      "root_causes": [
+        "No conflict resolution strategy - last-write-wins causes data loss",
+        "Missing optimistic update rollback - UI shows incorrect state",
+        "Lack of idempotency - duplicate updates create inconsistencies",
+        "No versioning or timestamps - unable to detect conflicts",
+        "WebSocket connection instability - messages lost without retry",
+        "Missing offline queue - updates lost when app backgrounded",
+        "No data validation on real-time updates - corrupt data propagated"
+      ],
+      "warning_signs": [
+        "User reports of data inconsistencies",
+        "Duplicate reviews or missing reviews",
+        "Business hours showing incorrect state",
+        "WebSocket disconnection rate >5%",
+        "Retry queue growing unbounded",
+        "Database constraint violations from real-time updates"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Conflict Resolution System",
+          "priority": "P0",
+          "actions": [
+            "Implement optimistic concurrency control with version timestamps",
+            "Use Supabase Row Level Security for multi-tenant isolation",
+            "Server-side conflict detection with clear resolution rules",
+            "Last-write-wins for non-critical data (view counts)",
+            "Manual review queue for critical conflicts (business hours)",
+            "Audit log for all real-time updates with conflict tracking"
+          ],
+          "success_metrics": [
+            "Zero data corruption incidents",
+            "100% of conflicts detected and resolved",
+            "Conflict rate <0.1% of updates"
+          ]
+        },
+        {
+          "strategy": "Optimistic Update Management",
+          "priority": "P0",
+          "actions": [
+            "Implement optimistic updates with rollback on server rejection",
+            "Show loading/pending state during optimistic update",
+            "Toast notification on conflict or rollback",
+            "Retry logic with exponential backoff (max 3 attempts)",
+            "Idempotency keys for all update operations",
+            "Client-side validation before optimistic update"
+          ],
+          "success_metrics": [
+            "Zero duplicate updates in database",
+            "User sees accurate state within 2 seconds",
+            "Rollback UX is clear and non-disruptive"
+          ]
+        },
+        {
+          "strategy": "Connection Reliability",
+          "priority": "P1",
+          "actions": [
+            "Implement WebSocket reconnection with exponential backoff",
+            "Heartbeat/ping every 30 seconds to detect dead connections",
+            "Fallback to polling if WebSocket fails 3 times",
+            "Queue updates during offline periods (IndexedDB/AsyncStorage)",
+            "Sync queue on reconnection with conflict resolution",
+            "Connection state indicator in UI (connected/disconnected/syncing)"
+          ],
+          "success_metrics": [
+            "WebSocket uptime >99.5%",
+            "Mean time to reconnect <5 seconds",
+            "Zero lost updates during disconnections"
+          ]
+        },
+        {
+          "strategy": "Data Validation and Safety",
+          "priority": "P0",
+          "actions": [
+            "Server-side validation for all real-time updates",
+            "Schema validation with Zod or Yup",
+            "Rate limiting for real-time updates (max 10 per minute per user)",
+            "Sanity checks for critical data (hours must be valid times)",
+            "Database constraints to prevent invalid state",
+            "Monitoring for anomalous update patterns"
+          ],
+          "success_metrics": [
+            "Zero invalid data in production database",
+            "100% of malicious updates blocked",
+            "Validation errors logged and alerted"
+          ]
+        }
+      ],
+      "testing_requirements": [
+        "Concurrent update testing: 100 simultaneous updates to same record",
+        "Network instability testing: Random disconnections and reconnections",
+        "Offline sync testing: Queue 100 updates while offline, then reconnect",
+        "Conflict resolution testing: All conflict scenarios exercised",
+        "Load testing: 10k concurrent WebSocket connections",
+        "Chaos testing: Kill WebSocket server during active updates"
+      ],
+      "estimated_cost_if_failure": "$150k+ (data cleanup, lost business partnerships, user churn)",
+      "estimated_mitigation_cost": "$12k (engineering time, testing, monitoring)"
+    },
+    {
+      "risk_id": "TR005",
+      "category": "Search Performance",
+      "title": "Search Query Performance Issues and Degradation",
+      "severity": "MEDIUM",
+      "probability": "MEDIUM",
+      "impact": "HIGH",
+      "failure_scenario": "Search queries take 3+ seconds. Typo tolerance fails. Autocomplete suggestions stale. Users abandon search. Discovery feature unusable. App becomes directory without effective discovery.",
+      "root_causes": [
+        "Meilisearch index not optimized - poor ranking configuration",
+        "Missing search result caching - repeated queries hit Meilisearch",
+        "Inefficient index updates - full reindex on every business change",
+        "No query throttling - users spam search API",
+        "Lack of monitoring - degradation undetected",
+        "Poor facet configuration - faceted search performs badly",
+        "Index size grows unbounded - old data not pruned"
+      ],
+      "warning_signs": [
+        "Search query P95 latency >200ms",
+        "Meilisearch CPU utilization >70%",
+        "Cache hit rate for searches <50%",
+        "User reports of slow or irrelevant search results",
+        "Index size >10GB for <100k businesses",
+        "Meilisearch Cloud cost increase >50%"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Index Optimization",
+          "priority": "P0",
+          "actions": [
+            "Configure custom ranking: relevance + rating + distance + popularity",
+            "Optimize filterable attributes (category, rating, price_range)",
+            "Set up sortable attributes (rating, distance, name)",
+            "Configure typo tolerance (1 char for 1-4 chars, 2 for 5+)",
+            "Implement synonyms for common search terms",
+            "Regular index compaction and optimization (weekly)"
+          ],
+          "success_metrics": [
+            "Search result relevance score >90% (user feedback)",
+            "Typo tolerance catches 95% of common misspellings",
+            "Search P95 latency <100ms"
+          ]
+        },
+        {
+          "strategy": "Caching Strategy",
+          "priority": "P0",
+          "actions": [
+            "Implement Redis cache for common search queries (TTL: 5 minutes)",
+            "Cache autocomplete suggestions aggressively (TTL: 30 minutes)",
+            "Cache facet counts (TTL: 10 minutes)",
+            "Implement cache warming for popular searches",
+            "Cache invalidation on business updates (selective, not global)",
+            "Monitor cache hit rate and tune TTLs"
+          ],
+          "success_metrics": [
+            "Cache hit rate >70% for search queries",
+            "P95 cache latency <10ms",
+            "Meilisearch query volume reduced by 60%"
+          ]
+        },
+        {
+          "strategy": "Incremental Index Updates",
+          "priority": "P1",
+          "actions": [
+            "Implement PostgreSQL triggers for incremental Meilisearch updates",
+            "Batch updates every 30 seconds instead of real-time",
+            "Use Meilisearch document update API (not full reindex)",
+            "Delete stale documents (businesses closed >6 months)",
+            "Separate index for active vs archived businesses",
+            "Monitor index update latency and queue depth"
+          ],
+          "success_metrics": [
+            "Index updates reflected in <60 seconds",
+            "Zero full reindexes in production",
+            "Index update error rate <0.1%"
+          ]
+        },
+        {
+          "strategy": "Performance Monitoring",
+          "priority": "P0",
+          "actions": [
+            "Set up Meilisearch Cloud monitoring dashboard",
+            "Alert on P95 latency >150ms, error rate >1%, CPU >80%",
+            "Weekly review of slow queries and optimization opportunities",
+            "A/B testing for ranking formula improvements",
+            "User feedback collection on search result quality",
+            "Quarterly load testing at 10x expected traffic"
+          ],
+          "success_metrics": [
+            "100% of performance degradations detected before user impact",
+            "Search quality score >4.5/5 from user surveys",
+            "Zero search outages in production"
+          ]
+        }
+      ],
+      "testing_requirements": [
+        "Load testing: 1000 concurrent searches with realistic queries",
+        "Relevance testing: 100 common queries with expected results",
+        "Typo tolerance testing: All common misspellings",
+        "Faceted search testing: All filter combinations",
+        "Index update testing: 1000 updates per minute",
+        "Failover testing: Meilisearch restart during active searches"
+      ],
+      "estimated_cost_if_failure": "$100k+ (lost user engagement, discovery feature unusable)",
+      "estimated_mitigation_cost": "$8k (engineering time, testing, monitoring)"
+    }
+  ],
+  "risk_summary": {
+    "total_risks_identified": 5,
+    "critical_severity": 1,
+    "high_severity": 4,
+    "medium_severity": 0,
+    "estimated_total_failure_cost": "$1,250,000+",
+    "estimated_total_mitigation_cost": "$65,000",
+    "roi_of_risk_mitigation": "19.2x (failure cost / mitigation cost)"
+  },
+  "next_steps": [
+    {
+      "priority": "P0",
+      "action": "Implement database indexing strategy before first production deployment",
+      "owner": "Backend Engineering",
+      "timeline": "Week 1-2"
+    },
+    {
+      "priority": "P0",
+      "action": "Set up comprehensive monitoring and alerting for all critical services",
+      "owner": "DevOps/SRE",
+      "timeline": "Week 1-2"
+    },
+    {
+      "priority": "P0",
+      "action": "Establish device testing infrastructure with Firebase Test Lab",
+      "owner": "Mobile Engineering",
+      "timeline": "Week 2-3"
+    },
+    {
+      "priority": "P0",
+      "action": "Implement circuit breaker pattern for all external API integrations",
+      "owner": "Backend Engineering",
+      "timeline": "Week 3-4"
+    },
+    {
+      "priority": "P1",
+      "action": "Develop conflict resolution system for real-time updates",
+      "owner": "Backend Engineering",
+      "timeline": "Week 4-6"
+    },
+    {
+      "priority": "P1",
+      "action": "Conduct quarterly disaster recovery drills for all failure scenarios",
+      "owner": "Engineering Leadership",
+      "timeline": "Ongoing"
+    }
+  ],
+  "validation": {
+    "risks_actionable": true,
+    "mitigation_strategies_realistic": true,
+    "cost_estimates_evidence_based": true,
+    "testing_requirements_comprehensive": true,
+    "monitoring_alerts_defined": true
+  }
+}

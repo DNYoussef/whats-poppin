@@ -1,0 +1,872 @@
+{
+  "premortem_analysis": {
+    "project": "What's Poppin! - City Directory App",
+    "phase": "Business & Scale Research",
+    "iteration": 4,
+    "timestamp": "2025-10-01T00:00:00Z",
+    "scenario": "It is 18 months from now. What's Poppin! has failed to achieve profitability and is considering shutting down operations.",
+    "risks_identified": 15,
+    "critical_risks": 7,
+    "high_risks": 5,
+    "medium_risks": 3
+  },
+  "critical_business_risks": [
+    {
+      "id": "BR-001",
+      "category": "Unit Economics",
+      "risk": "Unsustainable infrastructure costs at scale",
+      "severity": "CRITICAL",
+      "probability": "HIGH (60%)",
+      "description": "Infrastructure costs scale faster than revenue, particularly database and CDN costs. Year 2 projections show $17,290/month infrastructure costs, but actual costs could be 50-100% higher due to inefficient scaling, unexpected traffic spikes, or poor optimization.",
+      "failure_scenario": "By Month 12, infrastructure costs reach $4,000/month instead of $2,786/month projected. User growth is strong (30,000 users) but costs consume 80% of revenue instead of projected 50%. Team spends all resources on cost optimization instead of product development. Cannot raise Series A due to poor unit economics.",
+      "impact": {
+        "financial": "Burn rate increases by $50,000-$100,000 annually",
+        "timeline": "Accelerates runway depletion by 6-9 months",
+        "team_morale": "Engineering team demoralized by constant firefighting",
+        "investor_confidence": "Unable to raise next funding round"
+      },
+      "warning_signs": [
+        "Monthly infrastructure costs grow >20% month-over-month",
+        "Cost per user exceeds $1.00/month consistently",
+        "Database query performance degrading despite optimization",
+        "CDN egress costs spike unexpectedly",
+        "Engineering time >30% on infrastructure vs features"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Implement aggressive cost monitoring and alerts",
+          "actions": [
+            "Set up budget alerts at 10%, 50%, 90% thresholds",
+            "Weekly cost review meetings",
+            "Cost per user dashboard (real-time)",
+            "Automated alerts for cost anomalies"
+          ],
+          "cost": "$500/month (monitoring tools)",
+          "timeline": "Month 1-2"
+        },
+        {
+          "strategy": "Pre-commit to GCP reserved instances",
+          "actions": [
+            "Commit 50% baseline capacity to 1-year reserved instances (30% savings)",
+            "Use preemptible VMs for batch processing (60-80% savings)",
+            "Implement aggressive auto-scaling down policies"
+          ],
+          "cost": "Upfront commitment required, 30% total savings",
+          "timeline": "Month 3"
+        },
+        {
+          "strategy": "Optimize database early and continuously",
+          "actions": [
+            "Implement read replicas at 5,000 users (not 10,000)",
+            "Redis caching for 80%+ cache hit rate",
+            "Query optimization sprint every quarter",
+            "Connection pooling from day 1",
+            "Archive inactive events after 90 days"
+          ],
+          "cost": "$150-$300/month (caching)",
+          "timeline": "Month 4-6"
+        },
+        {
+          "strategy": "CDN and storage optimization",
+          "actions": [
+            "Implement aggressive image compression (70-80% size reduction)",
+            "Use Cloud CDN with long cache times",
+            "Storage tiering: Hot (30 days), Warm (90 days), Cold (1 year+)",
+            "Lazy loading for images and assets"
+          ],
+          "cost": "Development time, minimal operational cost",
+          "timeline": "Month 2-3"
+        },
+        {
+          "strategy": "Plan for horizontal scaling at 50,000 users",
+          "actions": [
+            "Design geographic sharding architecture early",
+            "Test sharding with synthetic data at 20,000 users",
+            "Document migration procedures",
+            "Allocate 2 engineer-months for implementation"
+          ],
+          "cost": "$20,000 (engineering time)",
+          "timeline": "Month 9-12"
+        }
+      ],
+      "contingency_plan": {
+        "trigger": "Infrastructure costs >$3,500/month at Month 12",
+        "actions": [
+          "Immediate hiring freeze",
+          "Emergency cost audit and optimization sprint",
+          "Consider downgrading features or limiting free tier",
+          "Negotiate with GCP for startup credits or discounts",
+          "Explore migration to cheaper cloud provider"
+        ],
+        "budget_reserve": "$25,000 emergency fund"
+      },
+      "success_metrics": [
+        "Infrastructure cost per user <$0.30/month",
+        "Infrastructure costs <30% of revenue",
+        "Database response time <100ms p95",
+        "CDN cache hit rate >85%",
+        "Zero unexpected cost spikes >$500"
+      ]
+    },
+    {
+      "id": "BR-002",
+      "category": "Revenue",
+      "risk": "Poor unit economics and unsustainable burn rate",
+      "severity": "CRITICAL",
+      "probability": "MEDIUM-HIGH (55%)",
+      "description": "Conversion rates fall short of projections (1-2% vs 3-5% target), CAC increases beyond $3.00, and LTV:CAC ratio drops below 3:1. Combined with infrastructure cost overruns, monthly burn rate becomes unsustainable.",
+      "failure_scenario": "By Month 9, only 1.5% of free users convert to premium (vs 3-5% target). CAC increases to $4.50 due to competitive market. Monthly revenue at Month 12 is $20,000 instead of $40,000 projected. Monthly burn is $35,000 vs $23,000 projected. Seed funding depleted by Month 15 instead of Month 24. Cannot show traction for Series A.",
+      "impact": {
+        "financial": "Runway reduced from 24 months to 15 months",
+        "product": "Forced to cut features and slow development",
+        "team": "Unable to hire critical roles, team burnout",
+        "market_position": "Competitors gain market share"
+      },
+      "warning_signs": [
+        "Free to paid conversion <2% for 3 consecutive months",
+        "CAC trending above $3.50",
+        "LTV:CAC ratio below 5:1",
+        "Churn rate >10% monthly",
+        "MRR growth <10% month-over-month",
+        "User engagement declining (DAU/MAU dropping)"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Aggressive conversion optimization from day 1",
+          "actions": [
+            "Implement detailed funnel analytics (PostHog)",
+            "A/B test upgrade prompts and pricing pages",
+            "Optimize conversion timing (day 7 and day 30+)",
+            "In-app messaging for feature discovery",
+            "Free trial for premium tier (7 days)",
+            "Exit intent surveys for non-converters"
+          ],
+          "cost": "$100/month (analytics and A/B testing)",
+          "timeline": "Month 1-3",
+          "expected_impact": "Increase conversion by 20-40%"
+        },
+        {
+          "strategy": "Reduce CAC through organic growth",
+          "actions": [
+            "Invest heavily in ASO (App Store Optimization)",
+            "Content marketing: City guides, event discovery tips",
+            "Referral program: 1 month free for referrals",
+            "Social proof: User testimonials and reviews",
+            "Community building: Local event organizer partnerships",
+            "Target 50% organic installs by Month 6"
+          ],
+          "cost": "$2,000/month (content and community)",
+          "timeline": "Month 2-12",
+          "expected_impact": "Reduce blended CAC by 30-40%"
+        },
+        {
+          "strategy": "Increase LTV through retention",
+          "actions": [
+            "Personalized event recommendations (AI/ML)",
+            "Push notifications for relevant events",
+            "Streak rewards (7-day, 30-day active user badges)",
+            "Community features (following, social sharing)",
+            "Monthly retention cohort analysis",
+            "Churn prediction and win-back campaigns"
+          ],
+          "cost": "$5,000 (ML development)",
+          "timeline": "Month 4-8",
+          "expected_impact": "Increase retention by 15-25%, LTV by 25-40%"
+        },
+        {
+          "strategy": "Diversify revenue streams",
+          "actions": [
+            "Business listings and sponsored events",
+            "Affiliate partnerships with ticketing platforms",
+            "Data insights for tourism boards (anonymized)",
+            "White-label licensing to larger cities",
+            "Target 20% revenue from non-subscription sources by Year 2"
+          ],
+          "cost": "$10,000 (business development)",
+          "timeline": "Month 6-12",
+          "expected_impact": "20-30% additional revenue"
+        },
+        {
+          "strategy": "Optimize pricing and packaging",
+          "actions": [
+            "Conduct pricing research with user interviews",
+            "Test different price points ($3.99, $4.99, $5.99)",
+            "Experiment with annual-only vs monthly+annual",
+            "Localized pricing for international markets",
+            "Value-based pricing (events per month vs unlimited)"
+          ],
+          "cost": "$2,000 (research and testing)",
+          "timeline": "Month 3-6",
+          "expected_impact": "10-20% revenue increase"
+        }
+      ],
+      "contingency_plan": {
+        "trigger": "MRR <$15,000 at Month 9 or burn rate >$30,000/month",
+        "actions": [
+          "Pivot pricing strategy (raise premium to $5.99 or $6.99)",
+          "Introduce ads to premium tier (freemium+ model)",
+          "Cut user acquisition spend by 50%",
+          "Focus exclusively on retention and conversion",
+          "Consider acquihire or strategic acquisition",
+          "Extend runway with revenue-based financing or venture debt"
+        ],
+        "budget_reserve": "$50,000 bridge financing"
+      },
+      "success_metrics": [
+        "Free to paid conversion >3% by Month 6",
+        "CAC trending below $3.00 by Month 9",
+        "LTV:CAC ratio >25:1 sustained",
+        "Monthly churn <5%",
+        "MRR growth >15% month-over-month",
+        "DAU/MAU ratio >25%"
+      ]
+    },
+    {
+      "id": "BR-003",
+      "category": "Performance",
+      "risk": "Performance degradation under load destroys user experience",
+      "severity": "CRITICAL",
+      "probability": "MEDIUM (50%)",
+      "description": "As user base grows to 10,000+ concurrent users, database queries slow to 2-5 seconds, app becomes unusable, users churn rapidly. Poor performance during viral growth moments (local events, festival seasons) creates negative word-of-mouth.",
+      "failure_scenario": "Month 8: Local music festival drives 5,000 new users in one weekend. Database queries slow from 100ms to 3,000ms. App crashes multiple times. Users abandon app and leave 1-star reviews. App Store rating drops from 4.5 to 2.8 stars. Viral growth moment becomes existential crisis. Negative press coverage.",
+      "impact": {
+        "user_experience": "App becomes unusable, massive churn spike",
+        "reputation": "Permanent damage to brand and App Store rating",
+        "growth": "Viral growth opportunities become liabilities",
+        "revenue": "Churn spike destroys unit economics"
+      },
+      "warning_signs": [
+        "API response times >500ms p95",
+        "Database query times >200ms p95",
+        "App crash rate >2% of sessions",
+        "User complaints about slowness increasing",
+        "App Store rating trending below 4.0",
+        "Infrastructure alerts firing during peak traffic"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Implement comprehensive performance monitoring",
+          "actions": [
+            "APM tool (New Relic or Datadog) from day 1",
+            "Real User Monitoring (RUM) for mobile app",
+            "Database query performance tracking",
+            "Synthetic monitoring for critical user flows",
+            "Performance budget: <100ms p95 API, <50ms p95 DB"
+          ],
+          "cost": "$100-$300/month",
+          "timeline": "Month 1",
+          "expected_impact": "Early detection of performance issues"
+        },
+        {
+          "strategy": "Aggressive caching strategy",
+          "actions": [
+            "Redis caching for hot data (80%+ cache hit rate target)",
+            "Client-side caching for static content",
+            "CDN for all assets and images",
+            "Cache warming for predictable traffic patterns",
+            "Cache invalidation strategy for real-time data"
+          ],
+          "cost": "$150-$300/month (Redis)",
+          "timeline": "Month 2-3",
+          "expected_impact": "80-90% reduction in database load"
+        },
+        {
+          "strategy": "Database optimization and scaling",
+          "actions": [
+            "Database indexing audit every month",
+            "Query optimization with EXPLAIN ANALYZE",
+            "Read replicas for read-heavy queries",
+            "Connection pooling (PgBouncer)",
+            "Prepared statements to prevent SQL injection and improve performance"
+          ],
+          "cost": "$75-$300/month (read replicas)",
+          "timeline": "Month 3-6",
+          "expected_impact": "3-5x database throughput"
+        },
+        {
+          "strategy": "Auto-scaling and load testing",
+          "actions": [
+            "GCP auto-scaling configured for compute",
+            "Load testing before every major release",
+            "Stress testing at 2x expected peak load",
+            "Chaos engineering (simulate failures)",
+            "Gradual rollout strategy for releases"
+          ],
+          "cost": "$500 (load testing tools)",
+          "timeline": "Month 4-6",
+          "expected_impact": "Zero downtime during traffic spikes"
+        },
+        {
+          "strategy": "Graceful degradation and circuit breakers",
+          "actions": [
+            "Implement circuit breakers for external APIs",
+            "Fallback UI for degraded states",
+            "Queue non-critical operations",
+            "Rate limiting to prevent abuse",
+            "Feature flags to disable heavy features under load"
+          ],
+          "cost": "Development time only",
+          "timeline": "Month 5-7",
+          "expected_impact": "App remains usable during outages"
+        }
+      ],
+      "contingency_plan": {
+        "trigger": "Performance incident affecting >10% of users",
+        "actions": [
+          "Immediate incident response team activation",
+          "Scale up infrastructure 2x immediately",
+          "Disable non-critical features via feature flags",
+          "Emergency database optimization sprint",
+          "Public communication about incident and resolution",
+          "Post-mortem and corrective action plan within 48 hours"
+        ],
+        "budget_reserve": "$5,000 emergency scaling budget"
+      },
+      "success_metrics": [
+        "API response time <100ms p95",
+        "Database query time <50ms p95",
+        "App crash rate <0.5%",
+        "App Store rating >4.3",
+        "99.9% uptime SLA",
+        "Zero performance-related customer complaints"
+      ]
+    },
+    {
+      "id": "BR-004",
+      "category": "Vendor",
+      "risk": "Vendor lock-in with cloud provider creates cost trap",
+      "severity": "HIGH",
+      "probability": "MEDIUM-HIGH (55%)",
+      "description": "Deep integration with GCP-specific services (Cloud Functions, Pub/Sub, proprietary APIs) makes migration prohibitively expensive. GCP raises prices or changes terms. Unable to negotiate better pricing or switch to cheaper alternatives.",
+      "failure_scenario": "Month 18: GCP announces 25% price increase for database services. Migration to AWS would require 6 engineer-months and $60,000. Stuck with higher costs. Infrastructure costs increase from $17,000/month to $21,000/month. Gross margin drops from 60% to 45%. Profitability delayed by 12+ months.",
+      "impact": {
+        "financial": "Forced to accept price increases, margin compression",
+        "flexibility": "Unable to optimize costs through multi-cloud",
+        "negotiation_power": "No leverage with vendor",
+        "technical_debt": "Architecture designed for single vendor"
+      },
+      "warning_signs": [
+        "Using >5 GCP-proprietary services",
+        "Infrastructure as Code missing or incomplete",
+        "No multi-cloud abstraction layer",
+        "Migration plan not documented",
+        "Vendor pricing changes announced"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Cloud-agnostic architecture from day 1",
+          "actions": [
+            "Use open standards: PostgreSQL (not Cloud SQL proprietary features)",
+            "Avoid vendor-specific services where possible",
+            "Abstract cloud services behind interfaces",
+            "Use Kubernetes for compute (portable across clouds)",
+            "Docker containers for all services"
+          ],
+          "cost": "Additional development time (20% overhead)",
+          "timeline": "Month 1-12",
+          "expected_impact": "Migration possible in 2-4 weeks vs 6 months"
+        },
+        {
+          "strategy": "Infrastructure as Code with Terraform",
+          "actions": [
+            "All infrastructure defined in Terraform",
+            "Version control for infrastructure",
+            "Multi-cloud modules prepared (AWS, GCP)",
+            "Regular dry-run migrations to test portability",
+            "Documentation for manual migration steps"
+          ],
+          "cost": "$5,000 (engineering time)",
+          "timeline": "Month 2-4",
+          "expected_impact": "Reduce migration effort by 80%"
+        },
+        {
+          "strategy": "Annual cost comparison and negotiation",
+          "actions": [
+            "Annual cost analysis: GCP vs AWS vs Azure",
+            "Benchmark pricing against competitors",
+            "Negotiate startup credits and discounts",
+            "Prepare migration plan to use as negotiation leverage",
+            "Join cloud provider startup programs"
+          ],
+          "cost": "$1,000/year (consulting or tools)",
+          "timeline": "Every 12 months",
+          "expected_impact": "10-30% cost savings through negotiation"
+        },
+        {
+          "strategy": "Multi-cloud contingency planning",
+          "actions": [
+            "Maintain AWS account with minimal usage",
+            "Test deployments to AWS every 6 months",
+            "Document migration procedures",
+            "Identify which services can be hybrid/multi-cloud",
+            "Budget for migration ($50,000 reserve)"
+          ],
+          "cost": "$100/month (AWS standby)",
+          "timeline": "Month 6+",
+          "expected_impact": "Migration option always available"
+        }
+      ],
+      "contingency_plan": {
+        "trigger": "GCP price increase >15% or unfavorable terms change",
+        "actions": [
+          "Immediate cost-benefit analysis of migration",
+          "Negotiate aggressively using migration threat",
+          "Prepare phased migration plan (3-6 months)",
+          "Start migrating non-critical services first",
+          "Parallel run for 1 month before full cutover",
+          "Allocate $50,000 migration budget"
+        ],
+        "budget_reserve": "$50,000 migration fund"
+      },
+      "success_metrics": [
+        "100% infrastructure defined in Terraform",
+        "Migration dry-run successful every 6 months",
+        "Zero proprietary cloud services used",
+        "Cost comparison completed annually",
+        "Negotiated discounts >10% below list price"
+      ]
+    },
+    {
+      "id": "BR-005",
+      "category": "Analytics",
+      "risk": "Lack of actionable analytics prevents optimization",
+      "severity": "HIGH",
+      "probability": "MEDIUM (45%)",
+      "description": "PostHog implementation incomplete or poorly configured. Cannot track critical user behaviors, conversion funnels, or churn triggers. Making product and marketing decisions blind. Burning money on ineffective user acquisition channels.",
+      "failure_scenario": "Month 6: Spending $5,000/month on user acquisition but cannot determine which channels drive conversions. Conversion rate stagnant at 1.8%. Cannot identify why users churn. Product team builds features based on intuition instead of data. Burned $30,000 on ineffective marketing by Month 12.",
+      "impact": {
+        "product_development": "Building wrong features, wasting engineering time",
+        "marketing_efficiency": "Spending on wrong channels, high CAC",
+        "optimization": "Cannot improve conversion or retention",
+        "decision_making": "Decisions based on anecdotes not data"
+      },
+      "warning_signs": [
+        "Product decisions made without data backing",
+        "Cannot answer basic questions (which features drive retention?)",
+        "Marketing attribution unclear",
+        "No conversion funnel analysis",
+        "Churn reasons unknown",
+        "Analytics implementation incomplete"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Comprehensive analytics implementation plan",
+          "actions": [
+            "Define critical events and properties (Day 1)",
+            "Implement PostHog SDK across all platforms",
+            "Track key user actions: signup, event view, search, share",
+            "Implement conversion funnels: signup -> first event -> 7 days active -> paid",
+            "Set up cohort analysis for retention tracking",
+            "Weekly data quality audit"
+          ],
+          "cost": "$2,000 (implementation time)",
+          "timeline": "Month 1-2",
+          "expected_impact": "100% visibility into user behavior"
+        },
+        {
+          "strategy": "Data-driven decision framework",
+          "actions": [
+            "Define North Star Metric (Weekly Active Users or MRR)",
+            "Weekly metrics review meeting",
+            "Mandatory data backing for product decisions",
+            "A/B testing framework for features and pricing",
+            "Automated weekly reports for key stakeholders"
+          ],
+          "cost": "$500 (dashboard tools)",
+          "timeline": "Month 2-3",
+          "expected_impact": "Decisions based on data not intuition"
+        },
+        {
+          "strategy": "Marketing attribution and channel optimization",
+          "actions": [
+            "UTM parameter strategy for all marketing",
+            "Channel attribution tracking (first touch, last touch, multi-touch)",
+            "ROI analysis by channel (weekly)",
+            "Pause ineffective channels (ROI <2:1)",
+            "Double down on high-performing channels"
+          ],
+          "cost": "$100/month (attribution tools)",
+          "timeline": "Month 3-6",
+          "expected_impact": "30-50% improvement in marketing efficiency"
+        },
+        {
+          "strategy": "User research and qualitative data",
+          "actions": [
+            "Monthly user interviews (10-15 users)",
+            "In-app surveys for churn and satisfaction",
+            "Support ticket analysis for pain points",
+            "Session replay analysis (PostHog)",
+            "Combine quantitative and qualitative insights"
+          ],
+          "cost": "$500/month (incentives)",
+          "timeline": "Month 4+",
+          "expected_impact": "Uncover insights analytics cannot show"
+        }
+      ],
+      "contingency_plan": {
+        "trigger": "Cannot answer critical business questions after Month 3",
+        "actions": [
+          "Emergency analytics audit",
+          "Bring in analytics consultant ($5,000)",
+          "Rebuild tracking implementation",
+          "Pause marketing spend until attribution clear",
+          "Hire data analyst if budget allows"
+        ],
+        "budget_reserve": "$10,000 analytics consulting"
+      },
+      "success_metrics": [
+        "100% of critical events tracked",
+        "Conversion funnel completion rate measurable",
+        "Churn reasons identified for >80% of churned users",
+        "Marketing ROI by channel calculated weekly",
+        "Product decisions backed by data >90% of time",
+        "A/B tests running continuously"
+      ]
+    },
+    {
+      "id": "BR-006",
+      "category": "Competition",
+      "risk": "Well-funded competitor enters market and outspends on acquisition",
+      "severity": "HIGH",
+      "probability": "MEDIUM (40%)",
+      "description": "Established player (Yelp, Google, Facebook Events) or well-funded startup launches similar product and spends $500,000+ on user acquisition. Drives up CAC, makes growth prohibitively expensive. Cannot compete on marketing spend.",
+      "failure_scenario": "Month 9: TikTok launches local events feature with massive marketing budget. Drives CAC from $3.00 to $6.00 overnight. Cannot afford to acquire users. Organic growth slows. Users flock to TikTok's free, network-effects-driven product. Market share erodes. Forced to pivot or shut down.",
+      "impact": {
+        "user_acquisition": "CAC becomes unsustainable",
+        "market_share": "Lose users to better-funded competitor",
+        "differentiation": "Struggle to articulate unique value",
+        "morale": "Team demoralized by competitive threat"
+      },
+      "warning_signs": [
+        "Major competitor announcement in space",
+        "CAC increasing without explanation",
+        "User growth slowing",
+        "Competitor raising large funding round",
+        "Market chatter about competitive threat"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Build defensible differentiation early",
+          "actions": [
+            "Focus on hyper-local, community-driven content",
+            "Partner with local event organizers and venues",
+            "Build network effects (social features, following)",
+            "Personalization and recommendations (AI/ML)",
+            "Unique value: authenticity vs algorithmic feeds"
+          ],
+          "cost": "$10,000 (partnerships and community)",
+          "timeline": "Month 3-12",
+          "expected_impact": "Strong brand differentiation from competitors"
+        },
+        {
+          "strategy": "Niche down to defensible markets",
+          "actions": [
+            "Focus on 3-5 cities initially (not 50)",
+            "Become #1 in those cities before expanding",
+            "Deep integration with local culture and events",
+            "Build city-specific communities",
+            "Expand only when dominant in existing markets"
+          ],
+          "cost": "$0 (strategic focus)",
+          "timeline": "Month 1-12",
+          "expected_impact": "Defensible position in core markets"
+        },
+        {
+          "strategy": "Build sustainable organic growth flywheel",
+          "actions": [
+            "Referral program with strong incentives",
+            "User-generated content (event creation)",
+            "Social sharing and virality features",
+            "SEO for event discovery (Google search traffic)",
+            "Target 60% organic growth by Month 12"
+          ],
+          "cost": "$3,000 (development and incentives)",
+          "timeline": "Month 4-12",
+          "expected_impact": "Reduced dependence on paid acquisition"
+        },
+        {
+          "strategy": "Build moat through data and community",
+          "actions": [
+            "Proprietary event database (hard to replicate)",
+            "Local expert contributors and curators",
+            "Community moderation and trust systems",
+            "Event history and recommendations unique to platform",
+            "User investment in platform (saved events, preferences)"
+          ],
+          "cost": "$5,000 (community building)",
+          "timeline": "Month 6-18",
+          "expected_impact": "High switching costs for users"
+        }
+      ],
+      "contingency_plan": {
+        "trigger": "Major competitor launches or CAC doubles",
+        "actions": [
+          "Immediately niche down to most defensible markets",
+          "Cut paid acquisition by 50%, focus on retention",
+          "Accelerate differentiation features",
+          "Seek strategic partnerships or acquisition",
+          "Consider white-label pivot to B2B"
+        ],
+        "budget_reserve": "$20,000 pivot fund"
+      },
+      "success_metrics": [
+        "Net Promoter Score (NPS) >50",
+        "Organic growth >50% of new users",
+        "User retention >2x industry average",
+        "Strong brand recognition in core markets",
+        "Defensible differentiation validated by users"
+      ]
+    },
+    {
+      "id": "BR-007",
+      "category": "Product-Market Fit",
+      "risk": "Product-market fit never achieved, users don't find value",
+      "severity": "CRITICAL",
+      "probability": "MEDIUM (45%)",
+      "description": "Despite good execution, users don't find sufficient value in What's Poppin!. Retention remains low (<5% at Day 30), engagement minimal, word-of-mouth weak. App becomes 'nice to have' not 'must have'. Cannot achieve sustainable growth.",
+      "failure_scenario": "Month 12: After 12 months of development, Day 30 retention stuck at 4%. Users download app, browse once or twice, then never return. Survey shows users say 'it's fine but I don't need it.' Word-of-mouth non-existent. Growth plateaus at 5,000 users. Cannot raise Series A due to weak engagement metrics.",
+      "impact": {
+        "growth": "Cannot achieve exponential growth",
+        "retention": "High churn, poor LTV",
+        "fundraising": "Unable to raise next round",
+        "team": "Demoralization, questioning vision"
+      },
+      "warning_signs": [
+        "Day 30 retention <8%",
+        "DAU/MAU ratio <15%",
+        "Low session frequency (<1 session/week)",
+        "Weak word-of-mouth (K-factor <0.2)",
+        "Users cannot articulate core value prop",
+        "Feature usage scattered, no clear winner"
+      ],
+      "mitigation_strategies": [
+        {
+          "strategy": "Intensive customer development before and during launch",
+          "actions": [
+            "100 customer interviews before MVP launch",
+            "Identify and validate core use cases",
+            "Understand jobs-to-be-done framework",
+            "Test value proposition with target users",
+            "Iterate on core features based on feedback"
+          ],
+          "cost": "$5,000 (incentives and tools)",
+          "timeline": "Month 1-3 (pre-launch)",
+          "expected_impact": "High confidence in PMF before launch"
+        },
+        {
+          "strategy": "Rapid iteration and experimentation",
+          "actions": [
+            "Ship new features weekly (not monthly)",
+            "A/B test every major feature",
+            "Measure impact on retention and engagement",
+            "Kill features that don't move metrics",
+            "Double down on high-engagement features"
+          ],
+          "cost": "Development velocity focus",
+          "timeline": "Month 1-12",
+          "expected_impact": "Find PMF through experimentation"
+        },
+        {
+          "strategy": "Focus on retention before acquisition",
+          "actions": [
+            "Achieve >10% Day 30 retention before scaling marketing",
+            "Weekly cohort retention analysis",
+            "Identify and fix retention blockers",
+            "Onboarding optimization (aha moment in first session)",
+            "Habit formation features (notifications, streaks)"
+          ],
+          "cost": "$2,000 (onboarding optimization)",
+          "timeline": "Month 2-6",
+          "expected_impact": "Sustainable retention metrics"
+        },
+        {
+          "strategy": "Niche down if broad market doesn't work",
+          "actions": [
+            "Identify highest-engagement user segment",
+            "Build specifically for that segment",
+            "Become 10x solution for niche vs 2x for everyone",
+            "Expand from beachhead market once dominant",
+            "Examples: Students, tourists, nightlife enthusiasts"
+          ],
+          "cost": "$0 (strategic focus)",
+          "timeline": "Month 6-9 (if needed)",
+          "expected_impact": "Strong PMF in niche enables expansion"
+        }
+      ],
+      "contingency_plan": {
+        "trigger": "Day 30 retention <6% after Month 6",
+        "actions": [
+          "Pause all marketing spend immediately",
+          "30-day intensive user research sprint",
+          "Identify if pivot needed or feature gaps",
+          "Consider pivoting to B2B (white-label for venues)",
+          "If no path forward, consider acquihire or shutdown"
+        ],
+        "budget_reserve": "$15,000 pivot fund"
+      },
+      "success_metrics": [
+        "Day 30 retention >12%",
+        "DAU/MAU ratio >25%",
+        "Session frequency >3 sessions/week",
+        "K-factor >0.4",
+        "Users can articulate value prop clearly",
+        "Core feature usage >70% of users"
+      ]
+    }
+  ],
+  "high_priority_risks": [
+    {
+      "id": "BR-008",
+      "category": "Regulatory",
+      "risk": "Data privacy regulations create compliance burden",
+      "severity": "MEDIUM-HIGH",
+      "probability": "MEDIUM (35%)",
+      "description": "GDPR, CCPA, or new privacy regulations require expensive compliance measures. Location data handling scrutinized. Potential fines or service restrictions.",
+      "mitigation_strategies": [
+        "Privacy-first architecture from day 1",
+        "Minimize data collection to essential only",
+        "Implement GDPR compliance (consent, right to deletion)",
+        "Work with legal counsel ($5,000/year)",
+        "Use privacy-focused analytics (PostHog self-hosted option)"
+      ]
+    },
+    {
+      "id": "BR-009",
+      "category": "Seasonality",
+      "risk": "Event discovery highly seasonal, revenue volatile",
+      "severity": "MEDIUM",
+      "probability": "HIGH (70%)",
+      "description": "User engagement drops 40-60% during off-season (winter, non-festival months). Revenue volatile, difficult to plan.",
+      "mitigation_strategies": [
+        "Build year-round use cases (indoor events, winter activities)",
+        "Annual subscriptions to smooth revenue",
+        "Diversify into non-seasonal content (restaurants, attractions)",
+        "Plan for seasonal cash flow with 6-month runway"
+      ]
+    },
+    {
+      "id": "BR-010",
+      "category": "Content Moderation",
+      "risk": "Spam, fake events, inappropriate content damages trust",
+      "severity": "MEDIUM-HIGH",
+      "probability": "MEDIUM (40%)",
+      "description": "User-generated event content includes spam, scams, or inappropriate listings. Trust erodes, users abandon platform.",
+      "mitigation_strategies": [
+        "Automated content moderation (ML-based)",
+        "User reporting and flagging system",
+        "Manual review for high-visibility events",
+        "Verified event creator badges",
+        "Community moderation incentives"
+      ]
+    },
+    {
+      "id": "BR-011",
+      "category": "Team",
+      "risk": "Key team member departure disrupts operations",
+      "severity": "MEDIUM-HIGH",
+      "probability": "MEDIUM (35%)",
+      "description": "Co-founder or key engineer leaves due to burnout, better offer, or disagreement. Massive disruption to product development and operations.",
+      "mitigation_strategies": [
+        "Proper equity vesting (4 years with 1-year cliff)",
+        "Document all critical systems and processes",
+        "Cross-training and knowledge sharing",
+        "Maintain healthy work-life balance",
+        "Regular team feedback and morale checks"
+      ]
+    },
+    {
+      "id": "BR-012",
+      "category": "Fundraising",
+      "risk": "Unable to raise Series A, run out of runway",
+      "severity": "CRITICAL",
+      "probability": "MEDIUM (40%)",
+      "description": "Market conditions poor, metrics not strong enough for Series A. Seed funding runs out at Month 18-24. Forced shutdown or acquihire.",
+      "mitigation_strategies": [
+        "Achieve profitability or break-even by Month 24",
+        "Maintain 6-12 months runway at all times",
+        "Build relationships with VCs early (Month 12+)",
+        "Hit Series A milestones: $100K ARR, >10% retention, strong growth",
+        "Consider revenue-based financing or venture debt as bridge"
+      ]
+    }
+  ],
+  "medium_priority_risks": [
+    {
+      "id": "BR-013",
+      "category": "Operations",
+      "risk": "Manual operations don't scale, operational burden increases",
+      "severity": "MEDIUM",
+      "probability": "MEDIUM-HIGH (50%)",
+      "mitigation_strategies": [
+        "Automate everything from day 1",
+        "Build admin tools and dashboards",
+        "Self-service features for users",
+        "Hire operations person at 50,000 users"
+      ]
+    },
+    {
+      "id": "BR-014",
+      "category": "Security",
+      "risk": "Security breach exposes user data, destroys trust",
+      "severity": "HIGH",
+      "probability": "LOW (15%)",
+      "mitigation_strategies": [
+        "Security audit before launch",
+        "Encryption at rest and in transit",
+        "Regular security scanning",
+        "Incident response plan",
+        "Cyber insurance"
+      ]
+    },
+    {
+      "id": "BR-015",
+      "category": "Market Timing",
+      "risk": "Market not ready for product, too early or too late",
+      "severity": "MEDIUM",
+      "probability": "LOW-MEDIUM (25%)",
+      "mitigation_strategies": [
+        "Validate market timing with customer interviews",
+        "Monitor competitor traction",
+        "Start small, expand if validated",
+        "Be prepared to pivot if timing wrong"
+      ]
+    }
+  ],
+  "overall_risk_assessment": {
+    "total_risks": 15,
+    "critical_severity": 7,
+    "high_severity": 5,
+    "medium_severity": 3,
+    "overall_probability_of_failure": "35-45%",
+    "primary_risk_categories": [
+      "Unit Economics (unsustainable costs)",
+      "Revenue (poor conversion, high CAC)",
+      "Performance (technical execution)",
+      "Product-Market Fit (value proposition)"
+    ],
+    "mitigation_investment_required": "$75,000-$100,000 over 18 months",
+    "risk_adjusted_success_probability": "55-65% with aggressive mitigation"
+  },
+  "key_recommendations": [
+    "Implement aggressive cost monitoring and optimization from day 1",
+    "Focus on retention and product-market fit before scaling marketing",
+    "Build cloud-agnostic architecture to avoid vendor lock-in",
+    "Maintain 6-12 months runway buffer at all times",
+    "Niche down to defensible markets before broad expansion",
+    "Achieve break-even or profitability by Month 24 to reduce fundraising risk",
+    "Invest in performance monitoring and optimization early",
+    "Build sustainable organic growth channels (40-60% target)",
+    "Implement comprehensive analytics and data-driven decision making",
+    "Prepare contingency plans for top 7 critical risks"
+  ],
+  "success_indicators": [
+    "Infrastructure costs <30% of revenue",
+    "LTV:CAC ratio >25:1 sustained",
+    "Day 30 retention >12%",
+    "Organic growth >50% of new users",
+    "Break-even achieved by Month 24",
+    "Series A milestones hit (>$100K ARR, strong growth)",
+    "App Store rating >4.3 sustained",
+    "Zero critical performance or security incidents"
+  ]
+}

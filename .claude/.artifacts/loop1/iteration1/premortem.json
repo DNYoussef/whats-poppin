@@ -1,0 +1,307 @@
+{
+  "premortem_metadata": {
+    "date": "2025-10-01",
+    "iteration": "Loop 1 - Iteration 1",
+    "project": "What's Poppin! - All-in-one city directory app",
+    "methodology": "Premortem failure analysis based on market research and competitive landscape",
+    "perspective": "Assume the project failed spectacularly in 18 months - identify why"
+  },
+
+  "failure_scenario": "It is now April 2027. What's Poppin! has shut down after burning through $5M in funding. User acquisition stalled at 50K users (90% below target), day-30 retention was 4% (vs 15% goal), and only 500 events were created monthly. The app was delisted from app stores and the team disbanded.",
+
+  "identified_risks": [
+    {
+      "risk_id": "R1",
+      "category": "User Adoption",
+      "risk_name": "Cold Start Problem - No Events, No Users; No Users, No Events",
+      "description": "Classic two-sided marketplace failure. Event organizers won't post on platform with no audience. Users won't download app with no events. Chicken-and-egg problem proved insurmountable.",
+      "failure_mode": "Launched in 5 cities simultaneously but spread resources too thin. No critical mass in any single market. Event organizers tried the platform, saw zero RSVPs, and never returned.",
+      "probability": "HIGH (70%)",
+      "impact": "CRITICAL - Project death",
+      "evidence_from_research": [
+        "Travel apps have 2.8% day-30 retention - users need immediate value or they churn",
+        "Meetup has low 3.0 satisfaction rating, indicating community platforms struggle with engagement",
+        "92% of local engagement happens on established platforms (Google/Bing/Apple/Facebook)"
+      ],
+      "mitigation_strategies": [
+        "Launch in SINGLE city (Austin or Nashville) and dominate before expanding",
+        "Pre-seed platform with 500+ events via partnerships BEFORE user launch",
+        "Partner with existing event organizers (breweries, music venues, nonprofits) for guaranteed content",
+        "Scrape/aggregate public events from Eventbrite/Facebook as initial seed data",
+        "Offer $500-1000 launch bonuses to first 100 event organizers",
+        "Run 3-month beta with 1,000 hand-recruited users before public launch"
+      ],
+      "success_criteria": "1,000+ events in launch city BEFORE app store release, 10,000 waitlist signups pre-launch"
+    },
+
+    {
+      "risk_id": "R2",
+      "category": "User Retention",
+      "risk_name": "Failed to Beat Industry-Worst 2.8% Retention Rate",
+      "description": "App installed during trip planning but never opened again. Users reverted to familiar apps (Google Maps, Yelp). No daily habit formation, no push notification engagement, no reason to return.",
+      "failure_mode": "Product designed like travel app (episodic use) instead of social app (daily utility). Users came for events, found nothing interesting, and uninstalled. No gamification, no social proof, no FOMO triggers.",
+      "probability": "HIGH (65%)",
+      "impact": "CRITICAL - Acquisition costs unsustainable",
+      "evidence_from_research": [
+        "Travel apps: 18% day-1 retention, 7.6% day-7, 2.8% day-30",
+        "Hotel apps used once per vacation - no retention mechanism",
+        "Daily utility apps achieve 25-30% day-30 retention (10x travel apps)"
+      ],
+      "mitigation_strategies": [
+        "Design for DAILY local discovery, not episodic travel",
+        "Push notifications for events happening tonight (time-sensitive FOMO)",
+        "Personalized daily digest: 'Your city today' with 5 curated recommendations",
+        "Gamification: Check-in badges, 'Explorer' levels, streak rewards",
+        "Social features: See what friends are attending, share plans, create groups",
+        "Habit loops: Daily challenges ('Try 3 new restaurants this week'), rewards for engagement",
+        "In-app benefits: Exclusive deals for active users, early access to ticket sales"
+      ],
+      "success_criteria": "15% day-30 retention (5x industry), 3+ sessions per week per user, 40% weekly active users"
+    },
+
+    {
+      "risk_id": "R3",
+      "category": "Feature Bloat vs Simplicity",
+      "risk_name": "Built 'Everything App' and Delivered Nothing Well",
+      "description": "Tried to compete with Yelp + Eventbrite + Meetup + Google Maps simultaneously. Spread engineering resources across 50 features. Shipped mediocre discovery, buggy event creation, broken social features, and unreliable navigation. Users complained 'app tries to do too much but nothing works'.",
+      "failure_mode": "Built for 12-month vision in Month 1. MVP had 40 screens, 15-step onboarding, and confused value proposition. Users didn't understand what problem the app solved. TechCrunch review: 'Ambitious but half-baked'.",
+      "probability": "MEDIUM-HIGH (55%)",
+      "impact": "HIGH - Poor reviews, negative PR, failed retention",
+      "evidence_from_research": [
+        "City discovery app users complain about 'overwhelming information'",
+        "Eventbrite/Meetup offer 'minimal customization' and still succeed",
+        "Users already use 3-5 apps - asking them to switch to complex new app is huge ask"
+      ],
+      "mitigation_strategies": [
+        "Launch with ONE core feature: 'What's happening tonight?' real-time event feed",
+        "Phase 1 (Months 1-3): Event discovery only - no event creation, no social, no reviews",
+        "Phase 2 (Months 4-6): Add event creation (free tier only)",
+        "Phase 3 (Months 7-9): Add basic social (check-ins, friend activity)",
+        "Phase 4 (Months 10-12): Add reviews and business listings",
+        "RULE: Ship one feature excellently vs ten features poorly",
+        "User testing at every phase - only add next feature if satisfaction >4.5/5.0"
+      ],
+      "success_criteria": "App Store rating >4.5, primary feature (event discovery) used by >80% of users weekly"
+    },
+
+    {
+      "risk_id": "R4",
+      "category": "Marketing & Distribution",
+      "risk_name": "User Acquisition Costs Exceeded Revenue by 10x",
+      "description": "Paid ads on Facebook/Google cost $15-30 per install. Only 5% converted to premium ($10/month). CAC was $300, LTV was $30. Burned $3M on ads with negative unit economics. Viral loops failed - no one invited friends because no friends were on platform.",
+      "failure_mode": "Assumed 'build it and they will come'. No organic growth strategy. Relied on paid acquisition. Competed against Google/Facebook who have infinite ad budgets. Referral program offered generic '$5 credit' instead of compelling incentives.",
+      "probability": "MEDIUM-HIGH (60%)",
+      "impact": "CRITICAL - Ran out of runway",
+      "evidence_from_research": [
+        "92% of local engagement on 4 established platforms - huge switching costs",
+        "Travel app market dominated by incumbents with massive marketing budgets",
+        "Users already have 3-5 discovery apps - high friction to adopt new one"
+      ],
+      "mitigation_strategies": [
+        "Organic-first strategy: Partner with local influencers, bloggers, event organizers",
+        "B2B2C: Partner with venues/breweries who promote app to their audience",
+        "Content marketing: City guides, 'Best of' lists, SEO-optimized blog",
+        "Viral loops: 'Invite 3 friends to event' = free premium month",
+        "Ambassador program: Pay college students $500/month to evangelize on campus",
+        "PR strategy: Launch parties in each city with local media coverage",
+        "Community building: Host monthly 'What's Poppin!' meetups for power users",
+        "Freemium focus: Keep free tier valuable to maximize word-of-mouth"
+      ],
+      "success_criteria": "50% of users acquired organically, CAC <$10, LTV:CAC ratio >3:1, 20% referral rate"
+    },
+
+    {
+      "risk_id": "R5",
+      "category": "Competitive Response",
+      "risk_name": "Google/Eventbrite Copied Best Features in 6 Months",
+      "description": "Google added 'Events Near You' tab to Maps. Eventbrite dropped fees to 3%. Facebook Events redesigned discovery feed. Incumbents crushed startup before it reached scale. Users saw no reason to switch from familiar apps with similar features.",
+      "failure_mode": "Built copyable features (event feed, maps integration) instead of defensible moats. No network effects because no social features. No proprietary data or AI. Commoditized product with no competitive advantage.",
+      "probability": "MEDIUM (45%)",
+      "impact": "HIGH - Market window closes",
+      "evidence_from_research": [
+        "Google Maps dominates local search (20% of all local searches)",
+        "Eventbrite rated 4.7/5.0 with professional features and brand trust",
+        "Apple Maps, Yelp, TripAdvisor have massive existing user bases"
+      ],
+      "mitigation_strategies": [
+        "Build defensible moat: Strong community and social features (hard to copy)",
+        "Network effects: Value increases with more users (friends' activity, group plans)",
+        "Proprietary data: User preferences, attendance patterns, AI recommendations",
+        "Vertical focus: Dominate specific niches (music events, food/drink, outdoor activities)",
+        "Local expertise: Deep city knowledge, curated recommendations (not algorithmic)",
+        "Brand loyalty: Build cult following with exceptional UX and community",
+        "Speed: Move faster than incumbents - ship features weekly, not quarterly",
+        "Partnerships: Exclusive venue/organizer relationships lock out competitors"
+      ],
+      "success_criteria": "50% of users cite 'community' as reason for staying, 10,000 exclusive events not on competitors"
+    },
+
+    {
+      "risk_id": "R6",
+      "category": "Trust & Safety",
+      "risk_name": "Fake Events, Scams, and Safety Issues Destroyed Brand",
+      "description": "Spam events flooded platform. Fake ticket sellers scammed users. Meetup locations were unsafe. Sexual harassment at events. No moderation team. Press coverage: 'Dangerous app enables crime'. App stores threatened delisting for policy violations.",
+      "failure_mode": "Prioritized growth over safety. No event verification. No user reporting system. No background checks on organizers. First safety incident went viral on Twitter, destroying trust permanently.",
+      "probability": "MEDIUM (40%)",
+      "impact": "CRITICAL - Existential brand damage",
+      "evidence_from_research": [
+        "City Discovery users reported fraud (payment issues, cancelled tours, no refunds)",
+        "Trust issues major pain point for event/tour platforms",
+        "Meetup has low 3.0 satisfaction - community platforms struggle with quality"
+      ],
+      "mitigation_strategies": [
+        "Pre-launch: Trusted organizers only (verification required: website, social proof, ID)",
+        "Event moderation: Manual review of all events in first 6 months",
+        "User reporting: One-tap 'Report Event' with 24-hour response SLA",
+        "Safety features: Location sharing with friends, 'Emergency' button, SafeRide integrations",
+        "Insurance: Partner with event insurance providers for organizer protection",
+        "Community guidelines: Clear policies, proactive education, zero tolerance for violations",
+        "Background checks: Required for organizers hosting events with alcohol or minors",
+        "Ratings: Rate organizers and events - auto-hide low-rated content"
+      ],
+      "success_criteria": "Zero major safety incidents in Year 1, <0.1% event reports, 4.5+ organizer rating average"
+    },
+
+    {
+      "risk_id": "R7",
+      "category": "Monetization",
+      "risk_name": "Users Refused to Pay, Revenue Assumptions Collapsed",
+      "description": "Assumed 5-10% freemium conversion. Actual: 0.8%. Users unwilling to pay for discovery app when Google Maps is free. Event organizers chose free tier with ads. Business listings had zero takers ($200/month too expensive). Revenue was 90% below projections.",
+      "failure_mode": "Premium features weren't valuable enough. Free tier had too much functionality. Ads were annoying but not blocking core use. No pricing experimentation. Waited 12 months to monetize - too late to pivot.",
+      "probability": "MEDIUM (50%)",
+      "impact": "HIGH - Unsustainable business model",
+      "evidence_from_research": [
+        "Users expect free discovery (Google Maps, Yelp, Facebook Events all free)",
+        "Eventbrite fees (7.4%) criticized but tolerated - users don't want to pay directly",
+        "Travel apps have low retention - hard to justify subscription for infrequent use"
+      ],
+      "mitigation_strategies": [
+        "Monetize organizers, not users (B2B model more reliable than B2C)",
+        "Transaction fees on paid events (2% vs Eventbrite 7.4%) - lower but higher volume",
+        "Business partnerships: Premium listings ($50-100/month) with ROI tracking",
+        "Sponsored discovery: Businesses pay for top placement in 'Food' or 'Nightlife' categories",
+        "Data licensing: Anonymized event trends sold to city planners, tourism boards",
+        "White-label: License platform to tourism bureaus, convention centers",
+        "Affiliate revenue: Ticketmaster/StubHub integration for concerts, sports",
+        "Start monetization on Day 1: Test pricing early, iterate based on data"
+      ],
+      "success_criteria": "Multiple revenue streams (not dependent on single model), $5+ ARPU by Month 6, profitability path by Month 12"
+    },
+
+    {
+      "risk_id": "R8",
+      "category": "Technology & Infrastructure",
+      "risk_name": "App Performance Issues Caused Mass Uninstalls",
+      "description": "Slow load times (5+ seconds), frequent crashes, battery drain, excessive data usage. Users complained app killed their phone. 1-star reviews: 'Laggy and unreliable'. Poor maps performance vs Google Maps. Push notifications arrived hours late or not at all.",
+      "failure_mode": "Built with wrong tech stack. Didn't optimize for mobile performance. No load testing before launch. Database couldn't scale past 10K users. Real-time features (event updates) were actually 15-minute delays.",
+      "probability": "LOW-MEDIUM (35%)",
+      "impact": "HIGH - Poor reviews, churn",
+      "evidence_from_research": [
+        "City discovery apps criticized for technical issues (attachments not opening, payment failures)",
+        "Users expect Google Maps-level performance (instant, reliable, accurate)",
+        "Mobile app users have zero tolerance for bugs - uninstall immediately"
+      ],
+      "mitigation_strategies": [
+        "Choose proven tech stack: React Native or Flutter for cross-platform, Firebase for backend",
+        "Performance budget: 2-second load time, 60fps scrolling, <50MB app size",
+        "Load testing: Simulate 100K users before launch",
+        "CDN for media: Images/videos served from edge network",
+        "Optimize maps: Use MapBox or Google Maps SDK with caching",
+        "Push notification infrastructure: Reliable provider (OneSignal, Airship)",
+        "Monitoring: Real-time error tracking (Sentry), performance monitoring (Firebase Performance)",
+        "Beta testing: 1,000 users for 8 weeks before public launch"
+      ],
+      "success_criteria": "App Store rating >4.5, crash rate <0.1%, 95th percentile load time <2s, <5% uninstalls due to performance"
+    }
+  ],
+
+  "risk_prioritization": {
+    "critical_risks": ["R1 - Cold Start Problem", "R2 - Retention Failure", "R4 - Unsustainable CAC", "R6 - Safety Issues"],
+    "high_risks": ["R3 - Feature Bloat", "R5 - Competitive Response", "R7 - Monetization Failure", "R8 - Performance Issues"],
+    "priority_order": [
+      "1. R1 - Cold Start (must solve before launch)",
+      "2. R2 - Retention (core product-market fit)",
+      "3. R4 - User Acquisition (business viability)",
+      "4. R3 - Feature Bloat (product clarity)",
+      "5. R6 - Trust & Safety (existential risk)",
+      "6. R7 - Monetization (long-term sustainability)",
+      "7. R5 - Competitive Response (strategic positioning)",
+      "8. R8 - Performance (execution quality)"
+    ]
+  },
+
+  "mitigation_roadmap": {
+    "pre_launch": [
+      "R1: Partner with 50+ organizers to seed 500+ events in launch city",
+      "R1: Build 10,000 waitlist through landing page, local PR, influencers",
+      "R3: Define MVP as event discovery ONLY - cut all other features",
+      "R6: Implement event verification and moderation workflow",
+      "R8: 8-week beta with 1,000 users, fix all critical bugs"
+    ],
+    "month_1_3": [
+      "R1: Launch in single city (Austin), aim for 10,000 users and 1,000 events/month",
+      "R2: Implement push notifications, daily digest, basic gamification",
+      "R4: Organic growth focus - local partnerships, PR, ambassador program",
+      "R6: Manual moderation of all events, <24hr response to reports",
+      "R7: Test monetization - business listings at $50/month, event fees at 2%"
+    ],
+    "month_4_6": [
+      "R2: Add social features (check-ins, friend activity) to boost retention",
+      "R3: Add event creation tools if discovery satisfaction >4.5/5.0",
+      "R4: Optimize referral program based on data, target 20% invite rate",
+      "R5: Build defensible moat with proprietary data and community",
+      "R7: Multiple revenue experiments - find model with >$5 ARPU"
+    ],
+    "month_7_12": [
+      "R1: Expand to 2-3 additional cities only if launch city thriving",
+      "R2: Target 15% day-30 retention (5x industry average)",
+      "R4: Achieve 50% organic acquisition, CAC <$10",
+      "R5: 10,000 exclusive events not on competitors",
+      "R7: Path to profitability visible, multiple revenue streams live"
+    ]
+  },
+
+  "success_gates": {
+    "pre_launch_go_decision": {
+      "criteria": [
+        "10,000+ waitlist signups",
+        "500+ events seeded in launch city",
+        "50+ verified organizer partnerships",
+        "Beta app rating >4.3/5.0 from 1,000 testers",
+        "Zero critical bugs in beta"
+      ],
+      "if_criteria_not_met": "Delay launch, do not proceed until gates passed"
+    },
+    "month_3_expand_decision": {
+      "criteria": [
+        "10,000+ users in launch city",
+        "1,000+ events/month created",
+        "10% day-30 retention minimum",
+        "4.5+ app store rating",
+        "CAC <$15"
+      ],
+      "if_criteria_not_met": "Do not expand to new cities, fix launch city first"
+    },
+    "month_6_series_a_decision": {
+      "criteria": [
+        "50,000+ users across 2-3 cities",
+        "15% day-30 retention",
+        "4.5+ app store rating",
+        "$5+ ARPU",
+        "Path to profitability within 12 months"
+      ],
+      "if_criteria_not_met": "Pivot or shutdown before burning more capital"
+    }
+  },
+
+  "key_lessons_from_research": [
+    "Travel apps have worst retention in industry (2.8%) - must design for daily utility, not episodic use",
+    "Two-sided marketplaces fail without critical mass - seed supply (events) before demanding users",
+    "Incumbents (Google, Eventbrite, Yelp) have massive advantages - need defensible moat (community, data, speed)",
+    "Trust and safety issues can destroy brand overnight - proactive moderation is mandatory",
+    "Feature bloat kills startups - launch with ONE excellent feature, add iteratively",
+    "Users expect free discovery (Google Maps) - monetize organizers/businesses, not end users",
+    "Organic growth is only sustainable model - paid ads have terrible CAC for consumer apps",
+    "Mobile performance is non-negotiable - users uninstall buggy apps immediately"
+  ]
+}

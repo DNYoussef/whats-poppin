@@ -1,0 +1,240 @@
+================================================================================
+WHAT'S POPPIN! - DATABASE SCHEMA DIAGRAM
+================================================================================
+
+                        SUPABASE AUTH (Built-in)
+                             auth.users
+  +-------------------------------------------------------------------+
+  | id (uuid, PK)                                                     |
+  | email                                                             |
+  | created_at                                                        |
+  +-------------------------------------------------------------------+
+                                 |
+                                 | extends (1:1)
+                                 v
+================================================================================
+                          PROFILES TABLE
+  +-------------------------------------------------------------------+
+  | id (uuid, PK, FK -> auth.users)                                   |
+  | username (text, UNIQUE, NOT NULL)                                 |
+  | full_name (text)                                                  |
+  | avatar_url (text)                                                 |
+  | bio (text)                                                        |
+  | location (geography POINT) -------------- PostGIS GIST Index      |
+  | preferences (jsonb)                                               |
+  |   -> {"categories": [], "interests": [], "max_distance_miles": 25}|
+  | created_at (timestamptz)                                          |
+  | updated_at (timestamptz) ---------------- Auto-updated via trigger|
+  +-------------------------------------------------------------------+
+
+  RLS Policies:
+   * SELECT: Public (all users can view profiles)
+   * INSERT: Own profile only
+   * UPDATE: Own profile only
+   * DELETE: Own profile only
+
+                 |
+                 | organizer_id (1:many)
+                 v
+================================================================================
+                           EVENTS TABLE
+  +-------------------------------------------------------------------+
+  | id (uuid, PK)                                                     |
+  | title (text, NOT NULL, 3-200 chars)                              |
+  | description (text, NOT NULL, min 10 chars)                       |
+  | venue_id (uuid, FK -> venues) ----------------+                  |
+  | organizer_id (uuid, FK -> profiles) ----------|---+              |
+  | start_time (timestamptz, NOT NULL) -----------|---|-- B-Tree Idx |
+  | end_time (timestamptz)                        |   |              |
+  | category (text, enum) ------------------------|---|-- B-Tree Idx |
+  |   -> music|food|sports|arts|nightlife|...     |   |              |
+  | tags (text[])                                 |   |              |
+  | image_url (text)                              |   |              |
+  | capacity (integer)                            |   |              |
+  | price (numeric 10,2)                          |   |              |
+  | ticket_url (text)                             |   |              |
+  | status (text, enum) --------------------------|---|-- Partial Idx|
+  |   -> draft|published|cancelled|completed      |   |              |
+  | embedding (vector 1536) ----------------------|---|-- IVFFlat Idx|
+  |   -> OpenAI text-embedding-3-small            |   | (cosine sim) |
+  | view_count (integer, default 0)               |   |              |
+  | rsvp_count (integer, default 0)               |   |              |
+  | created_at (timestamptz)                      |   |              |
+  | updated_at (timestamptz) ---------------------|---|-- Auto-trigger|
+  +-------------------------------------------------------------------+
+
+  Full-Text Search Index (GIN): title + description
+
+  RLS Policies:
+   * SELECT: Published OR own drafts
+   * INSERT: Authenticated (organizer_id = self)
+   * UPDATE: Organizer only
+   * DELETE: Organizer only
+
+       |                                                 |
+       | event_id (many:1)                              |
+       v                                                 v
+================================================================================
+           USER_EVENT_INTERACTIONS TABLE          VENUES TABLE
+  +--------------------------------+   +-----------------------------------+
+  | id (uuid, PK)                  |   | id (uuid, PK)                     |
+  | user_id (uuid, FK -> profiles) |   | name (text, NOT NULL)             |
+  | event_id (uuid, FK -> events)  |   | description (text)                |
+  | interaction_type (text, enum)  |   | address (text, NOT NULL)          |
+  |   -> view|save|rsvp|attend     |   | city (text, default 'Austin')     |
+  | metadata (jsonb)               |   | state (text, default 'TX')        |
+  |   -> {"device": "mobile"...}   |   | zip_code (text)                   |
+  | created_at (timestamptz)       |   | location (geography POINT) -- GIST|
+  |                                |   | phone (text)                      |
+  | UNIQUE (user, event, type)     |   | website (text)                    |
+  +--------------------------------+   | category (text[]) -- GIN Array Idx|
+                                       | capacity (integer)                |
+  Triggers:                            | amenities (jsonb)                 |
+   * After INSERT/DELETE:              | created_at (timestamptz)          |
+     Update events.view_count,         | updated_at (timestamptz)          |
+     events.rsvp_count                 +-----------------------------------+
+
+  RLS Policies:                        Full-Text Search Index (GIN):
+   * All ops: Own data only            name + description
+
+                                       RLS Policies:
+                                        * SELECT: Public
+                                        * INSERT: Authenticated
+                                        * UPDATE: Event organizers
+================================================================================
+                    EVENT_RECOMMENDATIONS TABLE
+  +-------------------------------------------------------------------+
+  | id (uuid, PK)                                                     |
+  | user_id (uuid, FK -> profiles) -------------- Composite Index    |
+  | event_id (uuid, FK -> events)                                     |
+  | score (numeric 5,4, 0-1 range) -------------- Composite Index    |
+  | reason (text)                                                     |
+  |   -> "Based on your interest in live music"                       |
+  | algorithm (text, enum)                                            |
+  |   -> vector_similarity|collaborative_filtering|proximity|trending |
+  | created_at (timestamptz)                                          |
+  | expires_at (timestamptz, default NOW() + 7 days) ----- Index     |
+  +-------------------------------------------------------------------+
+
+  RLS Policies:
+   * SELECT: Own recommendations only
+   * INSERT: Service role only
+   * DELETE: Own OR expired
+
+================================================================================
+DATABASE FUNCTIONS
+================================================================================
+
++- calculate_distance(lat1, lon1, lat2, lon2) -> DOUBLE PRECISION
+|  Haversine formula to calculate distance in miles
+|
++- get_nearby_events(user_lat, user_lon, radius_miles, limit) -> TABLE
+|  Returns events within specified radius, sorted by distance
+|  Default: 25 miles, 50 results
+|
++- update_updated_at_column() -> TRIGGER
+|  Automatically updates updated_at timestamp on row modification
+|  Attached to: profiles, venues, events
+|
++- update_event_counters() -> TRIGGER
+|  Maintains view_count and rsvp_count on events table
+|  Triggered by: user_event_interactions INSERT/DELETE
+|
++- is_event_organizer(event_uuid) -> BOOLEAN
+|  Security helper for RLS policies
+|
++- is_admin() -> BOOLEAN
+   Checks if user has admin role in preferences
+
+================================================================================
+INDEXES
+================================================================================
+
+Spatial (GIST):
+  * venues.location          -- Fast proximity queries (ST_DWithin)
+  * profiles.location        -- User location lookups
+
+Vector (IVFFlat):
+  * events.embedding         -- Cosine similarity (vector_cosine_ops, lists=100)
+
+Full-Text (GIN):
+  * events (title+desc)      -- to_tsvector('english', ...)
+  * venues (name+desc)       -- to_tsvector('english', ...)
+
+Array (GIN):
+  * venues.category          -- Fast array overlap queries
+
+B-Tree:
+  * events.start_time        -- (partial: WHERE status='published')
+  * events.category          -- (partial: WHERE status='published')
+  * events.organizer_id      -- Foreign key lookups
+  * events.status            -- Status filtering
+  * interactions.user_id     -- User activity queries
+  * recommendations.user_id  -- User recommendations
+
+Composite:
+  * user_event_interactions: (user_id, created_at DESC)
+  * user_event_interactions: (event_id, interaction_type)
+  * event_recommendations: (user_id, score DESC)
+
+================================================================================
+EXTENSIONS
+================================================================================
+
+uuid-ossp  v1.1    -- UUID generation (uuid_generate_v4)
+postgis    v3.3    -- Spatial/geography types, functions
+vector     v0.5    -- pgvector for AI embeddings
+
+================================================================================
+KEY RELATIONSHIPS
+================================================================================
+
+auth.users -------1:1------- profiles
+profiles ---------1:many---- events (organizer)
+venues -----------1:many---- events (venue)
+profiles ---------1:many---- user_event_interactions (user)
+events -----------1:many---- user_event_interactions (event)
+profiles ---------1:many---- event_recommendations (user)
+events -----------1:many---- event_recommendations (event)
+
+================================================================================
+DATA FLOW
+================================================================================
+
+1. User creates profile -> profiles table
+2. User creates event -> events table (organizer_id set)
+3. User views event -> user_event_interactions (type: view)
+   +- Triggers update to events.view_count
+4. User RSVPs to event -> user_event_interactions (type: rsvp)
+   +- Triggers update to events.rsvp_count
+5. System generates recommendations -> event_recommendations
+   +- Based on user interactions and event embeddings
+
+================================================================================
+SAMPLE QUERIES
+================================================================================
+
+-- Find events near user (spatial)
+SELECT * FROM get_nearby_events(30.2672, -97.7431, 25, 20);
+
+-- Search events (full-text)
+SELECT id, title FROM events
+WHERE to_tsvector('english', title || ' ' || description)
+      @@ to_tsquery('english', 'music')
+AND status = 'published';
+
+-- Find similar events (vector)
+SELECT id, title, 1 - (embedding <=> target.embedding) AS similarity
+FROM events, (SELECT embedding FROM events WHERE id = $1) target
+ORDER BY embedding <=> target.embedding LIMIT 10;
+
+-- Get user's saved events
+SELECT e.* FROM events e
+JOIN user_event_interactions i ON e.id = i.event_id
+WHERE i.user_id = $1 AND i.interaction_type = 'save';
+
+================================================================================
+Version: 1.0.0
+Date: 2025-10-02
+Author: Backend API Developer Agent
+================================================================================

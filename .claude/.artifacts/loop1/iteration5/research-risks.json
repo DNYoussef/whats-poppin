@@ -1,0 +1,312 @@
+{
+  "iteration": 5,
+  "focus": "Deep Risk Scenario Modeling - Undiscovered Risks",
+  "research_date": "2025-10-01",
+  "research_queries": 15,
+  "methodology": "Online research of actual failures, post-mortems, and production incidents",
+
+  "research_sources": {
+    "event_discovery_failures": {
+      "zvents_shutdown": {
+        "year": "2010s",
+        "cause": "Mobile-first transition lag + competition + limited engagement",
+        "revenue_model": "Failed due to declining revenue and rising costs",
+        "key_lesson": "Publisher-based event discovery became obsolete with mobile-first behavior",
+        "relevance": "HIGH - What's Poppin must avoid same mobile optimization delays"
+      },
+      "eventvue_shutdown": {
+        "year": "2010",
+        "cause": "No product-market fit testing before launch",
+        "key_lesson": "Assumptions about usefulness not validated with customers",
+        "relevance": "CRITICAL - Validates need for 100 user interviews pre-launch"
+      },
+      "bandsintown_success": {
+        "status": "Still operating - 95M users, 700K artists",
+        "key_lesson": "Niche focus (concerts only) allowed market dominance",
+        "relevance": "MEDIUM - Suggests niche-down strategy over broad platform"
+      }
+    },
+
+    "location_based_failures": {
+      "wriggle_restaurant_discovery": {
+        "year": "2022",
+        "users": "400K downloads",
+        "funding": "$2M raised",
+        "cause": "Pandemic lockdowns irreparably damaged growth",
+        "key_lesson": "Event-dependent businesses extremely vulnerable to black swan events",
+        "relevance": "CRITICAL - COVID-like event could destroy business overnight"
+      },
+      "meetro_social_network": {
+        "year": "Mid-2000s",
+        "cause": "Geographic fragmentation - success in Chicago didn't transfer to other cities",
+        "key_lesson": "Network effects don't cross city boundaries in location apps",
+        "relevance": "CRITICAL - Validates single-city launch, but warns expansion is difficult"
+      },
+      "color_labs_photo_sharing": {
+        "funding": "$41M before product launch",
+        "cause": "Confusing interface + proximity-based feature users didn't want",
+        "acquisition": "Acquired by Apple for talent only",
+        "key_lesson": "Massive funding doesn't prevent UX disasters",
+        "relevance": "HIGH - User testing absolutely essential before launch"
+      }
+    },
+
+    "cold_start_problem": {
+      "failure_rate": "Most marketplaces never get past cold start stage",
+      "network_density": "1M users with 2 connections < 100K users with 30 connections",
+      "key_lesson": "Density beats total user count - focus on single market first",
+      "big_launch_danger": "Techcrunch launches pump total users but don't help density",
+      "relevance": "CRITICAL - Confirms 500-event pre-seed strategy is correct"
+    },
+
+    "retention_benchmarks_2024": {
+      "day1_retention": "25% average across all app categories",
+      "day30_retention": "6% average (what's poppin target: 15%)",
+      "churn_first_3_days": "77% of DAUs",
+      "one_time_use": "25% of users never return after first session",
+      "platform_gap": "iOS retention higher than Android, Android declining YoY",
+      "key_lesson": "Industry retention is WORSE than previous estimates (2.8% was optimistic)",
+      "relevance": "CRITICAL - 15% target is 2.5x harder than initially projected"
+      },
+
+    "postgresql_geospatial_production": {
+      "50m_row_updates": "24+ hours for spatial updates on 50M row table",
+      "12m_record_scans": "3 seconds without optimization, unusable for production",
+      "performance_degradation": "Gets slower over time without regular VACUUM",
+      "configuration_default": "PostgreSQL defaults are woefully inadequate for production",
+      "shared_buffers_recommendation": "25% of system RAM for dedicated servers",
+      "key_lesson": "Even with proper indexing, large-scale spatial operations are SLOW",
+      "relevance": "CRITICAL - Need migration plan BEFORE hitting 10M+ venues"
+    },
+
+    "react_native_performance": {
+      "dev_vs_release": "JavaScript thread performance MUCH worse in dev mode",
+      "dropped_frames": "200ms state update = 12 dropped frames at 60fps",
+      "ui_fps_vs_js_fps": "Both must be ~60fps, not just one",
+      "context_api_problem": "Inefficient Context API causes excessive rendering",
+      "key_lesson": "Always test performance in RELEASE builds, not development",
+      "relevance": "HIGH - Current testing plan may miss production issues"
+    },
+
+    "meilisearch_scale_limits": {
+      "116m_documents": "Failed to load in 2 days, only 38% completed",
+      "disk_space": "850GB consumed for incomplete dataset",
+      "horizontal_scaling": "NO horizontal scaling support - single machine only",
+      "lmdb_limitations": "LMDB doesn't work on network file systems (AWS EFS)",
+      "disk_space_rule": "Need 10x dataset size in disk space",
+      "key_lesson": "Meilisearch has HARD limits around 50-100M documents",
+      "relevance": "CRITICAL - Need migration plan when approaching 10M venues"
+    },
+
+    "stripe_disputes_edge_cases": {
+      "dispute_timeline": "2-3 months full lifecycle, issuer has 60-75 days",
+      "dispute_window_events": "Starts on EVENT DATE, not payment date (huge risk)",
+      "pre_dispute_conversion": "80% of early fraud warnings turn into chargebacks if ignored",
+      "multiple_disputes": "Single payment can have multiple disputes",
+      "non_refundable_fees": "Dispute fee non-refundable even if you win",
+      "visa_compliance_fee": "$500 fee for compliance disputes (refunded if won)",
+      "monitoring_program_risk": "Failure to comply can result in losing ALL card processing",
+      "key_lesson": "Event ticketing has MUCH longer dispute windows than regular purchases",
+      "relevance": "CRITICAL - 6+ month dispute window for future events"
+    },
+
+    "gdpr_enforcement_startups": {
+      "clearview_ai": "€30M fine (Netherlands) + €20M fines (Italy, Greece, France)",
+      "criteo_adtech": "€60M preliminary, reduced to €40M after defense",
+      "average_fine_2019": "€500K average = entire seed round",
+      "fine_increase": "2019 fines 1,000x higher than 2018",
+      "total_fines_2019": "€417.5M across 750 companies",
+      "startup_targeting": "Startups increasingly targeted, especially facial recognition and adtech",
+      "key_lesson": "GDPR fines are existential threats to startups, not just big tech",
+      "relevance": "CRITICAL - Location tracking makes What's Poppin high-risk target"
+    },
+
+    "content_moderation_liability": {
+      "section_230_protection": "U.S. only - doesn't apply in EU or other jurisdictions",
+      "40_new_laws": "40 new social media laws worldwide in last 2 years",
+      "platform_migration": "Dangerous users migrate when platforms tighten policies",
+      "non_judicial_takedowns": "Some jurisdictions require quick takedowns by non-judicial authorities",
+      "liability_expansion": "Companies and STAFF face expanded personal liability",
+      "key_lesson": "Content moderation requirements getting STRICTER, not looser",
+      "relevance": "HIGH - Event platform could be liable for dangerous/illegal events"
+    },
+
+    "gcp_billing_disasters": {
+      "milkie_way_incident": "$72,000 bill overnight from $7 budget test",
+      "startup_450k_bill": "$450,000 GCP bill destroyed startup",
+      "budget_limitations": "Setting budget does NOT cap resource consumption",
+      "billing_delay": "Costs can appear 24+ hours later (not real-time)",
+      "leaked_credentials": "Crypto miners can rack up massive bills in hours",
+      "key_lesson": "Budget alerts are theater - they don't prevent overruns",
+      "relevance": "CRITICAL - Need HARD infrastructure caps, not just alerts"
+    },
+
+    "supabase_realtime_production": {
+      "horizontal_scaling_broken": "Presence counts out of sync across multiple servers",
+      "quota_enforcement": "Hard quotas cause errors when exceeded, no graceful degradation",
+      "2_week_notice": "High load events require 2 weeks advance notice to Supabase",
+      "production_launch_risk": "Production launches can fail if not pre-coordinated",
+      "september_instability": "Recent production instability detected and fixed",
+      "key_lesson": "Supabase Realtime NOT production-ready without Enterprise support",
+      "relevance": "HIGH - Free tier 50K MAU limit could be hit in first month"
+    },
+
+    "app_store_rejections": {
+      "location_battery_concern": "Background GPS usage primary rejection reason for location apps",
+      "geofencing_requirement": "Apple recommends geofencing over continuous tracking",
+      "privacy_violations": "#1 rejection reason overall (1.7M rejections/year)",
+      "crashes_bugs": "Inaccurate performance primary technical rejection",
+      "incomplete_apps": "Rejected for obvious technical problems",
+      "copycat_apps": "Rejected if too similar to existing apps",
+      "key_lesson": "Location apps face extra scrutiny on battery usage and privacy",
+      "relevance": "HIGH - Background location feature could block App Store approval"
+    },
+
+    "event_ticketing_fraud": {
+      "social_media_losses": "$1.2B consumer losses in 2022 from social media scams",
+      "fraud_doubling": "Ticket fraud reports doubled since start of 2022",
+      "concert_fraud_rate": "12% of concert ticket buyers fall victim to scams",
+      "uk_average_loss": "£365 per victim, over £3M total losses",
+      "stolen_card_pattern": "Buy tickets with stolen cards, immediately resell to unsuspecting buyers",
+      "chargeback_fraud": "'Friendly fraud' - claim never received tickets",
+      "eventbrite_phishing": "Fake events used to phish users with realistic emails",
+      "key_lesson": "Event platforms are HIGH-VALUE fraud targets",
+      "relevance": "CRITICAL - Fraud prevention must be stronger than initially planned"
+    },
+
+    "marketplace_commission_failures": {
+      "disintermediation": "High commissions drive users to transact off-platform",
+      "competitive_bidding": "Competitors outbid each other until no one makes money",
+      "seller_pushback": "eBay faced backlash from high fees, sellers left platform",
+      "initial_low_revenue": "Commission models generate low revenue early stage",
+      "pricing_too_low": "Unsustainable low rates lead to marketplace failure",
+      "structural_monopoly_need": "Markets not set up for monopoly/duopoly will erode margins and kill business",
+      "revenue_volatility": "Seasonal demand creates income fluctuations",
+      "key_lesson": "Commission rates are goldilocks problem - too high or too low both fail",
+      "relevance": "CRITICAL - 2.9% ticketing fee may be too low to be sustainable"
+    }
+  },
+
+  "undiscovered_risk_categories": {
+    "execution_risks": [
+      "Team capability gaps preventing technical execution",
+      "Timeline slippage causing missed market windows",
+      "Technical debt accumulation making pivots impossible",
+      "Founder burnout from 18-24 month grind to profitability",
+      "Key person dependency (single developer knows critical systems)"
+    ],
+
+    "market_timing_risks": [
+      "Economic recession reducing discretionary event spending",
+      "Pandemic 2.0 or similar black swan destroying event industry",
+      "Competitor launches first and achieves market dominance",
+      "User behavior shifts away from in-person events permanently",
+      "Generational preferences change (Gen Z abandons discovery apps)"
+    ],
+
+    "product_complexity_risks": [
+      "Feature scope creep destroying simple UX",
+      "Technical complexity making bug fixes take weeks not days",
+      "Integration dependencies creating fragile systems",
+      "Performance degradation that can't be fixed without rewrite",
+      "UX confusion requiring complete redesign after launch"
+    ],
+
+    "platform_dependency_risks": [
+      "Google Maps API pricing increases 10x",
+      "Stripe changes terms or suspends account",
+      "Yelp API access revoked or rate limits reduced",
+      "Supabase acquired and service degraded",
+      "GCP changes pricing model or terms"
+    ],
+
+    "legal_regulatory_risks": [
+      "New local laws requiring event organizer licensing",
+      "GDPR enforcement action despite best efforts",
+      "Lawsuit from injury at listed event",
+      "Tax nexus issues in multiple states/countries",
+      "Accessibility lawsuit (ADA compliance)"
+    ],
+
+    "financial_sustainability_risks": [
+      "Burn rate acceleration from unplanned expenses",
+      "Revenue shortfall from lower conversion than projected",
+      "Funding gap - unable to raise Series A",
+      "Runway miscalculation - run out of money before break-even",
+      "Currency fluctuations if expanding internationally"
+    ],
+
+    "operational_failure_risks": [
+      "Database corruption losing critical data",
+      "Security breach despite precautions",
+      "DDoS attack taking platform offline",
+      "Employee error deleting production data",
+      "Third-party API sunset with no migration path"
+    ],
+
+    "reputational_damage_risks": [
+      "Viral negative review/social media incident",
+      "High-profile event disaster associated with platform",
+      "Data breach publicity destroying trust",
+      "Competitor smear campaign",
+      "Media investigation exposing problems"
+    ]
+  },
+
+  "new_risks_vs_existing_30": {
+    "overlap_with_existing": [
+      "Cold start problem (MKT-001)",
+      "Retention challenges (MKT-002)",
+      "Database performance (TECH-001)",
+      "Third-party API failures (TECH-002)",
+      "GDPR compliance (SEC-003)",
+      "Payment fraud (SEC-002)",
+      "Infrastructure costs (BUS-001)"
+    ],
+
+    "newly_discovered_gaps": [
+      "Geographic expansion impossibility (network effects don't cross cities)",
+      "Black swan pandemic/recession vulnerability",
+      "Meilisearch hard scale limits (50-100M documents)",
+      "GCP billing disasters (budget alerts don't prevent overruns)",
+      "Supabase Realtime production readiness issues",
+      "App Store rejection risk for background location",
+      "Event ticketing fraud epidemic (12% of buyers)",
+      "Commission rate disintermediation death spiral",
+      "Stripe dispute timeline for future events (6+ months)",
+      "Content moderation personal liability",
+      "PostgreSQL VACUUM requirements not mentioned",
+      "React Native dev vs release performance gap",
+      "GDPR startup targeting increase",
+      "Founder/team burnout risk",
+      "Key person dependency risk"
+    ]
+  },
+
+  "severity_assessment": {
+    "existential_threats": [
+      "Black swan pandemic/recession",
+      "GDPR enforcement action (€20M+ fine)",
+      "GCP billing disaster ($50K+ overnight)",
+      "App Store permanent rejection",
+      "Stripe account suspension",
+      "Geographic expansion impossibility"
+    ],
+
+    "business_model_threats": [
+      "Commission rate disintermediation",
+      "Meilisearch scale limits forcing expensive migration",
+      "Event fraud epidemic destroying trust",
+      "Network effects not crossing city boundaries",
+      "Retention worse than projected (6% vs 15% target)"
+    ],
+
+    "execution_threats": [
+      "Team capability gaps",
+      "Founder burnout",
+      "Key person dependency",
+      "Technical debt accumulation",
+      "Timeline slippage"
+    ]
+  }
+}
