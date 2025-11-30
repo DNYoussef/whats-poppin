@@ -3,6 +3,14 @@
  * Auto-generated types for type-safe database access
  */
 
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
 export type Database = {
   public: {
     Tables: {
@@ -12,7 +20,7 @@ export type Database = {
           username: string;
           full_name: string | null;
           avatar_url: string | null;
-          preferences: Record<string, unknown> | null;
+          preferences: Json | null;
           created_at: string;
           updated_at: string;
         };
@@ -21,7 +29,7 @@ export type Database = {
           username: string;
           full_name?: string | null;
           avatar_url?: string | null;
-          preferences?: Record<string, unknown> | null;
+          preferences?: Json | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -30,10 +38,11 @@ export type Database = {
           username?: string;
           full_name?: string | null;
           avatar_url?: string | null;
-          preferences?: Record<string, unknown> | null;
+          preferences?: Json | null;
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       events: {
         Row: {
@@ -78,6 +87,15 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "events_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       event_attendees: {
         Row: {
@@ -101,6 +119,22 @@ export type Database = {
           status?: 'going' | 'interested' | 'not_going';
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "event_attendees_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_attendees_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
     };
     Views: {
@@ -112,6 +146,9 @@ export type Database = {
     Enums: {
       [_ in never]: never;
     };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
   };
 };
 
@@ -120,4 +157,5 @@ export type Database = {
 // | Version | Timestamp | Agent/Model | Change Summary | Status |
 // |--------:|-----------|-------------|----------------|--------|
 // | 1.0.0   | 2025-10-02T00:00:00 | coder@sonnet-4.5 | Database type definitions | OK |
+// | 1.1.0   | 2025-11-30T00:00:00 | claude@opus-4 | Update to full Supabase type format | OK |
 /* AGENT FOOTER END */

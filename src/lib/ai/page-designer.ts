@@ -280,7 +280,7 @@ function getEventVibe(event: Partial<Event>): string {
 /**
  * Fallback default designs if AI fails
  */
-function getDefaultDesigns(event: Partial<Event>): EventPageDesign[] {
+function getDefaultDesigns(_event: Partial<Event>): EventPageDesign[] {
   const baseColors = {
     primary: '#8b5cf6',
     secondary: '#ec4899',

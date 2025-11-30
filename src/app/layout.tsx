@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+// Using system font stack instead of Google Fonts for reliable builds
+// This avoids network-dependent font fetching during CI/CD builds
+const fontClassName = 'font-sans';
 
 export const metadata: Metadata = {
   title: "What's Poppin! - Discover Local Events",
@@ -35,7 +36,7 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={fontClassName}>
         <main className="min-h-screen bg-background">
           {children}
         </main>

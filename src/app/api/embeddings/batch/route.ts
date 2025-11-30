@@ -49,8 +49,10 @@ export async function POST(request: NextRequest) {
     const embeddingMap = new Map<string, number[]>();
 
     for (let i = 0; i < events.length; i++) {
-      if (events[i].id) {
-        embeddingMap.set(events[i].id, embeddings[i]);
+      const event = events[i];
+      const embedding = embeddings[i];
+      if (event?.id && embedding) {
+        embeddingMap.set(event.id, embedding);
       }
     }
 

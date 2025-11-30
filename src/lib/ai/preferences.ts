@@ -147,18 +147,20 @@ export async function getImplicitPreferences(
   const tagCount: Record<string, number> = {};
 
   for (const interaction of interactions) {
-    if (!interaction.event) continue;
+    // Supabase returns event as an object (not array) for singular relationship
+    const event = interaction.event as unknown as { category: string | null; tags: string[] | null } | null;
+    if (!event) continue;
 
     const weight = interaction.interaction_type === 'attended' ? 3 :
                    interaction.interaction_type === 'rsvp' ? 2 : 1;
 
-    if (interaction.event.category) {
-      const cat = interaction.event.category;
+    if (event.category) {
+      const cat = event.category;
       categoryCount[cat] = (categoryCount[cat] || 0) + weight;
     }
 
-    if (interaction.event.tags) {
-      for (const tag of interaction.event.tags) {
+    if (event.tags) {
+      for (const tag of event.tags) {
         tagCount[tag] = (tagCount[tag] || 0) + weight;
       }
     }

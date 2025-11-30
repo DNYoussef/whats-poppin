@@ -51,7 +51,11 @@ export async function GET(request: NextRequest) {
       const embeddingMap = new Map<string, number[]>();
 
       for (let i = 0; i < chunk.length; i++) {
-        embeddingMap.set(chunk[i].id, embeddings[i]);
+        const event = chunk[i];
+        const embedding = embeddings[i];
+        if (event && embedding) {
+          embeddingMap.set(event.id, embedding);
+        }
       }
 
       const saved = await batchSaveEventEmbeddings(embeddingMap);

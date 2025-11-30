@@ -29,7 +29,7 @@ interface DynamicEventSceneProps {
 export function DynamicEventScene({
   design,
   eventTitle,
-  eventDescription
+  eventDescription: _eventDescription
 }: DynamicEventSceneProps) {
   return (
     <div className="w-full h-full">
@@ -112,9 +112,9 @@ function DynamicParticles({
       positions[i3 + 1] = (Math.random() - 0.5) * spread;
       positions[i3 + 2] = (Math.random() - 0.5) * spread;
 
-      const color = new THREE.Color(
-        particles.colors[i % particles.colors.length]
-      );
+      const colorIndex = i % particles.colors.length;
+      const colorValue = particles.colors[colorIndex] ?? '#ffffff';
+      const color = new THREE.Color(colorValue);
       colors[i3] = color.r;
       colors[i3 + 1] = color.g;
       colors[i3 + 2] = color.b;
@@ -125,33 +125,41 @@ function DynamicParticles({
 
   useFrame(({ clock }) => {
     if (!particlesRef.current) return;
+    const positionAttr = particlesRef.current.geometry.attributes.position;
+    if (!positionAttr) return;
 
     const time = clock.getElapsedTime();
-    const positions = particlesRef.current.geometry.attributes.position
-      .array as Float32Array;
+    const positions = positionAttr.array as Float32Array;
 
     for (let i = 0; i < particles.count; i++) {
       const i3 = i * 3;
+      const x = positions[i3] ?? 0;
+      const y = positions[i3 + 1] ?? 0;
+      const z = positions[i3 + 2] ?? 0;
+
+      let newX = x;
+      let newY = y;
+      let newZ = z;
 
       if (particles.movement === 'wind') {
-        positions[i3] += Math.sin(time + i) * 0.0005 * particles.speed;
-        positions[i3 + 1] += Math.cos(time + i) * 0.0003 * particles.speed;
+        newX += Math.sin(time + i) * 0.0005 * particles.speed;
+        newY += Math.cos(time + i) * 0.0003 * particles.speed;
       } else if (particles.movement === 'float') {
-        positions[i3 + 1] += Math.sin(time + i) * 0.001 * particles.speed;
+        newY += Math.sin(time + i) * 0.001 * particles.speed;
       } else if (particles.movement === 'orbit') {
-        const radius = Math.sqrt(positions[i3] ** 2 + positions[i3 + 2] ** 2);
-        const angle = Math.atan2(positions[i3 + 2], positions[i3]);
+        const radius = Math.sqrt(x ** 2 + z ** 2);
+        const angle = Math.atan2(z, x);
         const newAngle = angle + 0.001 * particles.speed;
-        positions[i3] = radius * Math.cos(newAngle);
-        positions[i3 + 2] = radius * Math.sin(newAngle);
+        newX = radius * Math.cos(newAngle);
+        newZ = radius * Math.sin(newAngle);
       }
 
-      if (Math.abs(positions[i3]) > 15) positions[i3] *= -0.5;
-      if (Math.abs(positions[i3 + 1]) > 15) positions[i3 + 1] *= -0.5;
-      if (Math.abs(positions[i3 + 2]) > 15) positions[i3 + 2] *= -0.5;
+      positions[i3] = Math.abs(newX) > 15 ? newX * -0.5 : newX;
+      positions[i3 + 1] = Math.abs(newY) > 15 ? newY * -0.5 : newY;
+      positions[i3 + 2] = Math.abs(newZ) > 15 ? newZ * -0.5 : newZ;
     }
 
-    particlesRef.current.geometry.attributes.position.needsUpdate = true;
+    positionAttr.needsUpdate = true;
   });
 
   return (

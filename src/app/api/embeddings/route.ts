@@ -6,10 +6,8 @@
 // ============================================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  generateEventEmbedding,
-  batchGenerateEventEmbeddings,
-} from '@/lib/ai/embeddings';
+import { generateEventEmbedding } from '@/lib/ai/embeddings';
+import { saveEventEmbedding } from '@/lib/ai/database';
 
 // ============================================================================
 // POST /api/embeddings/generate
