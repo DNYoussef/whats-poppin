@@ -48,8 +48,8 @@ export async function GET(request: NextRequest) {
       throw new Error(`Failed to fetch active users: ${error.message}`);
     }
 
-    const uniqueUserIds = [
-      ...new Set(activeUsers?.map((u) => u.user_id) || []),
+    const uniqueUserIds: string[] = [
+      ...new Set(activeUsers?.map((u: { user_id: string }) => u.user_id) || []),
     ];
 
     let processedCount = 0;

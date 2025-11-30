@@ -59,7 +59,7 @@ export function HeroScene(): JSX.Element {
           (Math.random() - 0.5) * 0.001875,
           (Math.random() - 0.5) * 0.001875
         ),
-        color: colors[Math.floor(Math.random() * colors.length)],
+        color: colors[Math.floor(Math.random() * colors.length)] ?? new THREE.Color('#FF1493'),
         windPhase: Math.random() * Math.PI * 2,
         curlPhase: Math.random() * Math.PI * 2, // For curling motion
         curlRadius: Math.random() * 0.5 + 0.3, // Curl tightness

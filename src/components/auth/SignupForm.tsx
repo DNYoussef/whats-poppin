@@ -39,8 +39,8 @@ export function SignupForm() {
 
     // Assertion 3: Validate password strength
     const passwordValidation = validatePassword(password);
-    if (!passwordValidation.isValid) {
-      setError(passwordValidation.errors[0]);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.errors[0] ?? 'Invalid password');
       return;
     }
 
@@ -138,7 +138,7 @@ export function SignupForm() {
       <Button
         type="submit"
         className="w-full"
-        disabled={isLoading || !passwordStrength.isValid}
+        disabled={isLoading || !passwordStrength.valid}
       >
         {isLoading ? 'Creating account...' : 'Sign up'}
       </Button>

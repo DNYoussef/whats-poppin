@@ -209,7 +209,11 @@ async function scoreInterestMatch(
     input: interestText
   });
 
-  const userEmbedding = response.data[0].embedding;
+  const firstResult = response.data[0];
+  if (!firstResult) {
+    return 0.5;
+  }
+  const userEmbedding = firstResult.embedding;
 
   // Compare with event embedding if available
   if (event.embedding) {
@@ -234,14 +238,16 @@ function scoreTimeMatch(
 ): number {
   const hour = new Date(startTime).getHours();
 
-  const ranges = {
+  const ranges: Record<typeof preference, [number, number]> = {
     morning: [6, 12],
     afternoon: [12, 17],
     evening: [17, 21],
     night: [21, 6]
   };
 
-  const [start, end] = ranges[preference];
+  const range = ranges[preference];
+  const start = range[0];
+  const end = range[1];
 
   if (preference === 'night') {
     return (hour >= start || hour < end) ? 1.0 : 0.3;
@@ -352,7 +358,7 @@ function toRad(degrees: number): number {
  * Generate human-readable reasoning
  */
 function generateReasoning(
-  event: Event,
+  _event: Event,
   scores: {
     interest_match: number;
     time_match: number;

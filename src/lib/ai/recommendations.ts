@@ -213,8 +213,10 @@ export async function getUserPreferenceEmbedding(
   };
 
   for (const interaction of interactions) {
-    if (interaction.event?.embedding) {
-      embeddings.push(interaction.event.embedding);
+    // Supabase returns event as an object for singular relationship
+    const event = interaction.event as unknown as { embedding: number[] | null } | null;
+    if (event?.embedding) {
+      embeddings.push(event.embedding);
       weights.push(weightMap[interaction.interaction_type] || 0.1);
     }
   }

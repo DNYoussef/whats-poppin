@@ -16,8 +16,6 @@ import type {
   NearbyEvent,
   EventInsert,
   EventUpdate,
-  Profile,
-  Venue,
   UserEventInteraction,
   InteractionInsert,
   EventRecommendation,

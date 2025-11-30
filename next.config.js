@@ -11,7 +11,8 @@ const nextConfig = {
     ],
   },
   experimental: {
-    typedRoutes: true,
+    // typedRoutes disabled - causes issues with dynamic redirect URLs
+    // typedRoutes: true,
   },
   eslint: {
     dirs: ['src'],

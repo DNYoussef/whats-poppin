@@ -9,7 +9,6 @@ import { describe, it, expect, vi } from 'vitest';
 import {
   generateEmbedding,
   generateEventEmbedding,
-  batchGenerateEmbeddings,
   getEmbeddingMetadata,
 } from '@/lib/ai/embeddings';
 

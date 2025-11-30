@@ -203,9 +203,9 @@ function checkIfComplete(
   preferences: UserPreferences,
   lastMessage: string
 ): boolean {
-  const hasBasicInfo =
-    (preferences.interests && preferences.interests.length > 0) ||
-    (preferences.categories && preferences.categories.length > 0);
+  const hasInterests = Boolean(preferences.interests && preferences.interests.length > 0);
+  const hasCategories = Boolean(preferences.categories && preferences.categories.length > 0);
+  const hasBasicInfo = hasInterests || hasCategories;
 
   const aiSignalsComplete = lastMessage.toLowerCase().includes('let me find') ||
     lastMessage.toLowerCase().includes('perfect events');

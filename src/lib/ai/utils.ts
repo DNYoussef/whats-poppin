@@ -31,7 +31,11 @@ export function dotProduct(vec1: number[], vec2: number[]): number {
   const len = vec1.length;
 
   for (let i = 0; i < len; i++) {
-    sum += vec1[i] * vec2[i];
+    const v1 = vec1[i];
+    const v2 = vec2[i];
+    if (v1 !== undefined && v2 !== undefined) {
+      sum += v1 * v2;
+    }
   }
 
   return sum;
@@ -51,7 +55,10 @@ export function vectorMagnitude(vec: number[]): number {
   const len = vec.length;
 
   for (let i = 0; i < len; i++) {
-    sumSquares += vec[i] * vec[i];
+    const v = vec[i];
+    if (v !== undefined) {
+      sumSquares += v * v;
+    }
   }
 
   if (sumSquares === 0) {
@@ -76,7 +83,10 @@ export function normalizeVector(vec: number[]): number[] {
   const len = vec.length;
 
   for (let i = 0; i < len; i++) {
-    normalized[i] = vec[i] / magnitude;
+    const v = vec[i];
+    if (v !== undefined) {
+      normalized[i] = v / magnitude;
+    }
   }
 
   return normalized;
@@ -140,8 +150,12 @@ export function euclideanDistance(
   const len = vec1.length;
 
   for (let i = 0; i < len; i++) {
-    const diff = vec1[i] - vec2[i];
-    sumSquares += diff * diff;
+    const v1 = vec1[i];
+    const v2 = vec2[i];
+    if (v1 !== undefined && v2 !== undefined) {
+      const diff = v1 - v2;
+      sumSquares += diff * diff;
+    }
   }
 
   return Math.sqrt(sumSquares);
@@ -198,29 +212,44 @@ export function averageVectors(vectors: number[][]): number[] {
     throw new Error('Cannot average empty vector array');
   }
 
-  const dimensions = vectors[0].length;
+  const firstVector = vectors[0];
+  if (!firstVector) {
+    throw new Error('First vector is undefined');
+  }
+  const dimensions = firstVector.length;
 
   if (dimensions === 0) {
     throw new Error('Vectors cannot have zero dimensions');
   }
 
   for (let i = 1; i < vectors.length; i++) {
-    if (vectors[i].length !== dimensions) {
+    const vec = vectors[i];
+    if (!vec || vec.length !== dimensions) {
       throw new Error('All vectors must have same dimensions');
     }
   }
 
-  const averaged = new Array(dimensions).fill(0);
+  const averaged = new Array(dimensions).fill(0) as number[];
   const count = vectors.length;
 
   for (let i = 0; i < count; i++) {
-    for (let j = 0; j < dimensions; j++) {
-      averaged[j] += vectors[i][j];
+    const vec = vectors[i];
+    if (vec) {
+      for (let j = 0; j < dimensions; j++) {
+        const val = vec[j];
+        const curr = averaged[j];
+        if (val !== undefined && curr !== undefined) {
+          averaged[j] = curr + val;
+        }
+      }
     }
   }
 
   for (let j = 0; j < dimensions; j++) {
-    averaged[j] /= count;
+    const curr = averaged[j];
+    if (curr !== undefined) {
+      averaged[j] = curr / count;
+    }
   }
 
   return averaged;
@@ -250,16 +279,29 @@ export function weightedAverageVectors(
     throw new Error(`Weights must sum to 1.0, got ${weightSum}`);
   }
 
-  const dimensions = vectors[0].length;
-  const averaged = new Array(dimensions).fill(0);
+  const firstVector = vectors[0];
+  if (!firstVector) {
+    throw new Error('First vector is undefined');
+  }
+  const dimensions = firstVector.length;
+  const averaged = new Array(dimensions).fill(0) as number[];
 
   for (let i = 0; i < vectors.length; i++) {
-    if (vectors[i].length !== dimensions) {
+    const vec = vectors[i];
+    const weight = weights[i];
+    if (!vec || vec.length !== dimensions) {
       throw new Error('All vectors must have same dimensions');
+    }
+    if (weight === undefined) {
+      throw new Error('Weight is undefined');
     }
 
     for (let j = 0; j < dimensions; j++) {
-      averaged[j] += vectors[i][j] * weights[i];
+      const val = vec[j];
+      const curr = averaged[j];
+      if (val !== undefined && curr !== undefined) {
+        averaged[j] = curr + val * weight;
+      }
     }
   }
 

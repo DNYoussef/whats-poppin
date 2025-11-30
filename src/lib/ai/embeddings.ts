@@ -43,7 +43,11 @@ export async function generateEmbedding(text: string): Promise<number[]> {
     throw new Error('OpenAI returned no embedding data');
   }
 
-  const embedding = response.data[0].embedding;
+  const firstResult = response.data[0];
+  if (!firstResult) {
+    throw new Error('OpenAI returned empty embedding result');
+  }
+  const embedding = firstResult.embedding;
 
   if (embedding.length !== EMBEDDING_DIMENSIONS) {
     throw new Error(

@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+// useState imported for future filter state management
 import { Button } from '@/components/ui/button';
 import {
   Select,

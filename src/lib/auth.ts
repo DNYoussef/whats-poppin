@@ -1,7 +1,31 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
 
-const supabase = createClientComponentClient<Database>();
+// Lazy-loaded Supabase client for auth operations
+let _supabaseAuthClient: ReturnType<typeof createClientComponentClient<Database>> | null = null;
+
+// Lazy-loaded Supabase client for database operations with proper types
+let _supabaseDbClient: ReturnType<typeof createClient<Database>> | null = null;
+
+function getSupabaseAuthClient() {
+  if (!_supabaseAuthClient) {
+    _supabaseAuthClient = createClientComponentClient<Database>();
+  }
+  return _supabaseAuthClient;
+}
+
+function getSupabaseDbClient() {
+  if (!_supabaseDbClient) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) {
+      throw new Error('Missing Supabase environment variables');
+    }
+    _supabaseDbClient = createClient<Database>(url, key);
+  }
+  return _supabaseDbClient;
+}
 
 interface SignUpParams {
   email: string;
@@ -15,12 +39,8 @@ interface SignInParams {
   password: string;
 }
 
-interface ProfileUpdate {
-  username?: string;
-  full_name?: string;
-  avatar_url?: string;
-  preferences?: Record<string, unknown>;
-}
+// Use the Database type for profile updates
+type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
 /**
  * Sign up a new user with email and password
@@ -37,6 +57,7 @@ export async function signUp({ email, password, username, fullName }: SignUpPara
     throw new Error('Password must be at least 8 characters');
   }
 
+  const supabase = getSupabaseAuthClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -68,6 +89,7 @@ export async function signIn({ email, password }: SignInParams) {
     throw new Error('Email and password are required');
   }
 
+  const supabase = getSupabaseAuthClient();
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -88,6 +110,7 @@ export async function signIn({ email, password }: SignInParams) {
  * NASA Rule 10: ≤60 lines, 2+ assertions
  */
 export async function signOut() {
+  const supabase = getSupabaseAuthClient();
   const { error } = await supabase.auth.signOut();
 
   // Assertion 1: Verify no error occurred
@@ -101,6 +124,7 @@ export async function signOut() {
  * NASA Rule 10: ≤60 lines, 2+ assertions
  */
 export async function getSession() {
+  const supabase = getSupabaseAuthClient();
   const { data, error } = await supabase.auth.getSession();
 
   // Assertion 1: Verify no error occurred
@@ -115,6 +139,7 @@ export async function getSession() {
  * NASA Rule 10: ≤60 lines, 2+ assertions
  */
 export async function getUser() {
+  const supabase = getSupabaseAuthClient();
   const { data, error } = await supabase.auth.getUser();
 
   // Assertion 1: Verify no error occurred
@@ -139,6 +164,7 @@ export async function updateProfile(userId: string, updates: ProfileUpdate) {
     throw new Error('No updates provided');
   }
 
+  const supabase = getSupabaseDbClient();
   const { data, error } = await supabase
     .from('profiles')
     .update(updates)
@@ -166,6 +192,7 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
     throw new Error('Username must be at least 3 characters');
   }
 
+  const supabase = getSupabaseDbClient();
   const { data, error } = await supabase
     .from('profiles')
     .select('username')
@@ -183,4 +210,6 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
 // | Version | Timestamp | Agent/Model | Change Summary | Status |
 // |--------:|-----------|-------------|----------------|--------|
 // | 1.0.0   | 2025-10-02T00:00:00 | coder@sonnet-4.5 | Authentication implementation | OK |
+// | 1.1.0   | 2025-11-30T00:00:00 | claude@opus-4 | Lazy-load Supabase client for build | OK |
+// | 1.2.0   | 2025-11-30T00:00:00 | claude@opus-4 | Fix type inference with ReturnType | OK |
 /* AGENT FOOTER END */
