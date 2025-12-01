@@ -5,6 +5,9 @@
 // NASA Rule 10: All functions ≤60 lines, 2+ assertions
 // ============================================================================
 
+// Force dynamic rendering - this route uses request.headers
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/database';
 import { updateEventRecommendations } from '@/lib/ai/recommendations';
