@@ -1,12 +1,9 @@
-'use client';
-
 import Link from 'next/link';
 
 /**
- * Custom 404 Not Found page for App Router
- * Client component to avoid SSG prerendering issues
+ * Custom 404 page for Pages Router compatibility
  */
-export default function NotFound() {
+export default function Custom404() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 px-4">
       <div className="text-center">
@@ -15,7 +12,7 @@ export default function NotFound() {
           Page Not Found
         </h2>
         <p className="text-gray-600 mb-8">
-          The page you're looking for doesn't exist or has been moved.
+          The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
         <Link
           href="/"
