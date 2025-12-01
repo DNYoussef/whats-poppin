@@ -20,6 +20,19 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  // Transpile Three.js packages to avoid SSG issues with @react-three/drei Html component
+  transpilePackages: ['three', '@react-three/fiber', '@react-three/drei'],
+  // Webpack configuration to handle Three.js packages in SSR
+  webpack: (config, { isServer }) => {
+    // Prevent @react-three/drei Html component from importing next/document during SSG
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push({
+        'next/document': 'next/document',
+      });
+    }
+    return config;
+  },
 };
 
 module.exports = nextConfig;
