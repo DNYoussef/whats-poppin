@@ -21,8 +21,8 @@ const HeroScene = dynamic(
 export default function HomePage(): JSX.Element {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center p-8 overflow-hidden">
-      {/* 3D Particle Background */}
-      <div className="absolute inset-0 z-0 opacity-60">
+      {/* 3D Particle Background - pointer-events-none allows clicks to pass through */}
+      <div className="absolute inset-0 z-0 opacity-60 pointer-events-none">
         <CanvasWrapper camera={{ position: [0, 0, 8], fov: 75 }}>
           <HeroScene />
         </CanvasWrapper>
