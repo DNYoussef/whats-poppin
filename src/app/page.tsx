@@ -1,14 +1,17 @@
 'use client';
 
+// Force dynamic rendering to prevent SSG issues with Three.js context
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 
 // Dynamically import 3D components to avoid SSR issues
-const CanvasWrapper = dynamic(
+const CanvasWrapper = nextDynamic(
   () => import('@/components/three/common/Canvas').then((mod) => mod.CanvasWrapper),
   { ssr: false }
 );
-const HeroScene = dynamic(
+const HeroScene = nextDynamic(
   () => import('@/components/three/HeroScene').then((mod) => mod.HeroScene),
   { ssr: false }
 );

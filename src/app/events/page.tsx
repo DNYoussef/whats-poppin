@@ -7,6 +7,9 @@
 
 'use client';
 
+// Force dynamic rendering to prevent SSG issues with client components
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, useCallback } from 'react';
 import { AISearchBar } from '@/components/events/AISearchBar';
 import { EventFilters, FilterState } from '@/components/events/EventFilters';

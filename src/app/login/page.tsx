@@ -1,3 +1,6 @@
+// Force dynamic rendering to prevent SSG issues with client components
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
 import { LoginForm } from '@/components/auth/LoginForm';
 import {

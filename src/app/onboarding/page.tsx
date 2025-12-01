@@ -7,6 +7,9 @@
 
 'use client';
 
+// Force dynamic rendering to prevent SSG issues with client components
+export const dynamic = 'force-dynamic';
+
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { PreferencesForm } from '@/components/onboarding/PreferencesForm';
