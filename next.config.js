@@ -20,16 +20,19 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  // Transpile Three.js packages to avoid SSG issues with @react-three/drei Html component
-  transpilePackages: ['three', '@react-three/fiber', '@react-three/drei'],
   // Webpack configuration to handle Three.js packages in SSR
   webpack: (config, { isServer }) => {
-    // Prevent @react-three/drei Html component from importing next/document during SSG
+    // Completely exclude three.js related packages from server-side bundling
+    // This prevents @react-three/drei Html component from importing next/document during SSG
     if (isServer) {
       config.externals = config.externals || [];
-      config.externals.push({
-        'next/document': 'next/document',
-      });
+      // Mark three.js packages as external to prevent server-side bundling
+      config.externals.push(
+        'three',
+        '@react-three/fiber',
+        '@react-three/drei',
+        'three-mesh-bvh'
+      );
     }
     return config;
   },
