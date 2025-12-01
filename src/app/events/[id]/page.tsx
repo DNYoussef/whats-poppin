@@ -44,7 +44,7 @@ const VenueScene = dynamic(
  */
 export default function EventDetailPage() {
   const params = useParams();
-  const eventId = params.id as string;
+  const eventId = params?.id as string;
   const [event, setEvent] = useState<EventWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
