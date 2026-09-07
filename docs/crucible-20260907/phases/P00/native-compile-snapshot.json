@@ -1,16 +1,18 @@
 {
   ".github/workflows/baseline.yml": "f387fc88ebc035fac4faf25c3a0122dac4258b0eed314af26397fe8f47a7aea0",
   ".github/workflows/mobile.yml": "d507ed694836e2d4a53c59bbd31f2d842e7a16d27c5c5bd8051a3ea67ac738c9",
-  ".github/workflows/native-compile.yml": "84b0537af5b554feca0445f1f40a3955328e03e0f543f5672b17dc5f97b9d5e0",
+  ".github/workflows/native-compile.yml": "45cf9cecd3bec25c3a5e48c34f4b0df8bbebb2baaf7541c036b1b9d749bd2bef",
   "apps/mobile/App.tsx": "8a02c0b5a2545f921930e55315ee5f2295b3455459dd7fdc13734d75f590a54e",
   "apps/mobile/app.json": "6660e89ef4adafff7da7f456620adc9002152796ee10d0700ff1489674aa3291",
   "apps/mobile/index.ts": "5c157f4d44972d9c84415e1e4bda595b3abcd8cf733f8a9cd20935bec3eccc42",
   "apps/mobile/package-lock.json": "fb5b7e1e1e44815d4a468e301ceb561ba0ef4835def8931e345562421564c15e",
   "apps/mobile/package.json": "531e6f8dfb275f614603e286c895bf5744f6b7fbb2859afdb795ea7fe6c0b742",
   "docs/crucible-20260907/PLAN.md": "6e27518542d0a9406416a299003047321ba29c58fd4ac6ed5d1ffeaab745be9f",
+  "docs/crucible-20260907/phases/P00/DEPENDENCY-FOLLOWUP.md": "ce20b0ae1593f0567afc4478ccdc7b1e3104db74b2a87d63d52ae35fb16ccf49",
   "docs/crucible-20260907/phases/P00/NATIVE-COMPILE-GATES.md": "19790a92ee1f248353965809f72b1eb5ac4443f44b33d3deaebc671923f91abd",
   "docs/crucible-20260907/phases/P00/STATUS.md": "65d094bc9733c1399978c603e8929dea1dc93d35d42a5564c8b9f9dccb5f157d",
+  "docs/crucible-20260907/phases/P00/mobile-dependency-audit.json": "e7aea454c3ecedd7b613a6d9a03552bcea49981b1d2e48a81cbd2dc9e8f2b8ee",
   "tests/mobile/check-native-artifacts.py": "0c1be81787db855a00f139ee2d042080ad304186b8dcf63c5944a88db7b8b755",
-  "tests/mobile/check-native-workflow.mjs": "14390a18e709f4315217092407d71b97fe47866075d0471370644d108ed6ad51",
+  "tests/mobile/check-native-workflow.mjs": "7582adc3f059c62ae2ba8f489bddbf935fd521e8bfeacb6174ee23e357ca017d",
   "tests/mobile/prepare-native.mjs": "8f9ca2ae6b13003f0dd43d327733330ad0dc56a745a2193d44c8eb90d126703b"
 }

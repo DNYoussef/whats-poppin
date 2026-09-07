@@ -48,10 +48,12 @@ jobs:
       - run: npm ci
       - run: |
           python3 - <<'PY'
+          import os
           import subprocess
-          subprocess.run(['sdkmanager', '--licenses'], input='y\n' * 100, text=True, check=True, timeout=180)
+          sdkmanager = os.path.join(os.environ['ANDROID_HOME'], 'cmdline-tools/latest/bin/sdkmanager')
+          subprocess.run([sdkmanager, '--licenses'], input='y\n' * 100, text=True, check=True, timeout=180)
+          subprocess.run([sdkmanager, 'platforms;android-36', 'build-tools;36.0.0'], check=True, timeout=300)
           PY
-      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - run: node ../../tests/mobile/prepare-native.mjs android
       - run: bash android/gradlew -p android assembleRelease --no-daemon --max-workers=2 -PreactNativeArchitectures=arm64-v8a
       - run: python3 ../../tests/mobile/check-native-artifacts.py android android/app/build/outputs/apk/release/app-release.apk

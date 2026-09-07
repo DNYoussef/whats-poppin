@@ -42,10 +42,9 @@ const verify = workflow => {
     } else {
       const java = job.steps.find(step => step.uses?.startsWith('actions/setup-java@'));
       assert.deepEqual(java.with, { distribution: 'temurin', 'java-version': '17' });
-      assert.equal(commands[1], "python3 - <<'PY'\nimport subprocess\nsubprocess.run(['sdkmanager', '--licenses'], input='y\\n' * 100, text=True, check=True, timeout=180)\nPY\n");
+      assert.equal(commands[1], "python3 - <<'PY'\nimport os\nimport subprocess\nsdkmanager = os.path.join(os.environ['ANDROID_HOME'], 'cmdline-tools/latest/bin/sdkmanager')\nsubprocess.run([sdkmanager, '--licenses'], input='y\\n' * 100, text=True, check=True, timeout=180)\nsubprocess.run([sdkmanager, 'platforms;android-36', 'build-tools;36.0.0'], check=True, timeout=300)\nPY\n");
       assert.deepEqual(commands.filter((_, index) => index !== 1), [
         'npm ci',
-        "sdkmanager 'platforms;android-36' 'build-tools;36.0.0'",
         'node ../../tests/mobile/prepare-native.mjs android',
         'bash android/gradlew -p android assembleRelease --no-daemon --max-workers=2 -PreactNativeArchitectures=arm64-v8a',
         'python3 ../../tests/mobile/check-native-artifacts.py android android/app/build/outputs/apk/release/app-release.apk',
@@ -64,9 +63,10 @@ for (const mutate of [
   copy => { copy.jobs['ios-compile'].steps.pop(); },
   copy => { copy.jobs['android-compile']['continue-on-error'] = true; },
   copy => { copy.jobs['android-compile'].needs = []; },
+  copy => { const step = copy.jobs['android-compile'].steps.find(step => step.run?.startsWith("python3 - <<'PY'")); step.run = step.run.replace("os.path.join(os.environ['ANDROID_HOME'], 'cmdline-tools/latest/bin/sdkmanager')", "'sdkmanager'"); },
   copy => { copy.jobs['android-compile'].steps.find(step => step.uses?.startsWith('actions/setup-java@')).with['java-version'] = '11'; },
   copy => { const step = copy.jobs['android-compile'].steps.find(step => step.run?.startsWith('bash android/gradlew ')); step.run = step.run.replace('arm64-v8a', 'x86_64'); },
-  copy => { const step = copy.jobs['android-compile'].steps.find(step => step.run?.startsWith('sdkmanager ')); step.run = step.run.replace('36.0.0', '35.0.0'); },
+  copy => { const step = copy.jobs['android-compile'].steps.find(step => step.run?.startsWith("python3 - <<'PY'")); step.run = step.run.replace('36.0.0', '35.0.0'); },
   copy => { const step = copy.jobs['ios-compile'].steps.find(step => step.run?.startsWith('xcodebuild -workspace')); step.run = step.run.replace('-configuration Release', '-configuration Debug'); },
   copy => { const step = copy.jobs['ios-compile'].steps.find(step => step.run?.startsWith('xcodebuild -workspace')); step.run = step.run.replace('-sdk iphonesimulator', '-sdk iphoneos'); },
   copy => { const step = copy.jobs['android-compile'].steps.at(-1); step.run = step.run.replace('app-release.apk', 'app-debug.apk'); },
