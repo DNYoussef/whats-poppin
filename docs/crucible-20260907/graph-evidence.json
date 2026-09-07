@@ -1,0 +1,222 @@
+{
+  "source_commit": "17998d8cb20bc44a9ca04113ea9236f9f9279e1a",
+  "architecture": {
+    "languages": [
+      {
+        "language": "TypeScript",
+        "file_count": 93
+      },
+      {
+        "language": "SQL",
+        "file_count": 5
+      },
+      {
+        "language": "JavaScript",
+        "file_count": 2
+      },
+      {
+        "language": "TOML",
+        "file_count": 1
+      },
+      {
+        "language": "CSS",
+        "file_count": 1
+      },
+      {
+        "language": "Python",
+        "file_count": 1
+      }
+    ],
+    "packages": [
+      {
+        "name": "src",
+        "node_count": 230,
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      {
+        "name": "docs",
+        "node_count": 13,
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      {
+        "name": "railway",
+        "node_count": 2,
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      {
+        "name": "tests",
+        "node_count": 1,
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      {
+        "name": "next",
+        "node_count": 1,
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      {
+        "name": "supabase",
+        "node_count": 1,
+        "fan_in": 0,
+        "fan_out": 0
+      }
+    ],
+    "hotspots": [
+      {
+        "name": "getSupabase",
+        "qualified_name": "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.database.getSupabase",
+        "fan_in": 32
+      },
+      {
+        "name": "cn",
+        "qualified_name": "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.utils.cn",
+        "fan_in": 13
+      },
+      {
+        "name": "getOpenAIClient",
+        "qualified_name": "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.openai.getOpenAIClient",
+        "fan_in": 9
+      },
+      {
+        "name": "getSupabaseAuthClient",
+        "qualified_name": "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.auth.getSupabaseAuthClient",
+        "fan_in": 5
+      },
+      {
+        "name": "calculateCosineSimilarity",
+        "qualified_name": "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.ai.utils.calculateCosineSimilarity",
+        "fan_in": 4
+      },
+      {
+        "name": "getUser",
+        "qualified_name": "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.auth.getUser",
+        "fan_in": 3
+      },
+      {
+        "name": "generateEmbedding",
+        "qualified_name": "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.ai.embeddings.generateEmbedding",
+        "fan_in": 3
+      },
+      {
+        "name": "vectorMagnitude",
+        "qualified_name": "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.ai.utils.vectorMagnitude",
+        "fan_in": 3
+      },
+      {
+        "name": "trackInteraction",
+        "qualified_name": "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.database.trackInteraction",
+        "fan_in": 3
+      },
+      {
+        "name": "read",
+        "qualified_name": "C-Users-17175-.codex-work-whats-poppin-plan-20260907.docs.crucible-20260907.probe-baseline.read",
+        "fan_in": 2
+      }
+    ]
+  },
+  "joined_observations": {
+    "by_node": {
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.database.getSupabase": [
+        {
+          "claim": "C01",
+          "file": "src/lib/database.ts",
+          "line": 41,
+          "type": "manual-source-observation"
+        }
+      ],
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.app.create-event.CreateEventPageClient.handleSubmit": [
+        {
+          "claim": "C02",
+          "file": "src/app/create-event/createeventpageclient.tsx",
+          "line": 142,
+          "type": "manual-source-observation"
+        }
+      ],
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.app.events.[id].page.handleSave": [
+        {
+          "claim": "C03",
+          "file": "src/app/events/[id]/page.tsx",
+          "line": 69,
+          "type": "manual-source-observation"
+        }
+      ],
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.ai.database.saveUserPreferences": [
+        {
+          "claim": "C04",
+          "file": "src/lib/ai/database.ts",
+          "line": 283,
+          "type": "manual-source-observation"
+        }
+      ],
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.ai.preferences.trackEventInteraction": [
+        {
+          "claim": "C05",
+          "file": "src/lib/ai/preferences.ts",
+          "line": 75,
+          "type": "manual-source-observation"
+        }
+      ],
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.ai.database.saveUserRecommendations": [
+        {
+          "claim": "C06",
+          "file": "src/lib/ai/database.ts",
+          "line": 172,
+          "type": "manual-source-observation"
+        }
+      ],
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.lib.ai.smart-search.findSmartRecommendations": [
+        {
+          "claim": "C07",
+          "file": "src/lib/ai/smart-search.ts",
+          "line": 58,
+          "type": "manual-source-observation"
+        }
+      ],
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.app.events.EventsPageClient.EventsPageClient": [
+        {
+          "claim": "C08",
+          "file": "src/app/events/eventspageclient.tsx",
+          "line": 61,
+          "type": "manual-source-observation"
+        }
+      ],
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.app.api.cron.update-embeddings.route.GET": [
+        {
+          "claim": "C09",
+          "file": "src/app/api/cron/update-embeddings/route.ts",
+          "line": 31,
+          "type": "manual-source-observation"
+        }
+      ],
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.app.api.ai.search-conversation.route.POST": [
+        {
+          "claim": "C10",
+          "file": "src/app/api/ai/search-conversation/route.ts",
+          "line": 12,
+          "type": "manual-source-observation"
+        }
+      ],
+      "C-Users-17175-.codex-work-whats-poppin-plan-20260907.src.app.api.events.[id].design.route.PUT": [
+        {
+          "claim": "C11",
+          "file": "src/app/api/events/[id]/design/route.ts",
+          "line": 46,
+          "type": "manual-source-observation"
+        }
+      ]
+    },
+    "hit_rate": 1.0,
+    "joined": 11,
+    "total": 11,
+    "orphans": []
+  },
+  "limits": [
+    "Manual source observations are attached to graph nodes, not automatically proven documentation claims.",
+    "connascence and rlm-docsync lenses are Python-only; TypeScript semantics are unsupported.",
+    "No runtime tracing is available from the substrate."
+  ]
+}

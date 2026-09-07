@@ -1,0 +1,7 @@
+Final narrow read-only recheck, Opus high. Output findings only; do NOT edit files. Do not reopen the product scope. Your round-two verdict was READY_FOR_IMPLEMENTATION_PLAN with five minor wording/enumeration issues. Check those fixes in PLAN.md/CLAIMS.md under docs/crucible-20260907: C01-C17 range, at-least-once/idempotent job acceptance, skipped_budget honesty gate, description/features mapping with NOT NULL, and multi-source takedown ownership moved to P03.
+
+One further small gate correction needs independent verification: verify-artifacts.mjs now diffs tracked changes against the inspected source commit 17998d8cb20bc44a9ca04113ea9236f9f9279e1a instead of HEAD, so later commits cannot hide application edits and committing the planning documents does not make the changed set empty. It still includes untracked files and failure controls. Verify the baseline against git rev-parse HEAD in this current planning worktree.
+
+Read the two mjs probes and directly rerun node docs/crucible-20260907/probe-baseline.mjs and node docs/crucible-20260907/verify-artifacts.mjs. No implementation success is claimed. AUDIT.md's last pending status and G3/G4 evidence are to be filled from your verdict afterward; these recording-only changes do not change the plan or checks under review.
+
+If the corrections are sound and no blocking/major findings remain, state READY_FOR_IMPLEMENTATION_PLAN. Otherwise state findings precisely. End with WHATS_POPPIN_FINAL_AUDIT_COMPLETE. Use numbered reasoning if optional MCP tools are denied.
