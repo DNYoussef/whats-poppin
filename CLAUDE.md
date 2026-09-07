@@ -30,6 +30,8 @@ Treat authenticated principal identity, ownership, private location/feedback, re
 
 ## Local work
 
+Docker does not work on this Windows device. Do not require or troubleshoot local Docker, WSL virtualization or local supabase start. Run Node checks locally and the full disposable Supabase stack on GitHub-hosted Ubuntu only. Plain PostgreSQL does not prove Supabase Auth, RLS or API integration. Use synthetic fixtures and disposable-stack credentials for unprivileged PR tests; remote rehearsal uses a separate test project and non-production GitHub Environment on reviewed trusted-branch pushes only. Missing hosted results block database wiring and release, not independent local work. Build the worker image and native apps on hosted runners.
+
 Install from the existing lockfile with npm ci. Scripts are npm run dev, npm run typecheck, npm run lint:ci and npm run test:ci. Current tests run in Node; add real browser acceptance when implementing browser behavior. A local build requires explicit non-production public Supabase configuration. Never load production credentials just to make a test or build pass.
 
 Read source before changing it. Prefer existing libraries, standard platform features and small direct code over new frameworks. Test error paths and preserve supported behavior. Claims of coverage, security, performance or readiness require fresh measurements; there are no assumed growth or revenue targets.
