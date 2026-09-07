@@ -2,12 +2,12 @@
 // What's Poppin! - Search Bar Component
 // File: SearchBar.tsx
 // Description: Search input with debouncing
-// NASA Rule 10: All functions ≤60 lines
+// NASA Rule 10: All functions <=60 lines
 // ============================================================================
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,17 +35,10 @@ export function SearchBar({
 }: SearchBarProps) {
   const [value, setValue] = useState(initialValue);
 
-  // Debounce search callback
-  const debouncedSearch = useCallback(
-    debounce((query: string) => {
-      onSearch(query);
-    }, debounceMs),
-    [onSearch, debounceMs]
-  );
-
   useEffect(() => {
-    debouncedSearch(value);
-  }, [value, debouncedSearch]);
+    const timer = setTimeout(() => onSearch(value), debounceMs);
+    return () => clearTimeout(timer);
+  }, [value, onSearch, debounceMs]);
 
   const handleClear = () => {
     setValue('');
@@ -73,24 +66,6 @@ export function SearchBar({
       )}
     </div>
   );
-}
-
-/**
- * Debounce function
- * @param fn - Function to debounce
- * @param delay - Delay in ms
- * @returns Debounced function
- */
-function debounce<T extends (...args: any[]) => void>(
-  fn: T,
-  delay: number
-): (...args: Parameters<T>) => void {
-  let timeoutId: NodeJS.Timeout;
-
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), delay);
-  };
 }
 
 /* AGENT FOOTER BEGIN: DO NOT EDIT ABOVE THIS LINE */
