@@ -31,3 +31,5 @@ Event isolation: run 34158466905 passed both jobs at 12873d44ec3b4262187dd3c0a58
 API containment passed local checks and independent Opus high review, then both hosted jobs in run 34161339691 at 1c27d5598bf40876d7ea0f77e13f92f3bcbc9d9d: all unfinished operations return 503 without work; health remains public and cron retains credential rejection. Local handler and real Chromium error-flow checks pass. The hosted web job includes a production Chromium error-flow check. Feature identity and budget wiring are not complete.
 
 Native package boundary spike passed under NATIVE-BOUNDARY-GATES.md. The separate Expo package has local type-isolation controls and iOS/Android JavaScript bundles; Opus high approved it and GitHub mobile run 34162899704 plus baseline run 34162899665 passed at 955b924. Native compilation, auth/location/purchase feasibility, signing, devices and stores remain open.
+
+Native compilation spike is in progress under NATIVE-COMPILE-GATES.md. Local malformed-artifact and workflow controls pass. Hosted Android/iOS compilation and independent review are pending; the generated test identity is not a production app identifier.
