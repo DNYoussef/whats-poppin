@@ -2,13 +2,14 @@
 // What's Poppin! - Update Embeddings Cron Job
 // File: src/app/api/cron/update-embeddings/route.ts
 // Description: Background job to generate embeddings for new events
-// NASA Rule 10: All functions ≤60 lines, 2+ assertions
+// NASA Rule 10: All functions <=60 lines, 2+ assertions
 // ============================================================================
 
 // Force dynamic rendering - this route uses request.headers
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { getEventsWithoutEmbeddings } from '@/lib/ai/database';
 import { batchGenerateEventEmbeddings } from '@/lib/ai/embeddings';
 import { batchSaveEventEmbeddings } from '@/lib/ai/database';
@@ -20,7 +21,7 @@ import { chunkArray } from '@/lib/ai/utils';
 
 /**
  * Generate embeddings for events that don't have them
- * Vercel Cron: Every 6 hours
+ * Legacy vercel.json schedule: every 6 hours; Railway scheduling is P05 work.
  * Auth: Bearer token in CRON_SECRET env var
  */
 export async function GET(request: NextRequest) {
@@ -28,7 +29,10 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret || !timingSafeEqual(
+      createHash('sha256').update(authHeader ?? '').digest(),
+      createHash('sha256').update(`Bearer ${cronSecret}`).digest()
+    )) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

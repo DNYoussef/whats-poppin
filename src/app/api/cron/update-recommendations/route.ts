@@ -2,13 +2,14 @@
 // What's Poppin! - Update Recommendations Cron Job
 // File: src/app/api/cron/update-recommendations/route.ts
 // Description: Background job to refresh user recommendations
-// NASA Rule 10: All functions ≤60 lines, 2+ assertions
+// NASA Rule 10: All functions <=60 lines, 2+ assertions
 // ============================================================================
 
 // Force dynamic rendering - this route uses request.headers
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { getSupabase } from '@/lib/database';
 import { updateEventRecommendations } from '@/lib/ai/recommendations';
 import { deleteExpiredRecommendations } from '@/lib/ai/database';
@@ -19,7 +20,7 @@ import { deleteExpiredRecommendations } from '@/lib/ai/database';
 
 /**
  * Update recommendations for active users
- * Vercel Cron: Daily at 2 AM
+ * Legacy vercel.json schedule: daily at 02:00 UTC; Railway scheduling is P05 work.
  * Auth: Bearer token in CRON_SECRET env var
  */
 export async function GET(request: NextRequest) {
@@ -27,7 +28,10 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret || !timingSafeEqual(
+      createHash('sha256').update(authHeader ?? '').digest(),
+      createHash('sha256').update(`Bearer ${cronSecret}`).digest()
+    )) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

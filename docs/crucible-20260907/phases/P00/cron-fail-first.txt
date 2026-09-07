@@ -1,0 +1,66 @@
+node : [33mThe CJS build of Vite's Node API is deprecated. See 
+https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+At line:48 char:1
++ node node_modules/vitest/vitest.mjs run tests/api/cron-auth.test.ts - ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([33mThe CJS bu...e details.[39m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+ RUN  v1.6.1 C:/Users/17175/.codex-work/whats-poppin-p00-20260907
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please 
+update: `npm i baseline-browser-mapping@latest -D`
+stdout | tests/api/cron-auth.test.ts
+Test suite starting...
+Test suite complete.
+
+ ? tests/api/cron-auth.test.ts  (16 tests | 6 failed) 40ms
+   ? tests/api/cron-auth.test.ts > embeddings cron authorization > rejects secret=undefined header=undefined before work
+     ? expected 200 to be 401 // Object.is equality
+   ? tests/api/cron-auth.test.ts > embeddings cron authorization > rejects secret=undefined header=Bearer undefined before work
+     ? expected 200 to be 401 // Object.is equality
+   ? tests/api/cron-auth.test.ts > embeddings cron authorization > rejects secret= header=Bearer before work
+     ? expected 200 to be 401 // Object.is equality
+   ? tests/api/cron-auth.test.ts > recommendations cron authorization > rejects secret=undefined header=undefined before work
+     ? expected 200 to be 401 // Object.is equality
+   ? tests/api/cron-auth.test.ts > recommendations cron authorization > rejects secret=undefined header=Bearer undefined before work
+     ? expected 200 to be 401 // Object.is equality
+   ? tests/api/cron-auth.test.ts > recommendations cron authorization > rejects secret= header=Bearer before work
+     ? expected 200 to be 401 // Object.is equality
+
+??????? Failed Tests 6 ???????
+
+ FAIL  tests/api/cron-auth.test.ts > embeddings cron authorization > rejects secret=undefined header=undefined before 
+work
+ FAIL  tests/api/cron-auth.test.ts > embeddings cron authorization > rejects secret=undefined header=Bearer undefined 
+before work
+ FAIL  tests/api/cron-auth.test.ts > embeddings cron authorization > rejects secret= header=Bearer before work
+ FAIL  tests/api/cron-auth.test.ts > recommendations cron authorization > rejects secret=undefined header=undefined 
+before work
+ FAIL  tests/api/cron-auth.test.ts > recommendations cron authorization > rejects secret=undefined header=Bearer 
+undefined before work
+ FAIL  tests/api/cron-auth.test.ts > recommendations cron authorization > rejects secret= header=Bearer before work
+AssertionError: expected 200 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 200
+
+ ? tests/api/cron-auth.test.ts:47:31
+     45|       });
+     46|       const response = await handler(request);
+     47|       expect(response.status).toBe(401);
+       |                               ^
+     48|       expect(await response.json()).toEqual({ error: 'Unauthorized' });
+     49|       for (const spy of Object.values(calls)) expect(spy).not.toHaveBe?
+
+????????????????????????[1/6]?
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 10 passed (16)
+   Start at  13:15:22
+   Duration  981ms (transform 80ms, setup 29ms, collect 153ms, tests 40ms, environment 0ms, prepare 164ms)
+

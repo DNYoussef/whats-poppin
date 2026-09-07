@@ -5,7 +5,8 @@ import path from 'path';
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: 'jsdom',
+    // Current suites exercise server code; browser behavior belongs in browser tests.
+    environment: 'node',
     globals: true,
     setupFiles: ['./tests/setup.ts'],
     coverage: {
