@@ -1,0 +1,11 @@
+# Railway inventory, September 7 2026
+
+Read through the authenticated Railway MCP after repairing startup. Project industrious-compassion (b5dc8a11-2f0a-4956-a8ca-0899a0364649), service whats-poppin (ccc86351-94ec-4e97-80a8-78932ba45d46), production environment ca92fc09-72e1-4d21-a8e4-5b1480d58b73. The project's service/environment listing currently contains this one service and production environment; no staging or worker was listed.
+
+Effective source is DNYoussef/whats-poppin, branch main, checkSuites false (Wait for CI disabled). Builder is RAILPACK; deployment runtime V2, one us-east4-eqdc4a replica. Domain whats-poppin-production.up.railway.app targets port 8080. The returned deploy configuration contains no cron or healthcheck setting. This is a configuration observation, not a runtime health or scheduling test.
+
+The tool returned service variable names only: NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_SUPABASE_URL, NODE_ENV, OPENAI_API_KEY. No values were requested or written to this repository. CRON_SECRET was not in that service-local list; this does not establish the complete resolved environment or shared variable state.
+
+Do not import the legacy railway.toml as though it describes this effective service. Preserve the existing resource while preparing reviewed configuration and separate staging. Hosted baseline CI is new work and is not yet an enabled Railway release gate. A push/merge to main may deploy; use the implementation branch for test work, and keep release changes separate.
+
+Recent deployment metadata: 701c727c-f98b-4e25-a8f9-332e9988dfa6 is SUCCESS, created February 4 2026, commit a3b2d23243b5728a1c93c59325642282bac8c1f6. The deployment for baseline main 17998d8cb20bc44a9ca04113ea9236f9f9279e1a is FAILED. Fresh git ls-remote still reports main at 17998d8. After fetching history, git merge-base --is-ancestor confirms the deployed commit precedes the reviewed baseline. Current main and the latest successful deployment are therefore distinct artifacts; a deployment status is not a public endpoint health test. Preserve that older deployed revision as a compatibility/rollback reference until release rehearsal proves a replacement.
