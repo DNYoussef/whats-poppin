@@ -8,8 +8,8 @@ Scope: Prepare and verify GitHub web and disposable Supabase baseline jobs. No l
   EXPECT: WORKFLOW_CONTRACT_VERIFIED
   EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=242ac168acdb/78 entries; EXPECT=matched; output-sha256=9b53f408197ec45f583ed742e59423607b250fd4506ab5a0740d40509d87d34c; output-bytes=27
 
-- [ ] G2: Real hosted Supabase baseline executes against the reviewed commit.
-  EVIDENCE: pending; requires a GitHub run URL with actual stack and SQL evidence. Local static checks cannot mark this gate met.
+- [x] G2: Real hosted Supabase baseline executes against the reviewed commit.
+  EVIDENCE: https://github.com/DNYoussef/whats-poppin/actions/runs/34155357497 at c430dbc13a290fcae0ed7f0ba44acb85f68401ac; both jobs succeeded. Database log records C11_SYNTAX_FAILURE_REPRODUCED and HOSTED_BASELINE_REPRODUCED, PostGIS 3.3.7, vector 0.8.2 and uuid-ossp 1.1. This is evidence for that baseline revision; subsequent probe changes need a new run.
 
 Optional Supabase services retain their pinned CLI defaults initially; measure hosted startup before trimming them. Studio and analytics are already disabled. This baseline tests Auth/PostgREST readiness and SQL, not every optional service.
 

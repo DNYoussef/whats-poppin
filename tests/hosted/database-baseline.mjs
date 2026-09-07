@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
+import { verifyProfilePrivacy } from './profile-privacy.mjs';
 
 assert.ok(process.platform === 'linux' && process.env.GITHUB_ACTIONS === 'true', 'HOSTED_ONLY: run on GitHub Ubuntu, never local Docker');
 const workdir = 'tests/hosted';
@@ -38,3 +39,4 @@ assert.match(malformed.stderr, /syntax error at or near "WHERE"/);
 assert.ok(sql("SELECT 'poppin-after-failure-canary';").stdout.includes('poppin-after-failure-canary'));
 console.log('C11_SYNTAX_FAILURE_REPRODUCED');
 console.log('HOSTED_BASELINE_REPRODUCED');
+await verifyProfilePrivacy({ api, key, sql });

@@ -12,7 +12,7 @@ Completed local units:
 Infrastructure and CI:
 - Railway MCP now performs authenticated project/service reads in this session after the stable CLI/configuration repair. RAILWAY-INVENTORY.md records the exact project, main-branch source, disabled Wait for CI and the older successful deployment revision.
 - Docker cannot work on this Windows device. Do not attempt local Docker or Supabase containers. The approved PLAN.md sends the real Supabase test stack to GitHub-hosted Ubuntu; remote-project rehearsal uses a separate non-production target.
-- baseline.yml, tests/hosted and CI-GATES.md prepare web checks and a disposable database baseline. Static checks and the local-execution rejection control have run; the hosted job has not run yet. It reproduces C11, not full RLS safety or release readiness.
+- GitHub run 34155357497 passed both baseline jobs at c430dbc13a290fcae0ed7f0ba44acb85f68401ac, including web lint/types/tests/build and the disposable Supabase baseline with healthy controls and the C11 syntax defect. CI-GATES.md and HOSTED-GATES.md H1 record evidence; full RLS safety and release readiness remain open.
 - API-POLICY.md maps the required principal and containment checks for each current API operation. Its inventory test does not implement those policies or authorize release.
 
 Remaining P00 work:
