@@ -6,7 +6,7 @@ Scope: Prepare and verify GitHub web and disposable Supabase baseline jobs. No l
   CHECK: node tests/hosted/check-workflow.mjs
   CWD: ../../../..
   EXPECT: WORKFLOW_CONTRACT_VERIFIED
-  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=242ac168acdb/78 entries; EXPECT=matched; output-sha256=9b53f408197ec45f583ed742e59423607b250fd4506ab5a0740d40509d87d34c; output-bytes=27
+  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=38690e26cd6a/78 entries; EXPECT=matched; output-sha256=9b53f408197ec45f583ed742e59423607b250fd4506ab5a0740d40509d87d34c; output-bytes=27
 
 - [x] G2: Real hosted Supabase baseline executes against the reviewed commit.
   EVIDENCE: https://github.com/DNYoussef/whats-poppin/actions/runs/34155357497 at c430dbc13a290fcae0ed7f0ba44acb85f68401ac; both jobs succeeded. Database log records C11_SYNTAX_FAILURE_REPRODUCED and HOSTED_BASELINE_REPRODUCED, PostGIS 3.3.7, vector 0.8.2 and uuid-ossp 1.1. This is evidence for that baseline revision; subsequent probe changes need a new run.
@@ -20,4 +20,4 @@ Optional Supabase services retain their pinned CLI defaults initially; measure h
   CHECK: node node_modules/vitest/vitest.mjs run tests/api-policy-inventory.test.ts
   CWD: ../../../..
   EXPECT: 1 passed
-  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=242ac168acdb/78 entries; EXPECT=matched; output-sha256=6c670742e16d97ba8f8bd1e03b5577d68ddd0bc186a549d82b4827d762eeda1d; output-bytes=717
+  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=38690e26cd6a/78 entries; EXPECT=matched; output-sha256=138df1f0fd0b3e613e6379443492174bed8355314b607c87e6e7bc00bd02fe55; output-bytes=717
