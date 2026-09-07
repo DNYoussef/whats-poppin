@@ -18,18 +18,18 @@ Infrastructure and CI:
 - A read-only GitHub protection query returned "Branch not protected" for main. Supabase CLI project discovery returned "Access token not provided"; a named non-production target and authenticated access are still needed for H3. No credentials were requested in chat. GitHub also warns that the pinned setup-node action's Node 20 runtime is being run under Node 24; the installed application Node version remains the pinned 22.22.0 and both jobs passed.
 
 Remaining P00 work:
-- Handler authentication, bounded paid requests and atomic provider/project budgets; keep unfinished endpoints unavailable before public staging.
+- Authenticated feature wiring, bounded paid requests and atomic provider/project budgets; APIs remain paused until these pass.
 - Rehearse the reviewed privacy and interaction policies on the non-production target. The disposable organizer/city/status matrix passed; application API identity integration and actual timezone scheduling remain open under H2.
 - Hosted migration/constraint/Auth/RLS evidence, source-claim reproductions, remote migration dry-run and recovery/compatibility checks. HOSTED-GATES.md remains open.
 - Effective Railway staging/configuration and required push-check rollout; do not treat the new baseline workflow as an enabled production gate.
-- Native build/auth/location/store-purchase feasibility, signing/account/device access and separate website/iOS/Android release evidence.
+- Native runtime/auth/location/store-purchase feasibility, signing/account/device access and separate website/iOS/Android release evidence. Native test compilation passed; device behavior and store readiness remain unverified.
 
-The top-level planning GATES.md and probe-baseline.mjs certify the historical planning snapshot. Use the current phase ledgers for implementation; the old C09 defect probe must not be treated as an implementation pass after its fix. No production deployment, live database migration, model spending, crawl, billing or store submission has been performed in this work.
+The top-level planning GATES.md and probe-baseline.mjs certify the historical planning snapshot. Use the current phase ledgers for implementation; the old C09 defect probe must not be treated as an implementation pass after its fix. No production deployment, live database migration, application model calls, crawl, billing or store submission has been performed in this work.
 
 Event isolation: run 34158466905 passed both jobs at 12873d44ec3b4262187dd3c0a581da346e014d0e, including EVENT_ISOLATION_VERIFIED, INTERACTION_LEAK_CONTROL_REJECTED and INTERACTION_ISOLATION_VERIFIED. Opus high approved the source before CI in event-audit-2.json.
 
 API containment passed local checks and independent Opus high review, then both hosted jobs in run 34161339691 at 1c27d5598bf40876d7ea0f77e13f92f3bcbc9d9d: all unfinished operations return 503 without work; health remains public and cron retains credential rejection. Local handler and real Chromium error-flow checks pass. The hosted web job includes a production Chromium error-flow check. Feature identity and budget wiring are not complete.
 
-Native package boundary spike passed under NATIVE-BOUNDARY-GATES.md. The separate Expo package has local type-isolation controls and iOS/Android JavaScript bundles; Opus high approved it and GitHub mobile run 34162899704 plus baseline run 34162899665 passed at 955b924. Native compilation, auth/location/purchase feasibility, signing, devices and stores remain open.
+Native package boundary spike passed under NATIVE-BOUNDARY-GATES.md. The separate Expo package has local type-isolation controls and iOS/Android JavaScript bundles; Opus high approved it and GitHub mobile run 34162899704 plus baseline run 34162899665 passed at 955b924. Native compilation is recorded below; auth/location/purchase feasibility, signing, devices and stores remain open.
 
-Native compilation spike is in progress under NATIVE-COMPILE-GATES.md. Local malformed-artifact and workflow controls pass. Hosted Android/iOS compilation and independent review are pending; the generated test identity is not a production app identifier.
+Native compilation passed under NATIVE-COMPILE-GATES.md after three Opus high inspection rounds. Run 34165280167 at 37fe217792a13f7208f6dafeffb7bac6f4213220 built and inspected an Android ARM64 test APK and an iOS simulator app with embedded Hermes bytecode; APK signature verification rejected an unsigned control then accepted the original. Web/database and mobile-package runs also passed on that head. No simulator/device was launched, and the generated identity is not a production app identifier. The uuid advisory recorded in DEPENDENCY-FOLLOWUP.md remains open for P09 triage.
