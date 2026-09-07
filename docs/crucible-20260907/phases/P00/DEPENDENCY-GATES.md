@@ -6,28 +6,28 @@ Scope: Correct GHSA-w5hq-g745-h8pq in the new native build dependency with a sco
   CHECK: node tests/mobile/check-uuid.mjs
   CWD: ../../../..
   EXPECT: MOBILE_UUID_COMPATIBILITY_VERIFIED
-  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=8753b081a1e1/78 entries; EXPECT=matched; output-sha256=d850300ec0e04e6fffc5b9e988a15631ee600e41c57285f88c04a6c763a913f8; output-bytes=35
+  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=f74454945327/78 entries; EXPECT=matched; output-sha256=d850300ec0e04e6fffc5b9e988a15631ee600e41c57285f88c04a6c763a913f8; output-bytes=35
 
 - [x] D2: Mobile remains isolated from the web lockfile and test/type traversal, and CI requires the dependency regression check.
   CHECK: node tests/mobile/check-boundary.mjs
   CWD: ../../../..
   EXPECT: MOBILE_BOUNDARY_VERIFIED
-  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=8753b081a1e1/78 entries; EXPECT=matched; output-sha256=453619b5eca4d14d82ea9811f8fe0bfd4a09df3122aaee6f9889ce72aeaf16bb; output-bytes=58
+  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=f74454945327/78 entries; EXPECT=matched; output-sha256=453619b5eca4d14d82ea9811f8fe0bfd4a09df3122aaee6f9889ce72aeaf16bb; output-bytes=58
 
 - [x] D3: Both mobile JavaScript bundles build with the corrected dependency.
   CHECK: npm run bundle --prefix apps/mobile
   CWD: ../../../..
   EXPECT: MOBILE_BUNDLES_VERIFIED
-  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=8753b081a1e1/78 entries; EXPECT=matched; output-sha256=9ea782ff6b4135ed4e865ca73c9f547e5dc3b4fe687da2b121f57eca1276b3a0; output-bytes=149
+  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=f74454945327/78 entries; EXPECT=matched; output-sha256=9ea782ff6b4135ed4e865ca73c9f547e5dc3b4fe687da2b121f57eca1276b3a0; output-bytes=149
 
-- [ ] D4: Independent Opus high approves the unchanged reviewed snapshot; exact-commit GitHub web/database/mobile and Android/iOS native compilation checks pass. Hosted npm ci --prefix apps/mobile establishes clean lock/override/registry consistency before the dependency check.
-  EVIDENCE: pending
+- [x] D4: Independent Opus high approves the unchanged reviewed snapshot; exact-commit GitHub web/database/mobile and Android/iOS native compilation checks pass. Hosted npm ci --prefix apps/mobile establishes clean lock/override/registry consistency before the dependency check.
+  EVIDENCE: Opus high APPROVED snapshot 17d00e3fb11beb284c1a0aa3067e896a4e8e6198431dddfe8206a19270cd1298 in dependency-audit-3.json; snapshot bytes were rehashed unchanged before commit. GitHub runs 34170165198, 34170165125 and 34170165153 passed at a9581fc91d2c54fba80607d9c8faa1e77a467ce9. dependency-hosted-runs.json records exact jobs and verified markers. Codex authored, Opus inspected read-only, GitHub executed independently. Two build rounds and all three inspection rounds used. Remediation claims here are uuid-specific, not a full security audit.
 
 - [x] D5: Native preparation preserves the dependency override; an in-memory prebuild that drops it is rejected and removal of that guard is detected.
   CHECK: node tests/mobile/check-native-workflow.mjs
   CWD: ../../../..
   EXPECT: NATIVE_WORKFLOW_CONTRACT_VERIFIED
-  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=8753b081a1e1/78 entries; EXPECT=matched; output-sha256=7bef010fc6dbbaf82a6837a87ade060f55d35e9f6805ddfa9591a1ea908e138b; output-bytes=34
+  EVIDENCE: exit=0; shell=C:\WINDOWS\system32\cmd.exe; cwd=C:\Users\17175\.codex-work\whats-poppin-p00-20260907; path=f74454945327/78 entries; EXPECT=matched; output-sha256=7bef010fc6dbbaf82a6837a87ade060f55d35e9f6805ddfa9591a1ea908e138b; output-bytes=34
 
 Supplementary evidence: capture npm audit before and after, inspect the actual installed dependency chain and xcode call site. Registry audit output is not a proof of complete application security or runtime exposure. Keep historical raw audit evidence and describe the scope of the correction.
 
