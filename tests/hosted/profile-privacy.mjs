@@ -78,4 +78,5 @@ export async function verifyProfilePrivacy({ api, key, sql }) {
   const owned = await request(publicPath, alice.token);
   assert.equal(owned[0].organizer.id, alice.profile.id);
   console.log('PROFILE_PRIVACY_VERIFIED');
+  return { request, users, sql };
 }

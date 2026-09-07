@@ -1,0 +1,26 @@
+[
+    {
+        "path":  "docs/crucible-20260907/phases/P00/EVENT-ISOLATION-GATES.md",
+        "sha256":  "5357AC5D75031E975309EF5A9E743949DF2F268ADF4BE88431B9FB0BFB6C386E"
+    },
+    {
+        "path":  "docs/crucible-20260907/PLAN.md",
+        "sha256":  "6E27518542D0A9406416A299003047321BA29C58FD4AC6ED5D1FFEAAB745BE9F"
+    },
+    {
+        "path":  "supabase/migrations/20260907000200_interaction_visibility.sql",
+        "sha256":  "F4658C87458AF30BDD806EE94E1CB4BFA9B346E8F8860A6C505114A73BE067EE"
+    },
+    {
+        "path":  "tests/hosted/database-baseline.mjs",
+        "sha256":  "0D83FA33B60F5B52161C11E433F7F9449AE56339CA994BE30168EA05F32B22EC"
+    },
+    {
+        "path":  "tests/hosted/event-isolation.mjs",
+        "sha256":  "3CCBFD1AE30104ECE60C8808133C4DF7A0AF3779388AA6045CC3184149135E28"
+    },
+    {
+        "path":  "tests/hosted/profile-privacy.mjs",
+        "sha256":  "B326759A9DCC777B8BB78ACF1CFE436C7F99B9905A1C956E441C597477406F6F"
+    }
+]
