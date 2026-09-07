@@ -22,6 +22,7 @@ assert.equal(result.status, 0, 'Pinned native prebuild failed');
 const after = JSON.parse(readFileSync('package.json', 'utf8'));
 assert.deepEqual(after.dependencies, before.dependencies);
 assert.deepEqual(after.devDependencies, before.devDependencies);
+assert.deepEqual(after.overrides, before.overrides);
 assert.deepEqual(readFileSync('../../package-lock.json'), rootLock);
 assert.deepEqual(readFileSync('package-lock.json'), mobileLock);
 console.log('NATIVE_PROJECT_PREPARED', platform);

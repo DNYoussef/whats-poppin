@@ -25,7 +25,7 @@ const verifyWorkflow = workflow => {
   assert.equal(job.steps[1].with['node-version'], '22.22.0');
   for (const step of job.steps) if (step.uses) assert.match(step.uses, /@[a-f0-9]{40}$/);
   assert.deepEqual(job.steps.filter(step => step.run).map(step => step.run), [
-    'npm ci', 'npm ci --prefix apps/mobile', 'node tests/mobile/check-boundary.mjs', 'npm run bundle --prefix apps/mobile',
+    'npm ci', 'npm ci --prefix apps/mobile', 'node tests/mobile/check-uuid.mjs', 'node tests/mobile/check-boundary.mjs', 'npm run bundle --prefix apps/mobile',
   ]);
 };
 const workflow = yaml.load(readFileSync('.github/workflows/mobile.yml', 'utf8'));
@@ -33,9 +33,23 @@ verifyWorkflow(workflow);
 const missingBundle = structuredClone(workflow);
 missingBundle.jobs['mobile-boundary'].steps.pop();
 assert.throws(() => verifyWorkflow(missingBundle));
+const missingUuid = structuredClone(workflow);
+missingUuid.jobs['mobile-boundary'].steps = missingUuid.jobs['mobile-boundary'].steps.filter(step => step.run !== 'node tests/mobile/check-uuid.mjs');
+assert.throws(() => verifyWorkflow(missingUuid));
 const root = JSON.parse(readFileSync('package.json', 'utf8'));
 const mobile = JSON.parse(readFileSync('apps/mobile/package.json', 'utf8'));
 const lock = JSON.parse(readFileSync('apps/mobile/package-lock.json', 'utf8'));
+const verifyOverride = (manifest, locked) => {
+  assert.deepEqual(manifest.overrides, { xcode: { uuid: '11.1.1' } });
+  assert.equal(locked.packages['node_modules/uuid'].version, '11.1.1');
+};
+verifyOverride(mobile, lock);
+const missingOverride = structuredClone(mobile);
+delete missingOverride.overrides;
+assert.throws(() => verifyOverride(missingOverride, lock));
+const oldUuid = structuredClone(lock);
+oldUuid.packages['node_modules/uuid'].version = '7.0.3';
+assert.throws(() => verifyOverride(mobile, oldUuid));
 assert.equal(root.workspaces, undefined);
 const independentLock = candidate => {
   for (const [path, entry] of Object.entries(candidate.packages)) {

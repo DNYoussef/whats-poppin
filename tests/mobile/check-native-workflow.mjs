@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
 import yaml from 'js-yaml';
 
 const verify = workflow => {
@@ -80,4 +81,28 @@ const verifyTemplate = source => assert.match(source, /'--template', 'expo-templ
 const preparation = readFileSync('tests/mobile/prepare-native.mjs', 'utf8');
 verifyTemplate(preparation);
 assert.throws(() => verifyTemplate(preparation.replace('expo-template-bare-minimum@57.0.22', 'expo-template-bare-minimum@latest')));
+// Execute the real preparation guard with an in-memory prebuild result.
+// This checks manifest preservation, not native compilation (hosted jobs do that).
+const checkPreparation = (source, dropOverride) => {
+  let prepared = false;
+  runInNewContext(source.replace(/^import .*;\r?\n/gm, ''), {
+    assert, console: { log() {} },
+    process: { env: { GITHUB_ACTIONS: 'true', CI: 'true' }, argv: ['', '', 'ios'], platform: 'darwin', execPath: 'fixture-node' },
+    readFileSync(path) {
+      if (path.endsWith('package-lock.json')) return 'unchanged-lock';
+      if (path === 'app.json') return '{"expo":{}}';
+      assert.equal(path, 'package.json');
+      return JSON.stringify({ dependencies: {}, devDependencies: {},
+        ...(!(prepared && dropOverride) && { overrides: { xcode: { uuid: '11.1.1' } } }),
+      });
+    },
+    writeFileSync() {},
+    spawnSync() { prepared = true; return { status: 0 }; },
+  }, { timeout: 1000 });
+};
+checkPreparation(preparation, false);
+assert.throws(() => checkPreparation(preparation, true), { code: 'ERR_ASSERTION' });
+const withoutOverrideGuard = preparation.replace('assert.deepEqual(after.overrides, before.overrides);', '');
+assert.notEqual(withoutOverrideGuard, preparation);
+assert.doesNotThrow(() => checkPreparation(withoutOverrideGuard, true));
 console.log('NATIVE_WORKFLOW_CONTRACT_VERIFIED');

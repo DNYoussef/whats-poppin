@@ -1,0 +1,93 @@
+{
+  "baseline": "a59ec3d0671a61db27b84a0f32e629e89c222df2",
+  "files": [
+    {
+      "path": ".github/workflows/mobile.yml",
+      "sha256": "a7d05f2d3bd9244437aff15d4fb4272acca500997da56f6345c58091ee998f94"
+    },
+    {
+      "path": ".github/workflows/native-compile.yml",
+      "sha256": "45cf9cecd3bec25c3a5e48c34f4b0df8bbebb2baaf7541c036b1b9d749bd2bef"
+    },
+    {
+      "path": "apps/mobile/node_modules/uuid/package.json",
+      "sha256": "e5ebc4600db1bfcb5c00d8cc3430d869bdbe229c8d46b4bfac06ab2dfc180c39"
+    },
+    {
+      "path": "apps/mobile/node_modules/xcode/lib/pbxProject.js",
+      "sha256": "c4e97f21f0c4aed9a818b3f011ee0ad577a7899db8af2be243d1d7c08ba403fc"
+    },
+    {
+      "path": "apps/mobile/package-lock.json",
+      "sha256": "7f905929a66a274157d37f45d043fb74e553f68cd0111caa041763ced2beb606"
+    },
+    {
+      "path": "apps/mobile/package.json",
+      "sha256": "f3b022d04283072aef4014beff0464abab1c158e0d2f51f13ad9cf0dc4868760"
+    },
+    {
+      "path": "docs/crucible-20260907/PLAN.md",
+      "sha256": "6e27518542d0a9406416a299003047321ba29c58fd4ac6ed5d1ffeaab745be9f"
+    },
+    {
+      "path": "docs/crucible-20260907/phases/P00/DEPENDENCY-FOLLOWUP.md",
+      "sha256": "5bd467be33d684e1ee3dc330057fafba76391422249a7778288719a8a9deae61"
+    },
+    {
+      "path": "docs/crucible-20260907/phases/P00/DEPENDENCY-GATES.md",
+      "sha256": "786536f1d0ea868bc439b7d008e3b9196828f10fb491ba052d5f1d3a06bc8a97"
+    },
+    {
+      "path": "docs/crucible-20260907/phases/P00/STATUS.md",
+      "sha256": "1f7e1e7c5747df2db5cf7912f553634a373d03da6de085bedf91d6a2a1e412d6"
+    },
+    {
+      "path": "docs/crucible-20260907/phases/P00/dependency-audit-2.json",
+      "sha256": "81d8e2c53ff534cbf48bc16e91e6986de514a2dfb577af4c1189af5cb03ae1b3"
+    },
+    {
+      "path": "docs/crucible-20260907/phases/P00/dependency-fail-first.txt",
+      "sha256": "e40deb4bc3b8731919ddbf1c2e316388288153ba0a9b6e7e94637c1b189178ec"
+    },
+    {
+      "path": "docs/crucible-20260907/phases/P00/dependency-plan-audit.json",
+      "sha256": "40a6497bb43aa678afa017f4c72f79eee91273db8bfabde018096fdb42a1fd67"
+    },
+    {
+      "path": "docs/crucible-20260907/phases/P00/dependency-registry.json",
+      "sha256": "23fe2e1a14dacb8c4798f7b64999bce99f284cc490cb147e685508ae65a1b6e4"
+    },
+    {
+      "path": "docs/crucible-20260907/phases/P00/mobile-dependency-audit-after.json",
+      "sha256": "82f561d649dc27c5a7ac2e50a0b78a0f2f852f73ed49f68a78e3b7edb0cb4b29"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "5f9015b8fe034daf0d34c3433b7282fb7fef52fa01e17d15ae16829cb93a7fc1"
+    },
+    {
+      "path": "tests/mobile/check-boundary.mjs",
+      "sha256": "c5e67429338d98d273d6d54d66a7b5b04656b444f90d858def4b44e703966fdf"
+    },
+    {
+      "path": "tests/mobile/check-bundles.mjs",
+      "sha256": "908b8187dcc508d590b6b9f9a3d081eb6aa3df8b66772cd6c4b378364be094a3"
+    },
+    {
+      "path": "tests/mobile/check-native-artifacts.py",
+      "sha256": "0c1be81787db855a00f139ee2d042080ad304186b8dcf63c5944a88db7b8b755"
+    },
+    {
+      "path": "tests/mobile/check-native-workflow.mjs",
+      "sha256": "24da2add73b5efcd67d62d74291fddc7ce775809bf4914a629214bf51719677b"
+    },
+    {
+      "path": "tests/mobile/check-uuid.mjs",
+      "sha256": "0cae341b88ccb30cf3ee1375f658d41afe3fbe33c3f1588b56d86f3aaacf8024"
+    },
+    {
+      "path": "tests/mobile/prepare-native.mjs",
+      "sha256": "7870c658668751c0842d40cb252806e779efa2fbf67e82394339d2fceb58ed54"
+    }
+  ]
+}
