@@ -41,9 +41,11 @@ export default function DesignPreviewPage({ params }: DesignPreviewPageProps) {
   const [loading, setLoading] = useState(true);
   const [refining, setRefining] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadDesigns = async () => {
+      setError(null);
       try {
         const response = await fetch(`/api/ai/generate-design`, {
           method: 'POST',
@@ -57,6 +59,7 @@ export default function DesignPreviewPage({ params }: DesignPreviewPageProps) {
         setDesigns(data.designs);
       } catch (error) {
         console.error('Design generation error:', error);
+        setError('Design tools are temporarily unavailable. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -108,6 +111,7 @@ export default function DesignPreviewPage({ params }: DesignPreviewPageProps) {
       setFeedback('');
     } catch (error) {
       console.error('Refinement error:', error);
+      setError('Design tools are temporarily unavailable. Please try again later.');
     } finally {
       setRefining(false);
     }
@@ -128,6 +132,7 @@ export default function DesignPreviewPage({ params }: DesignPreviewPageProps) {
       router.push(`/events/${params.id}`);
     } catch (error) {
       console.error('Save error:', error);
+      setError('Design tools are temporarily unavailable. Please try again later.');
     }
   };
 
@@ -148,6 +153,7 @@ export default function DesignPreviewPage({ params }: DesignPreviewPageProps) {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Choose Your Event Design</h1>
+        {error && <p role="alert" className="text-destructive">{error}</p>}
         <p className="text-muted-foreground">
           Select a design and provide feedback to refine it
         </p>

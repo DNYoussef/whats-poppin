@@ -26,11 +26,11 @@ function checkCronReport(report) {
   const cases = report.testResults.flatMap(file => file.assertionResults);
   for (const name of ['embeddings', 'recommendations']) {
     const group = cases.filter(test => test.ancestorTitles.includes(`${name} cron authorization`));
-    // Six denial scenarios, two distinct valid credentials and one downstream failure.
+    // Six denial scenarios, two valid credentials paused before work, and failing dependencies never started.
     assert.equal(group.length, 9, `Missing ${name} regression cases`);
     assert.equal(group.filter(test => test.title.startsWith('rejects secret=')).length, 6);
     assert.equal(group.filter(test => test.title.startsWith('allows configured credential')).length, 2);
-    assert.equal(group.filter(test => test.title === 'handles a downstream failure after valid authorization').length, 1);
+    assert.equal(group.filter(test => test.title === 'does not start failing dependencies after valid authorization').length, 1);
     assert.equal(new Set(group.map(test => test.title)).size, group.length);
     assert.ok(group.every(test => test.status === 'passed'));
   }
@@ -67,7 +67,7 @@ if (command === 'instructions') {
 } else {
   const commands = {
     types: ['node_modules/typescript/bin/tsc', '--noEmit'],
-    lint: ['node_modules/eslint/bin/eslint.js', 'src/app/api/cron/update-embeddings/route.ts', 'src/app/api/cron/update-recommendations/route.ts', 'tests/api/cron-auth.test.ts', 'vitest.config.ts', '--max-warnings', '0'],
+    lint: ['node_modules/eslint/bin/eslint.js', 'src/app/api/cron/update-embeddings/route.ts', 'src/app/api/cron/update-recommendations/route.ts', 'tests/api/cron-auth.test.ts', 'tests/api/containment.test.ts', 'vitest.config.ts', '--max-warnings', '0'],
   };
   assert.ok(Object.hasOwn(commands, command), 'Unknown check');
   if (command === 'types') {

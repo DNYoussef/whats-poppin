@@ -21,7 +21,9 @@ function verify(workflow) {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: 'ci-public-fixture',
   });
   const web = workflow.jobs['web-baseline'].steps;
-  for (const command of ['npm ci', 'node tests/hosted/check-workflow.mjs', 'npm run lint:ci', 'npm run typecheck:ci', 'npm run test:ci', 'npm run build']) assert.ok(web.some(step => step.run === command), command);
+  for (const command of ['npm ci', 'node tests/hosted/check-workflow.mjs', 'npm run lint:ci', 'npm run typecheck:ci', 'npm run test:ci', 'npm run build', 'python -m pip install playwright==1.56.0', 'python -m playwright install --with-deps chromium', 'python tests/browser/containment.py']) assert.ok(web.some(step => step.run === command), command);
+  assert.equal(web.find(step => step.uses?.startsWith('actions/setup-python@')).with['python-version'], '3.12');
+  assert.ok(web.findIndex(step => step.run === 'python tests/browser/containment.py') > web.findIndex(step => step.run === 'npm run build'));
   const database = workflow.jobs['database-baseline'];
   assert.equal(database.steps.find(step => step.uses?.startsWith('supabase/setup-cli@')).with.version, '2.117.0');
   assert.ok(database.steps.some(step => step.run === 'supabase start --workdir tests/hosted'));
@@ -46,6 +48,10 @@ for (const mutate of [
   copy => { copy.jobs['database-baseline'].steps.find(step => step.uses?.startsWith('supabase/setup-cli@')).with.version = 'latest'; },
   copy => { copy.jobs['web-baseline'].steps.find(step => step.run === 'npm run build').run = 'echo npm run build'; },
   copy => { copy.jobs['web-baseline'].steps = copy.jobs['web-baseline'].steps.filter(step => step.run !== 'node tests/hosted/check-workflow.mjs'); },
+  copy => { copy.jobs['web-baseline'].steps = copy.jobs['web-baseline'].steps.filter(step => step.run !== 'python tests/browser/containment.py'); },
+  copy => { copy.jobs['web-baseline'].steps = copy.jobs['web-baseline'].steps.filter(step => step.run !== 'python -m playwright install --with-deps chromium'); },
+  copy => { copy.jobs['web-baseline'].steps.find(step => step.uses?.startsWith('actions/setup-python@')).with['python-version'] = '2.7'; },
+  copy => { const steps = copy.jobs['web-baseline'].steps; steps.unshift(steps.splice(steps.findIndex(step => step.run === 'python tests/browser/containment.py'), 1)[0]); },
 ]) {
   const bad = structuredClone(workflow);
   mutate(bad);

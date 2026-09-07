@@ -36,14 +36,26 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
   const [isProcessing, setIsProcessing] = useState(false);
   const [recommendations, setRecommendations] = useState<ScoredEvent[]>([]);
   const [isComplete, setIsComplete] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error) {
+      recognitionRef.current?.abort();
+      setIsListening(false);
+    }
+  }, [error]);
 
   // Initialize conversation on mount
   useEffect(() => {
     const initializeConversation = async () => {
       setIsProcessing(true);
+      setError(null);
+      setMessages([]);
+      setRecommendations([]);
+      setIsComplete(false);
       try {
         const response = await fetch('/api/ai/search-conversation', {
           method: 'POST',
@@ -51,11 +63,13 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
           body: JSON.stringify({ action: 'start' })
         });
 
+        if (!response.ok) throw new Error('Assistant request failed');
         const data = await response.json();
         setMessages(data.messages);
         speakMessage(data.messages[data.messages.length - 1].content);
       } catch (error) {
         console.error('Failed to start conversation:', error);
+        setError('AI assistant is temporarily unavailable. Please try again later.');
       } finally {
         setIsProcessing(false);
       }
@@ -97,7 +111,7 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
   }, []);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isProcessing) return;
+    if (!inputValue.trim() || isProcessing || error) return;
 
     const userMessage: ConversationMessage = {
       role: 'user',
@@ -118,6 +132,7 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
         })
       });
 
+      if (!response.ok) throw new Error('Assistant request failed');
       const data = await response.json();
       setMessages(data.messages);
       speakMessage(data.messages[data.messages.length - 1].content);
@@ -129,6 +144,7 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
       }
     } catch (error) {
       console.error('Failed to send message:', error);
+      setError('AI assistant is temporarily unavailable. Please try again later.');
     } finally {
       setIsProcessing(false);
     }
@@ -142,10 +158,12 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
         body: JSON.stringify({ preferences, userLocation })
       });
 
+      if (!response.ok) throw new Error('Assistant request failed');
       const data = await response.json();
       setRecommendations(data.recommendations);
     } catch (error) {
       console.error('Failed to fetch recommendations:', error);
+      setError('AI assistant is temporarily unavailable. Please try again later.');
     }
   };
 
@@ -180,6 +198,7 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
             AI Event Assistant
           </DialogTitle>
         </DialogHeader>
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto space-y-4 py-4">
@@ -262,18 +281,20 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
         {!isComplete && (
           <div className="flex gap-2 pt-4 border-t">
             <Input
+              aria-label="Message"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type your message or use voice..."
-              disabled={isProcessing}
+              disabled={isProcessing || !!error}
               className="flex-1"
             />
             <Button
               size="icon"
               variant={isListening ? 'destructive' : 'outline'}
               onClick={toggleVoiceInput}
-              disabled={isProcessing}
+              aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
+              disabled={isProcessing || !!error}
             >
               {isListening ? (
                 <MicOff className="h-4 w-4" />
@@ -284,7 +305,8 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
             <Button
               size="icon"
               onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isProcessing}
+              aria-label="Send message"
+              disabled={!inputValue.trim() || isProcessing || !!error}
             >
               {isProcessing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

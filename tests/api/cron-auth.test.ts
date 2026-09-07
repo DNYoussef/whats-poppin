@@ -52,25 +52,17 @@ for (const [name, handler] of [['embeddings', embeddings], ['recommendations', r
       for (const spy of Object.values(calls)) expect(spy).not.toHaveBeenCalled();
     });
 
-    it.each(['real-secret', randomUUID()])('allows configured credential %s and completes work', async (secret) => {
+    it.each(['real-secret', randomUUID()])('allows configured credential %s but pauses unfinished work', async (secret) => {
       vi.stubEnv('CRON_SECRET', secret);
       const response = await handler(new NextRequest('http://localhost/api/cron/test', {
         headers: { authorization: `Bearer ${secret}` },
       }));
-      expect(response.status).toBe(200);
-      const result = await response.json();
-      expect(result.success).toBe(true);
-      expect(result.processed).toBe(1);
-      if (name === 'embeddings') {
-        expect(calls.events).toHaveBeenCalledWith(200);
-        expect(calls.save).toHaveBeenCalledWith(new Map([['event-canary', [0.1, 0.2]]]));
-      } else {
-        expect(result.deleted).toBe(2);
-        expect(calls.recommend).toHaveBeenCalledWith('user-canary');
-      }
+      expect(response.status).toBe(503);
+      expect((await response.json()).code).toBe('FEATURE_UNAVAILABLE');
+      for (const spy of Object.values(calls)) expect(spy).not.toHaveBeenCalled();
     });
 
-    it('handles a downstream failure after valid authorization', async () => {
+    it('does not start failing dependencies after valid authorization', async () => {
       vi.stubEnv('CRON_SECRET', 'real-secret');
       vi.spyOn(console, 'error').mockImplementation(() => undefined);
       calls.events.mockRejectedValue(new Error('fixture database failure'));
@@ -78,8 +70,9 @@ for (const [name, handler] of [['embeddings', embeddings], ['recommendations', r
       const response = await handler(new NextRequest('http://localhost/api/cron/test', {
         headers: { authorization: 'Bearer real-secret' },
       }));
-      expect(response.status).toBe(500);
-      expect((await response.json()).error).toMatch(/^Failed to /);
+      expect(response.status).toBe(503);
+      expect((await response.json()).code).toBe('FEATURE_UNAVAILABLE');
+      for (const spy of Object.values(calls)) expect(spy).not.toHaveBeenCalled();
     });
   });
 }

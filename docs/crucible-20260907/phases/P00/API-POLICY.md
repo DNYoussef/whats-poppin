@@ -1,6 +1,6 @@
 # API containment inventory
 
-These are required policies, not implemented-security claims. Until their authorization, input, privacy and applicable budget gates pass, unfinished endpoints must remain unavailable in public staging. Health is the public liveness exception. Existing cron credential checks are implemented, but their budget/scheduling requirements remain open. No endpoint is cleared for public release by this inventory.
+These are required policies, not completed-authentication claims. The unfinished operations below currently return 503 without starting work. Health remains the public liveness exception. Cron requests still reject invalid credentials with 401; valid credentials reach the 503 pause. API-CONTAINMENT-GATES.md verifies this temporary contract. Each operation must satisfy its distinct authorization, input, privacy and applicable budget gates before reconnection; there is no environment-variable bypass. No endpoint is cleared for public release by this inventory.
 
 | Method | Route | Required principal | Additional gate before enabling |
 | --- | --- | --- | --- |

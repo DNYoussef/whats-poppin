@@ -3,7 +3,7 @@
 P00 is incomplete. The implementation branch contains reviewed local fixes; database wiring and public release remain gated.
 
 Completed local units:
-- Cron handlers reject missing/invalid secrets before work, with authorized success/error controls. Original fail-first evidence is cron-fail-first.txt.
+- Cron handlers reject missing/invalid secrets before work. The current API containment unit deliberately supersedes authorized execution with 503 until service budgets and worker controls pass; original success/error evidence is historical only.
 - Node test runtime and truthful CLAUDE.md instructions restored. Generated .next output is excluded from coverage; application source remains included.
 - Search timers cancel obsolete work. HOOK-GATES.md and search-audit-final.json record the bounded hook-body evidence.
 - Four remaining hook lint failures repaired without new suppressions. LIFECYCLE-GATES.md and lifecycle-final.json record real React renderer request-trigger tests, exact-case gates and independent Opus approval. Configured src lint now passes; pre-existing suppressions elsewhere remain outside this unit.
@@ -19,9 +19,13 @@ Infrastructure and CI:
 
 Remaining P00 work:
 - Handler authentication, bounded paid requests and atomic provider/project budgets; keep unfinished endpoints unavailable before public staging.
-- Roll out the reviewed private-profile containment through the non-production rehearsal; expand synthetic fixtures to separate organizers, multiple cities/timezones and published/draft/cancelled events. The profile-only fixture checks do not close H2.
+- Rehearse the reviewed privacy and interaction policies on the non-production target. The disposable organizer/city/status matrix passed; application API identity integration and actual timezone scheduling remain open under H2.
 - Hosted migration/constraint/Auth/RLS evidence, source-claim reproductions, remote migration dry-run and recovery/compatibility checks. HOSTED-GATES.md remains open.
 - Effective Railway staging/configuration and required push-check rollout; do not treat the new baseline workflow as an enabled production gate.
 - Native build/auth/location/store-purchase feasibility, signing/account/device access and separate website/iOS/Android release evidence.
 
 The top-level planning GATES.md and probe-baseline.mjs certify the historical planning snapshot. Use the current phase ledgers for implementation; the old C09 defect probe must not be treated as an implementation pass after its fix. No production deployment, live database migration, model spending, crawl, billing or store submission has been performed in this work.
+
+Event isolation: run 34158466905 passed both jobs at 12873d44ec3b4262187dd3c0a581da346e014d0e, including EVENT_ISOLATION_VERIFIED, INTERACTION_LEAK_CONTROL_REJECTED and INTERACTION_ISOLATION_VERIFIED. Opus high approved the source before CI in event-audit-2.json.
+
+API containment is in progress: all unfinished operations return 503 without work; health remains public and cron retains credential rejection. Local handler and real Chromium error-flow checks pass. Independent review and hosted execution of this unit are still pending; feature identity and budget wiring are not complete.

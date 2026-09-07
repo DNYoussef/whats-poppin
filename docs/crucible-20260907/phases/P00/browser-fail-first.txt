@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "C:\Users\17175\.codex-work\whats-poppin-p00-20260907\tests\browser\containment.py", line 51, in <module>
+    expect(page.get_by_role('dialog').get_by_role('alert')).to_have_text('AI assistant is temporarily unavailable. Please try again later.')
+  File "C:\Users\17175\AppData\Roaming\Python\Python312\site-packages\playwright\sync_api\_generated.py", line 20011, in to_have_text
+    self._sync(
+  File "C:\Users\17175\AppData\Roaming\Python\Python312\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "C:\Users\17175\AppData\Roaming\Python\Python312\site-packages\playwright\_impl\_assertions.py", line 561, in to_have_text
+    await self._expect_impl(
+  File "C:\Users\17175\AppData\Roaming\Python\Python312\site-packages\playwright\_impl\_assertions.py", line 85, in _expect_impl
+    raise AssertionError(
+AssertionError: Locator expected to have text 'AI assistant is temporarily unavailable. Please try again later.'
+Actual value: None
+Error: element(s) not found 
+Call log:
+  - Expect "to_have_text" with timeout 5000ms
+  - waiting for get_by_role("dialog").get_by_role("alert")
+
