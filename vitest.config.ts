@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
@@ -8,12 +8,14 @@ export default defineConfig({
     // Current suites exercise server code; browser behavior belongs in browser tests.
     environment: 'node',
     globals: true,
+    exclude: [...configDefaults.exclude, 'apps/mobile/**'],
     setupFiles: ['./tests/setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       exclude: [
         '.next/**',
+        'apps/mobile/**',
         'node_modules/',
         'tests/',
         '**/*.config.*',
