@@ -2,12 +2,12 @@
 // What's Poppin! - Recommended Events Component
 // File: src/components/recommendations/RecommendedEvents.tsx
 // Description: Display personalized event recommendations
-// NASA Rule 10: All functions ≤60 lines, 2+ assertions
+// NASA Rule 10: All functions <= 60 lines, 2+ assertions
 // ============================================================================
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -31,7 +31,7 @@ export function RecommendedEvents({ userId, limit = 10 }: RecommendedEventsProps
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadRecommendations = async (fresh = false) => {
+  const loadRecommendations = useCallback(async (fresh = false) => {
     if (!userId) {
       setError('User ID is required');
       setLoading(false);
@@ -61,11 +61,11 @@ export function RecommendedEvents({ userId, limit = 10 }: RecommendedEventsProps
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, limit]);
 
   useEffect(() => {
     loadRecommendations();
-  }, [userId, limit]);
+  }, [loadRecommendations]);
 
   if (loading) {
     return (

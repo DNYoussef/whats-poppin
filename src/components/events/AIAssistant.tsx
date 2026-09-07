@@ -16,9 +16,18 @@ interface AIAssistantProps {
   userLocation?: { lat: number; lon: number };
 }
 
+const speakMessage = (text: string) => {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.1;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  }
+};
+
 /**
  * AI Assistant Modal with voice and text input
- * NASA Rule 10: ≤60 lines per function, 2+ assertions
+ * NASA Rule 10: <= 60 lines per function, 2+ assertions
  */
 export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps) {
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
@@ -33,6 +42,24 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
 
   // Initialize conversation on mount
   useEffect(() => {
+    const initializeConversation = async () => {
+      setIsProcessing(true);
+      try {
+        const response = await fetch('/api/ai/search-conversation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'start' })
+        });
+
+        const data = await response.json();
+        setMessages(data.messages);
+        speakMessage(data.messages[data.messages.length - 1].content);
+      } catch (error) {
+        console.error('Failed to start conversation:', error);
+      } finally {
+        setIsProcessing(false);
+      }
+    };
     if (isOpen) {
       initializeConversation();
     }
@@ -68,25 +95,6 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
       }
     };
   }, []);
-
-  const initializeConversation = async () => {
-    setIsProcessing(true);
-    try {
-      const response = await fetch('/api/ai/search-conversation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'start' })
-      });
-
-      const data = await response.json();
-      setMessages(data.messages);
-      speakMessage(data.messages[data.messages.length - 1].content);
-    } catch (error) {
-      console.error('Failed to start conversation:', error);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isProcessing) return;
@@ -153,15 +161,6 @@ export function AIAssistant({ isOpen, onClose, userLocation }: AIAssistantProps)
     } else {
       recognitionRef.current.start();
       setIsListening(true);
-    }
-  };
-
-  const speakMessage = (text: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.1;
-      utterance.pitch = 1;
-      window.speechSynthesis.speak(utterance);
     }
   };
 

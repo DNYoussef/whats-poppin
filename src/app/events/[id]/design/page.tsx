@@ -2,7 +2,7 @@
 // What's Poppin! - Event Design Preview Page
 // File: events/[id]/design/page.tsx
 // Description: Preview and select AI-generated event page designs
-// NASA Rule 10: All functions ≤60 lines
+// NASA Rule 10: All functions <= 60 lines
 // ============================================================================
 
 'use client';
@@ -43,27 +43,26 @@ export default function DesignPreviewPage({ params }: DesignPreviewPageProps) {
   const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
+    const loadDesigns = async () => {
+      try {
+        const response = await fetch(`/api/ai/generate-design`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ eventId: params.id })
+        });
+
+        if (!response.ok) throw new Error('Failed to generate designs');
+
+        const data = await response.json();
+        setDesigns(data.designs);
+      } catch (error) {
+        console.error('Design generation error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
     loadDesigns();
   }, [params.id]);
-
-  const loadDesigns = async () => {
-    try {
-      const response = await fetch(`/api/ai/generate-design`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId: params.id })
-      });
-
-      if (!response.ok) throw new Error('Failed to generate designs');
-
-      const data = await response.json();
-      setDesigns(data.designs);
-    } catch (error) {
-      console.error('Design generation error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleVoiceInput = () => {
     if (!('webkitSpeechRecognition' in window)) {

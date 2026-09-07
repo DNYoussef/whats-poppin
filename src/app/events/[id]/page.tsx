@@ -2,7 +2,7 @@
 // What's Poppin! - Event Detail Page
 // File: events/[id]/page.tsx
 // Description: Single event detail view
-// NASA Rule 10: All functions ≤60 lines
+// NASA Rule 10: All functions <= 60 lines
 // ============================================================================
 
 'use client';
@@ -50,20 +50,19 @@ export default function EventDetailPage() {
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
+    const loadEvent = async () => {
+      setLoading(true);
+      try {
+        const data = await getEvent(eventId);
+        setEvent(data);
+      } catch (error) {
+        console.error('Failed to load event:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
     loadEvent();
   }, [eventId]);
-
-  const loadEvent = async () => {
-    setLoading(true);
-    try {
-      const data = await getEvent(eventId);
-      setEvent(data);
-    } catch (error) {
-      console.error('Failed to load event:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSave = () => {
     setIsSaved(!isSaved);
