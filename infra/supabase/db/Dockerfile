@@ -3,4 +3,4 @@ COPY roles.sql /docker-entrypoint-initdb.d/init-scripts/99-roles.sql
 COPY jwt.sql /docker-entrypoint-initdb.d/init-scripts/99-jwt.sql
 COPY --chmod=755 persist-config.sh /usr/local/bin/persist-config.sh
 ENTRYPOINT ["/usr/local/bin/persist-config.sh"]
-CMD ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf", "-c", "log_min_messages=fatal"]
+CMD ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf", "-c", "log_min_messages=warning", "-c", "data_directory=/var/lib/postgresql/data/pgdata"]

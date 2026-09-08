@@ -1,6 +1,6 @@
 # P00 hosted database prerequisites
 
-Scope: Results required before P00 backend completion and P01 database wiring. Local Docker is excluded. These external evidence gates stay unmet until the corresponding workflow and target exist; runnable checks must be authored with the workflow before its implementation, not replaced by invented run IDs or always-passing placeholders.
+Scope: H3a is required before P01 database wiring; H3b and H4 remain release prerequisites. Local Docker is excluded. These external evidence gates stay unmet until the corresponding workflow and target exist; runnable checks must be authored with the workflow before its implementation, not replaced by invented run IDs or always-passing placeholders.
 
 - [x] H1: Disposable full Supabase stack starts on GitHub-hosted Ubuntu; the baseline reproduces known migration defects and passes healthy controls with measured PostGIS/vector/uuid versions.
   EVIDENCE: https://github.com/DNYoussef/whats-poppin/actions/runs/34155357497 at c430dbc13a290fcae0ed7f0ba44acb85f68401ac; database-baseline succeeded with both healthy controls and C11_SYNTAX_FAILURE_REPRODUCED. PostGIS 3.3.7, vector 0.8.2, uuid-ossp 1.1. P01 corrected/upgrade migrations remain open.

@@ -1,19 +1,18 @@
 """Disposable hosted test. Never connects to a managed or Railway database."""
 import json
 import os
-from pathlib import Path
 import secrets
+import re
 import subprocess
 import sys
-import tempfile
 import time
 
-from probe import jwt, verify
+from probe import jwt, verify, migration_probe
 
 assert sys.platform == 'linux' and os.environ.get('GITHUB_ACTIONS') == 'true', 'GitHub Linux only'
 assert not any(os.environ.get(key) for key in ['RAILWAY_TOKEN', 'SUPABASE_ACCESS_TOKEN']), 'No platform credentials allowed'
 env = os.environ.copy()
-env.update(POSTGRES_PASSWORD=secrets.token_hex(32), JWT_SECRET=secrets.token_hex(32), API_URL='http://127.0.0.1:54329')
+env.update(POSTGRES_PASSWORD=secrets.token_hex(32), JWT_SECRET=secrets.token_hex(32), AUTH_DB_PASSWORD=secrets.token_hex(32), REST_DB_PASSWORD=secrets.token_hex(32), API_URL='http://127.0.0.1:54329')
 for key, role in [('ANON_KEY', 'anon'), ('SERVICE_ROLE_KEY', 'service_role')]:
     env[key] = jwt(env['JWT_SECRET'], {'role': role, 'iss': 'supabase', 'iat': int(time.time()), 'exp': int(time.time())+7200})
 compose = ['docker', 'compose', '-p', 'poppin-selfhost-' + secrets.token_hex(6), '-f', 'infra/supabase/compose.yml']
@@ -24,7 +23,7 @@ def run(args, data=None, expected=0, timeout=300, workdir=None):
     if result.returncode != expected:
         # Do not print command arguments or container logs: either can contain tokens.
         output = result.stdout + result.stderr
-        for key in ['POSTGRES_PASSWORD', 'JWT_SECRET', 'ANON_KEY', 'SERVICE_ROLE_KEY']:
+        for key in ['POSTGRES_PASSWORD', 'AUTH_DB_PASSWORD', 'REST_DB_PASSWORD', 'JWT_SECRET', 'ANON_KEY', 'SERVICE_ROLE_KEY']:
             output = output.replace(env[key], '[REDACTED]')
         raise RuntimeError(f'{args[0]} failed with {result.returncode}: {output[-4000:]}')
     return result.stdout.strip()
@@ -59,45 +58,11 @@ def restart():
 
 
 def migrate(suffix):
-    database = 'self_host_migration_probe_' + suffix
-    sql('CREATE DATABASE ' + database)
     container = run(compose + ['ps', '-q', 'db'])
     address = json.loads(run(['docker', 'inspect', container]))[0]['NetworkSettings']['Networks']
     assert len(address) == 1
     ip = next(iter(address.values()))['IPAddress']
-    url = f"postgresql://postgres:{env['POSTGRES_PASSWORD']}@{ip}:5432/{database}?sslmode=disable"
-    with tempfile.TemporaryDirectory(prefix='poppin-migration-') as directory:
-        folder = Path(directory) / 'supabase'
-        (folder / 'migrations').mkdir(parents=True)
-        (folder / 'config.toml').write_text('project_id = "self-host-probe"\n')
-        (folder / 'migrations/20260907000001_probe.sql').write_text("CREATE TABLE public.probe(value text NOT NULL); INSERT INTO public.probe VALUES ('" + suffix + "');\n")
-        push = ['supabase', 'db', 'push', '--db-url', url, '--workdir', directory, '--yes']
-        def absent():
-            assert sql("SELECT to_regclass('public.probe') IS NULL", database) == 't'
-        absent()
-        run(push + ['--dry-run'])
-        absent()
-        run(push)
-        assert sql('SELECT value FROM public.probe', database) == suffix
-        try:
-            absent()
-        except AssertionError:
-            pass
-        else:
-            raise AssertionError('Dry-run absence oracle accepted a populated table')
-        history = sql('SELECT version FROM supabase_migrations.schema_migrations ORDER BY version', database)
-        assert history == '20260907000001'
-        run(push)
-        assert sql('SELECT version FROM supabase_migrations.schema_migrations ORDER BY version', database) == history
-        (folder / 'migrations/20260907000002_forward.sql').write_text("UPDATE public.probe SET value = value || '-forward';\n")
-        run(push)
-
-    def check():
-        assert sql('SELECT value FROM public.probe', database) == suffix + '-forward'
-        assert sql('SELECT version FROM supabase_migrations.schema_migrations ORDER BY version', database) == '20260907000001\n20260907000002'
-    check()
-    print('SELF_HOST_MIGRATIONS_VERIFIED')
-    return check
+    return migration_probe(suffix, sql, run, lambda database: f"postgresql://postgres:{env['POSTGRES_PASSWORD']}@{ip}:5432/{database}?sslmode=disable")
 
 
 try:
@@ -108,6 +73,18 @@ try:
     assert control.returncode != 0, 'Missing-secret control was accepted'
     run(compose + ['up', '-d', '--build'], timeout=900)
     ready()
+    for key, value in [('ANON_KEY', 'bad key\" 1; }'), ('SB_AUTH_HOST', 'auth; injection')]:
+        bad = subprocess.run(compose + ['run', '--rm', '--no-deps', '-e', key + '=' + value, 'gateway', 'nginx', '-t'], env=env, capture_output=True, timeout=60)
+        assert bad.returncode != 0, 'Gateway injection control was accepted'
     verify(env['API_URL'], env['ANON_KEY'], env['SERVICE_ROLE_KEY'], env['JWT_SECRET'], sql, mail, migrate, restart)
+except Exception:
+    logs = subprocess.run(compose + ['logs', '--no-color', '--tail', '60'], env=env, capture_output=True, text=True, timeout=30)
+    output = logs.stdout + logs.stderr
+    for key in ['POSTGRES_PASSWORD', 'AUTH_DB_PASSWORD', 'REST_DB_PASSWORD', 'JWT_SECRET', 'ANON_KEY', 'SERVICE_ROLE_KEY']:
+        output = output.replace(env[key], '[REDACTED]')
+    output = re.sub(r'eyJ[A-Za-z0-9_.-]+', '[JWT REDACTED]', output)
+    output = re.sub(r'(token|password|secret)([= :]+)[^\s&\"]+', r'\1\2[REDACTED]', output, flags=re.I)
+    print(output[-8000:])
+    raise
 finally:
     run(compose + ['down', '--volumes', '--remove-orphans'], timeout=120)

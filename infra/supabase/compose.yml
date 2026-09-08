@@ -1,4 +1,5 @@
-# Disposable GitHub test stack. Railway uses the same images and configuration.
+# Disposable GitHub test stack. Railway deploys these images with private DNS,
+# a real HTTPS API_URL and signup disabled except during the bounded probe.
 services:
   db:
     image: poppin-sb-db:ci
@@ -9,6 +10,8 @@ services:
       POSTGRES_DB: postgres
       PGDATA: /var/lib/postgresql/data/pgdata
       JWT_SECRET: ${JWT_SECRET:?required}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:?required}
+      REST_DB_PASSWORD: ${REST_DB_PASSWORD:?required}
       JWT_EXP: '3600'
     volumes:
       - db-data:/var/lib/postgresql/data
@@ -34,7 +37,7 @@ services:
       GOTRUE_SITE_URL: http://localhost:3000
       GOTRUE_URI_ALLOW_LIST: http://localhost:3000
       GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD:?required}@db:5432/postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${AUTH_DB_PASSWORD:?required}@db:5432/postgres
       GOTRUE_JWT_SECRET: ${JWT_SECRET:?required}
       GOTRUE_JWT_EXP: '3600'
       GOTRUE_JWT_AUD: authenticated
@@ -48,11 +51,11 @@ services:
       GOTRUE_SMTP_HOST: mail
       GOTRUE_SMTP_PORT: '1025'
       GOTRUE_SMTP_USER: fixture
-      GOTRUE_SMTP_PASS: ${POSTGRES_PASSWORD:?required}
+      GOTRUE_SMTP_PASS: fixture-mail-only
       GOTRUE_SMTP_ADMIN_EMAIL: noreply@poppin.invalid
       GOTRUE_SMTP_SENDER_NAME: Poppin Staging
       GOTRUE_SMTP_MAX_FREQUENCY: 1s
-      GOTRUE_RATE_LIMIT_EMAIL_SENT: '100'
+      GOTRUE_RATE_LIMIT_EMAIL_SENT: '2'
       GOTRUE_MAILER_URLPATHS_CONFIRMATION: /auth/v1/verify
       GOTRUE_MAILER_URLPATHS_RECOVERY: /auth/v1/verify
       GOTRUE_LOG_LEVEL: warn
@@ -61,7 +64,7 @@ services:
     depends_on:
       db: {condition: service_healthy}
     environment:
-      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD:?required}@db:5432/postgres
+      PGRST_DB_URI: postgres://authenticator:${REST_DB_PASSWORD:?required}@db:5432/postgres
       PGRST_DB_SCHEMAS: public
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET:?required}
@@ -77,7 +80,5 @@ services:
       SB_REST_HOST: rest
       ANON_KEY: ${ANON_KEY:?required}
       SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY:?required}
-      NGINX_ENTRYPOINT_LOCAL_RESOLVERS: '1'
-      NGINX_ENVSUBST_FILTER: '^(SB_AUTH_HOST|SB_REST_HOST|ANON_KEY|SERVICE_ROLE_KEY|NGINX_LOCAL_RESOLVERS)$'
 volumes:
   db-data: {}

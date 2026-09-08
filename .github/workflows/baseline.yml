@@ -26,6 +26,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node tests/hosted/check-workflow.mjs
+      - run: node tests/self-host/check-config.mjs
       - run: npm run lint:ci
       - run: npm run typecheck:ci
       - run: npm run test:ci

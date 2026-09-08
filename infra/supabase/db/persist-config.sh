@@ -1,5 +1,6 @@
 #!/bin/sh
 set -eu
+: "${POSTGRES_PASSWORD:?required}" "${AUTH_DB_PASSWORD:?required}" "${REST_DB_PASSWORD:?required}" "${JWT_SECRET:?required}"
 # Railway permits one volume. Keep both PGDATA and the pgsodium key on it.
 if [ ! -d /var/lib/postgresql/data/custom ]; then
   cp -a /etc/postgresql-custom /var/lib/postgresql/data/custom
