@@ -1,0 +1,27 @@
+[
+  {
+    "name": "20251001000001_initial_schema.sql",
+    "source": "src/database/migrations/001_initial_schema.sql",
+    "sha256_lf": "fc6091635f562a65774814d1d0579cf43f966eec342f73758f968e3d360cab5d"
+  },
+  {
+    "name": "20251001000002_enable_rls.sql",
+    "source": "src/database/migrations/002_enable_rls.sql",
+    "sha256_lf": "2183d4ed73dc99e4d9aa8fabe80616d22073a97ebffd7ab05444563767538835"
+  },
+  {
+    "name": "20251002000000_event_designs.sql",
+    "source": "scripts/migrations/event_designs.sql",
+    "sha256_lf": "1c70ffe53d3ff7ce66cb9e88a6826780e3e6fffad621708c526e71b76f9252cb"
+  },
+  {
+    "name": "20260907000100_private_profile_reads.sql",
+    "source": "supabase/migrations/20260907000100_private_profile_reads.sql",
+    "sha256_lf": "faa90ffee4811170face478e5fc74e6f28743c2c744da36f3c5ea063820466a1"
+  },
+  {
+    "name": "20260907000200_interaction_visibility.sql",
+    "source": "supabase/migrations/20260907000200_interaction_visibility.sql",
+    "sha256_lf": "f4658c87458af30bdd806ee94e1cb4bfa9b346e8f8860a6c505114a73be067ee"
+  }
+]

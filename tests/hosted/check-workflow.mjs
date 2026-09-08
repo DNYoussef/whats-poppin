@@ -6,7 +6,7 @@ function verify(workflow) {
   assert.deepEqual(Object.keys(workflow.on).sort(), ['pull_request', 'push']);
   assert.deepEqual(workflow.permissions, { contents: 'read' });
   assert.ok(!JSON.stringify(workflow).includes('secrets.'));
-  assert.deepEqual(Object.keys(workflow.jobs).sort(), ['database-baseline', 'web-baseline']);
+  assert.deepEqual(Object.keys(workflow.jobs).sort(), ['application-migrations', 'database-baseline', 'web-baseline']);
   for (const job of Object.values(workflow.jobs)) {
     assert.equal(job.permissions, undefined);
     assert.equal(job['runs-on'], 'ubuntu-24.04');
@@ -24,6 +24,12 @@ function verify(workflow) {
   for (const command of ['node tests/security/next-patch.mjs', 'node tests/self-host/check-config.mjs', 'npm ci', 'node tests/hosted/check-workflow.mjs', 'npm run lint:ci', 'npm run typecheck:ci', 'npm run test:ci', 'npm run build', 'python -m pip install playwright==1.56.0', 'python -m playwright install --with-deps chromium', 'python tests/browser/containment.py']) assert.ok(web.some(step => step.run === command), command);
   assert.equal(web.find(step => step.uses?.startsWith('actions/setup-python@')).with['python-version'], '3.12');
   assert.ok(web.findIndex(step => step.run === 'python tests/browser/containment.py') > web.findIndex(step => step.run === 'npm run build'));
+  const migrations = workflow.jobs['application-migrations'];
+  assert.deepEqual(migrations.strategy, { 'fail-fast': false, matrix: { mode: ['fresh', 'upgrade'] } });
+  for (const command of ['python tests/migrations/test_prepare.py', 'supabase start --workdir tests/hosted', 'python tests/migrations/hosted.py ${{ matrix.mode }}']) assert.ok(migrations.steps.some(step => step.run === command), command);
+  assert.equal(migrations.steps.find(step => step.uses?.startsWith('supabase/setup-cli@')).with.version, '2.117.0');
+  assert.equal(migrations.steps.find(step => step.uses?.startsWith('actions/setup-python@')).with['python-version'], '3.12');
+  assert.ok(migrations.steps.some(step => step.if === 'always()' && step.run === 'supabase stop --workdir tests/hosted --no-backup'));
   const database = workflow.jobs['database-baseline'];
   assert.equal(database.steps.find(step => step.uses?.startsWith('supabase/setup-cli@')).with.version, '2.117.0');
   assert.ok(database.steps.some(step => step.run === 'supabase start --workdir tests/hosted'));
@@ -34,6 +40,10 @@ function verify(workflow) {
 const workflow = yaml.load(readFileSync('.github/workflows/baseline.yml', 'utf8'));
 verify(workflow);
 for (const mutate of [
+  ...['python tests/migrations/test_prepare.py', 'supabase start --workdir tests/hosted', 'python tests/migrations/hosted.py ${{ matrix.mode }}', 'supabase stop --workdir tests/hosted --no-backup'].map(command => copy => { copy.jobs['application-migrations'].steps = copy.jobs['application-migrations'].steps.filter(step => step.run !== command); }),
+  copy => { copy.jobs['application-migrations'].steps.find(step => step.uses?.startsWith('supabase/setup-cli@')).with.version = 'latest'; },
+  copy => { copy.jobs['application-migrations'].strategy.matrix.mode = ['fresh']; },
+  copy => { copy.jobs['application-migrations'].steps = copy.jobs['application-migrations'].steps.filter(step => !step.run?.startsWith('python tests/migrations/hosted.py')); },
   copy => { copy.jobs['web-baseline'].steps = copy.jobs['web-baseline'].steps.filter(step => step.run !== 'node tests/security/next-patch.mjs'); },
   copy => { copy.jobs['web-baseline'].steps = copy.jobs['web-baseline'].steps.filter(step => step.run !== 'node tests/self-host/check-config.mjs'); },
   copy => { copy.on.pull_request_target = {}; },
