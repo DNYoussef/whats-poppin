@@ -66,8 +66,12 @@ def verify(api, anon, admin, secret, sql, mail, migrate, restart):
     request('/unsupported', expected=404)
     request('/rest/v1/', method='OPTIONS', key=None, expected=204)
     _, allowed = request('/auth/v1/health', extra_headers={'Origin': 'http://localhost:3000'})
-    assert allowed.get('Access-Control-Allow-Origin') == 'http://localhost:3000'
     _, denied = request('/auth/v1/health', extra_headers={'Origin': 'https://untrusted.invalid'})
+    print('SELF_HOST_CORS_HEADERS', json.dumps({
+        'allowed': allowed.get_all('Access-Control-Allow-Origin', []),
+        'denied': denied.get_all('Access-Control-Allow-Origin', []),
+    }), flush=True)
+    assert allowed.get('Access-Control-Allow-Origin') == 'http://localhost:3000'
     assert denied.get('Access-Control-Allow-Origin') is None
 
     extensions = json.loads(sql("CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS vector; CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"; SELECT json_object_agg(extname, extversion) FROM pg_extension WHERE extname IN ('postgis','vector','uuid-ossp');").splitlines()[-1])
