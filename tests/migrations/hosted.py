@@ -10,6 +10,7 @@ import tempfile
 import time
 import uuid
 from pathlib import Path
+from concurrency import exercise
 
 assert sys.platform == "linux" and os.environ.get("GITHUB_ACTIONS") == "true", "HOSTED_ONLY: no local Docker"
 ROOT = Path(__file__).resolve().parents[2]
@@ -19,14 +20,14 @@ spec.loader.exec_module(prepare)
 MODE = sys.argv[1]
 assert MODE in ("fresh", "upgrade")
 
-def command(args, input=None, good=True):
-    result = subprocess.run(args, input=input, text=True, capture_output=True, timeout=180)
+def command(args, input=None, good=True, timeout=180):
+    result = subprocess.run(args, input=input, text=True, capture_output=True, timeout=timeout)
     if good:
         assert result.returncode == 0, result.stderr + result.stdout
     return result
 
-def sql(text, good=True):
-    return command(["docker", "exec", "-i", "supabase_db_whats-poppin-ci", "psql", "-U", "postgres", "-d", "postgres", "-XAt", "-v", "ON_ERROR_STOP=1"], text, good)
+def sql(text, good=True, timeout=180):
+    return command(["docker", "exec", "-i", "supabase_db_whats-poppin-ci", "psql", "-U", "postgres", "-d", "postgres", "-XAt", "-v", "ON_ERROR_STOP=1"], text, good, timeout)
 
 assert command(["supabase", "--version"]).stdout.strip() == "2.117.0"
 assert sql("SELECT to_regclass('public.events') IS NULL;").stdout.strip() == "t"
@@ -49,8 +50,9 @@ with tempfile.TemporaryDirectory(prefix="poppin-migrations-") as directory:
     verify_provenance()
     entries = sorted(folder.glob("*.sql"))
     versions = [p.name.split("_",1)[0] for p in entries]
-    def push(good=True, dry=False):
-        return command(["supabase", "db", "push", "--db-url", "postgresql://postgres:postgres@127.0.0.1:54322/postgres?sslmode=disable", "--workdir", str(project), "--yes"] + (["--dry-run"] if dry else []), good=good)
+    def push(good=True, dry=False, project_dir=project):
+        url = "postgresql://postgres:postgres@127.0.0.1:54322/postgres?sslmode=disable"
+        return command(["supabase", "db", "push", "--db-url", url, "--workdir", str(project_dir), "--yes"] + (["--dry-run"] if dry else []), good=good)
     if MODE == "upgrade":
         held = [(p, p.read_bytes()) for p in entries[3:]]
         for path, data in held:
@@ -138,4 +140,5 @@ with tempfile.TemporaryDirectory(prefix="poppin-migrations-") as directory:
     assert sql("SELECT id FROM public.failure_canary;").stdout.strip() == "42"
     assert sql("SELECT version FROM supabase_migrations.schema_migrations ORDER BY version;").stdout.splitlines() == history + ['20990101000000']
     verify_provenance()
+    exercise(sql, push, folder, history + ['20990101000000'], MODE)
 print("APPLICATION_MIGRATIONS_VERIFIED", MODE)

@@ -26,7 +26,7 @@ function verify(workflow) {
   assert.ok(web.findIndex(step => step.run === 'python tests/browser/containment.py') > web.findIndex(step => step.run === 'npm run build'));
   const migrations = workflow.jobs['application-migrations'];
   assert.deepEqual(migrations.strategy, { 'fail-fast': false, matrix: { mode: ['fresh', 'upgrade'] } });
-  for (const command of ['python -B tests/migrations/test_prepare.py', 'supabase start --workdir tests/hosted', 'python -B tests/migrations/hosted.py ${{ matrix.mode }}']) assert.ok(migrations.steps.some(step => step.run === command), command);
+  for (const command of ['python -B tests/migrations/test_prepare.py', 'python -B tests/migrations/test_concurrency.py', 'supabase start --workdir tests/hosted', 'python -B tests/migrations/hosted.py ${{ matrix.mode }}']) assert.ok(migrations.steps.some(step => step.run === command), command);
   assert.equal(migrations.steps.find(step => step.uses?.startsWith('supabase/setup-cli@')).with.version, '2.117.0');
   assert.equal(migrations.steps.find(step => step.uses?.startsWith('actions/setup-python@')).with['python-version'], '3.12');
   assert.ok(migrations.steps.some(step => step.if === 'always()' && step.run === 'supabase stop --workdir tests/hosted --no-backup'));
@@ -43,6 +43,8 @@ function verify(workflow) {
 const workflow = yaml.load(readFileSync('.github/workflows/baseline.yml', 'utf8'));
 verify(workflow);
 for (const mutate of [
+  copy => { delete copy.jobs['application-migrations'].steps.find(step => step.if === 'always()').if; },
+  copy => { copy.jobs['application-migrations'].steps = copy.jobs['application-migrations'].steps.filter(step => step.run !== 'python -B tests/migrations/test_concurrency.py'); },
   copy => { const steps = copy.jobs['application-migrations'].steps; steps.unshift(steps.splice(steps.findIndex(step => step.run === 'python -B tests/migrations/hosted.py ${{ matrix.mode }}'), 1)[0]); },
   ...['python -B tests/migrations/test_prepare.py', 'supabase start --workdir tests/hosted', 'python -B tests/migrations/hosted.py ${{ matrix.mode }}', 'supabase stop --workdir tests/hosted --no-backup'].map(command => copy => { copy.jobs['application-migrations'].steps = copy.jobs['application-migrations'].steps.filter(step => step.run !== command); }),
   copy => { copy.jobs['application-migrations'].steps.find(step => step.uses?.startsWith('supabase/setup-cli@')).with.version = 'latest'; },
