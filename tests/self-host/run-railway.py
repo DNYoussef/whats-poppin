@@ -159,7 +159,10 @@ def signup(disabled):
     mutation = 'mutation { variableCollectionUpsert(input:{projectId:"' + project + '",environmentId:"' + environment + '",serviceId:"' + services['auth'] + '",replace:false,skipDeploys:false,variables:{GOTRUE_DISABLE_SIGNUP:"' + str(disabled).lower() + '"}}) }'
     assert api(mutation)['variableCollectionUpsert']
     check_toggle(before, api(query)['variables'], disabled)
+    deadline = time.monotonic() + 300
     for _ in range(90):
+        if time.monotonic() >= deadline:
+            break
         deployment = inventory()[services['auth']]['latestDeployment']
         if deployment and deployment['id'] != old and deployment['status'] == 'SUCCESS':
             if disabled:
@@ -171,7 +174,7 @@ def signup(disabled):
             print('SELF_HOST_SIGNUP_DISABLED' if disabled else 'SELF_HOST_SIGNUP_PROBE_OPEN', deployment['id'])
             return
         time.sleep(2)
-    raise AssertionError('Auth configuration deployment did not succeed')
+    raise AssertionError('Auth deployment or requested signup state did not become ready')
 
 
 def restart():
@@ -232,6 +235,11 @@ with tempfile.TemporaryDirectory(prefix='poppin-private-tunnel-') as directory:
                         print('SELF_HOST_SIGNUP_DISABLE_FAILED', services['auth'])
                         if attempt == 1:
                             errors.append('signup disable failed; operator action required')
+                if signup_attempted:
+                    try:
+                        sql("DELETE FROM auth.users WHERE email='disabled-control@poppin.invalid'")
+                    except Exception as error:
+                        errors.append('signup control cleanup: ' + type(error).__name__)
                 for database in databases:
                     assert re.fullmatch('self_host_migration_probe_[a-f0-9]{12}', database)
                     try:

@@ -14,3 +14,5 @@ Build round 2 / inspection 2 approved CI only at 333fcb2; deployment blocked on 
 Build round 4 / inspection 4: private SMTP fixture compatibility and per-service diagnostics. No public mail endpoint, real SMTP delivery or Auth-autoconfirm shortcut is introduced. Full signup-confirm-login remains the acceptance gate.
 
 Build round 5 / inspection 5: signup-disable readiness race. Core lifecycle now passed on GitHub, but the final closure gate remains open until this exact source is re-executed.
+
+Build round 6 / inspection 6: close control-user cleanup and bound signup-toggle readiness. This is the last declared inspection; no implicit budget extension.
