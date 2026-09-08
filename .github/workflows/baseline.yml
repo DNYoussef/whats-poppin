@@ -25,6 +25,7 @@ jobs:
           node-version: '22.22.0'
           cache: npm
       - run: npm ci
+      - run: node tests/security/next-patch.mjs
       - run: node tests/hosted/check-workflow.mjs
       - run: node tests/self-host/check-config.mjs
       - run: npm run lint:ci
