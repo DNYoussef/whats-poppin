@@ -43,6 +43,7 @@ function verify(workflow) {
 const workflow = yaml.load(readFileSync('.github/workflows/baseline.yml', 'utf8'));
 verify(workflow);
 for (const mutate of [
+  copy => { delete copy.jobs['application-migrations'].steps.find(step => step.if === 'always()').if; },
   copy => { copy.jobs['application-migrations'].steps = copy.jobs['application-migrations'].steps.filter(step => step.run !== 'python -B tests/migrations/test_concurrency.py'); },
   copy => { const steps = copy.jobs['application-migrations'].steps; steps.unshift(steps.splice(steps.findIndex(step => step.run === 'python -B tests/migrations/hosted.py ${{ matrix.mode }}'), 1)[0]); },
   ...['python -B tests/migrations/test_prepare.py', 'supabase start --workdir tests/hosted', 'python -B tests/migrations/hosted.py ${{ matrix.mode }}', 'supabase stop --workdir tests/hosted --no-backup'].map(command => copy => { copy.jobs['application-migrations'].steps = copy.jobs['application-migrations'].steps.filter(step => step.run !== command); }),

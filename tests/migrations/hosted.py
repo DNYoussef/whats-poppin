@@ -20,14 +20,14 @@ spec.loader.exec_module(prepare)
 MODE = sys.argv[1]
 assert MODE in ("fresh", "upgrade")
 
-def command(args, input=None, good=True):
-    result = subprocess.run(args, input=input, text=True, capture_output=True, timeout=180)
+def command(args, input=None, good=True, timeout=180):
+    result = subprocess.run(args, input=input, text=True, capture_output=True, timeout=timeout)
     if good:
         assert result.returncode == 0, result.stderr + result.stdout
     return result
 
-def sql(text, good=True):
-    return command(["docker", "exec", "-i", "supabase_db_whats-poppin-ci", "psql", "-U", "postgres", "-d", "postgres", "-XAt", "-v", "ON_ERROR_STOP=1"], text, good)
+def sql(text, good=True, timeout=180):
+    return command(["docker", "exec", "-i", "supabase_db_whats-poppin-ci", "psql", "-U", "postgres", "-d", "postgres", "-XAt", "-v", "ON_ERROR_STOP=1"], text, good, timeout)
 
 assert command(["supabase", "--version"]).stdout.strip() == "2.117.0"
 assert sql("SELECT to_regclass('public.events') IS NULL;").stdout.strip() == "t"

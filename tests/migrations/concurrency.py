@@ -42,7 +42,7 @@ def exercise(sql, push, folder, previous_history, mode):
     def activity(name, future, excluded_pid=0, allow_completed=False):
         deadline = time.monotonic() + 30
         while time.monotonic() < deadline:
-            observed = sql(f"SELECT pid || ':' || wait_event_type FROM pg_stat_activity WHERE application_name='{name}' AND pid <> {excluded_pid} AND (wait_event='PgSleep' OR cardinality(pg_blocking_pids(pid))>0);").stdout.strip()
+            observed = sql(f"SELECT pid || ':' || wait_event_type FROM pg_stat_activity WHERE application_name='{name}' AND pid <> {excluded_pid} AND (wait_event='PgSleep' OR cardinality(pg_blocking_pids(pid))>0);", timeout=5).stdout.strip()
             if observed:
                 assert len(observed.splitlines()) == 1, "Expected one matching backend: " + observed
                 pid, wait = observed.split(':')
@@ -89,6 +89,7 @@ def exercise(sql, push, folder, previous_history, mode):
         raise AssertionError("Corrupted database row accepted")
     sql(f"UPDATE public.migration_concurrency_canary SET value='{token}';")
     push()
+    push(project_dir=other)
     assert verify_outcome(results, history(), expected_history, rows(), token) == branch
     print("MIGRATION_CONCURRENCY_OUTCOME", mode, branch, observed)
     print("MIGRATION_CONCURRENCY_CHARACTERIZED", mode)

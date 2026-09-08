@@ -69,6 +69,10 @@ transactional DDL tested, not arbitrary future nontransactional migrations.
 History-corruption rejection is tested against the shared oracle offline; the
 live-database corruption control changes the canary row. The migration body is
 non-idempotent; an idempotent-body concurrency variant is not characterized here.
+The canary table is created by fixture setup outside the synthetic migration;
+its test-only history entry is not a standalone replayable application migration.
+Both caller directories are pushed again after repair, including whichever lost
+the original race. Activity polling gives each database query a five-second limit.
 
 ## Deployment location
 
