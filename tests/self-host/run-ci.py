@@ -24,7 +24,7 @@ def run(args, data=None, expected=0, timeout=300, workdir=None):
     try:
         result = subprocess.run(args, input=data, text=True, capture_output=True, env=env, timeout=timeout, cwd=workdir)
     except subprocess.TimeoutExpired:
-        raise RuntimeError(f'{args[0]} timed out after {timeout}s') from None
+        raise TimeoutError(f'{args[0]} timed out after {timeout}s') from None
     if result.returncode != expected:
         # Do not print command arguments or container logs: either can contain tokens.
         output = result.stdout + result.stderr
@@ -95,13 +95,14 @@ try:
         else:
             raise AssertionError('Disabled Auth never ready')
 except Exception:
-    logs = subprocess.run(compose + ['logs', '--no-color', '--tail', '60'], env=env, capture_output=True, text=True, timeout=30)
-    output = logs.stdout + logs.stderr
-    for key in ['POSTGRES_PASSWORD', 'AUTH_DB_PASSWORD', 'REST_DB_PASSWORD', 'JWT_SECRET', 'ANON_KEY', 'SERVICE_ROLE_KEY']:
-        output = output.replace(env[key], '[REDACTED]')
-    output = re.sub(r'eyJ[A-Za-z0-9_.-]+', '[JWT REDACTED]', output)
-    output = re.sub(r'(token|password|secret)([= :]+)[^\s&\"]+', r'\1\2[REDACTED]', output, flags=re.I)
-    print(output[-8000:])
+    for service in ['auth', 'db', 'rest', 'gateway', 'mail']:
+        logs = subprocess.run(compose + ['logs', '--no-color', '--tail', '20', service], env=env, capture_output=True, text=True, timeout=30)
+        output = logs.stdout + logs.stderr
+        for key in ['POSTGRES_PASSWORD', 'AUTH_DB_PASSWORD', 'REST_DB_PASSWORD', 'JWT_SECRET', 'ANON_KEY', 'SERVICE_ROLE_KEY']:
+            output = output.replace(env[key], '[REDACTED]')
+        output = re.sub(r'eyJ[A-Za-z0-9_.-]+', '[JWT REDACTED]', output)
+        output = re.sub(r'(token|password|secret)([= :]+)[^\s&\"]+', r'\1\2[REDACTED]', output, flags=re.I)
+        print(service, output[-4000:], flush=True)
     raise
 finally:
     run(compose + ['down', '--volumes', '--remove-orphans'], timeout=120)

@@ -26,8 +26,6 @@ services:
       MP_SMTP_BIND_ADDR: '[::]:1025'
       MP_UI_BIND_ADDR: '[::]:8025'
       MP_MAX_MESSAGES: '100'
-      MP_SMTP_AUTH_ACCEPT_ANY: 'true'
-      MP_SMTP_AUTH_ALLOW_INSECURE: 'true'
   auth:
     image: supabase/gotrue:v2.189.0@sha256:385184459f57569c54c25209f51f3b2be99ddd7c4ce9e3555b5d3eea8447b7cf
     depends_on:
@@ -52,8 +50,6 @@ services:
       GOTRUE_MAILER_AUTOCONFIRM: 'false'
       GOTRUE_SMTP_HOST: mail
       GOTRUE_SMTP_PORT: '1025'
-      GOTRUE_SMTP_USER: fixture
-      GOTRUE_SMTP_PASS: fixture-mail-only
       GOTRUE_SMTP_ADMIN_EMAIL: noreply@poppin.invalid
       GOTRUE_SMTP_SENDER_NAME: Poppin Staging
       GOTRUE_SMTP_MAX_FREQUENCY: 1s

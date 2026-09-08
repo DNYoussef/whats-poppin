@@ -26,6 +26,10 @@ const verify = (config, files = dockerfiles) => {
   assert.deepEqual(config.services.db.volumes, ['db-data:/var/lib/postgresql/data']);
   assert.equal(config.services.auth.environment.GOTRUE_MAILER_AUTOCONFIRM, 'false');
   assert.equal(config.services.auth.environment.GOTRUE_SMTP_HOST, 'mail');
+  assert.equal(config.services.auth.environment.GOTRUE_SMTP_USER, undefined);
+  assert.equal(config.services.auth.environment.GOTRUE_SMTP_PASS, undefined);
+  assert.equal(config.services.mail.environment.MP_SMTP_AUTH_ACCEPT_ANY, undefined);
+  assert.equal(config.services.mail.environment.MP_SMTP_AUTH_ALLOW_INSECURE, undefined);
   assert.equal(config.services.auth.environment.GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED, 'false');
   assert.equal(config.services.rest.environment.PGRST_DB_ANON_ROLE, 'anon');
   assert.equal(config.services.rest.environment.PGRST_DB_SCHEMAS, 'public');
@@ -37,6 +41,8 @@ const verify = (config, files = dockerfiles) => {
 const config = yaml.load(readFileSync('infra/supabase/compose.yml', 'utf8'));
 verify(config);
 for (const mutate of [
+  copy => { copy.services.auth.environment.GOTRUE_SMTP_USER = 'fixture'; },
+  copy => { copy.services.mail.environment.MP_SMTP_AUTH_ALLOW_INSECURE = 'true'; },
   copy => { copy.services.mail.environment.MP_SMTP_BIND_ADDR = '127.0.0.1:1025'; },
   copy => { copy.services.mail.image = 'axllent/mailpit:v1.27'; },
   copy => { copy.services.gateway.ports = ['54329:8080']; },

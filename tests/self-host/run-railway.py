@@ -67,6 +67,8 @@ for value in [project, environment, *services.values()]:
     assert str(uuid.UUID(value)) == value
 assert re.fullmatch(r'https://[a-z0-9-]+\.up\.railway\.app', state['api'])
 credentials = state['credentials']
+assert {'POSTGRES_PASSWORD', 'AUTH_DB_PASSWORD', 'REST_DB_PASSWORD', 'JWT_SECRET', 'ANON_KEY', 'SERVICE_ROLE_KEY'} <= credentials.keys(), 'Incomplete credential state'
+assert all(isinstance(value, str) and value for value in credentials.values()), 'Invalid credential state'
 env = os.environ.copy()
 env.update(RAILWAY_CALLER='skill:use-railway@1.4.0', RAILWAY_AGENT_SESSION='poppin-selfhost-20260907')
 railway = shutil.which('railway.cmd') or shutil.which('railway')
