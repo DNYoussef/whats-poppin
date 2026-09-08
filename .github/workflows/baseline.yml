@@ -77,8 +77,8 @@ jobs:
       - uses: supabase/setup-cli@46f7f98c7f948ad727d22c1e67fab04c223a0520
         with:
           version: 2.117.0
-      - run: python tests/migrations/test_prepare.py
+      - run: python -B tests/migrations/test_prepare.py
       - run: supabase start --workdir tests/hosted
-      - run: python tests/migrations/hosted.py ${{ matrix.mode }}
+      - run: python -B tests/migrations/hosted.py ${{ matrix.mode }}
       - if: always()
         run: supabase stop --workdir tests/hosted --no-backup

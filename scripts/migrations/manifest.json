@@ -12,7 +12,7 @@
   {
     "name": "20251002000000_event_designs.sql",
     "source": "scripts/migrations/event_designs.sql",
-    "sha256_lf": "1c70ffe53d3ff7ce66cb9e88a6826780e3e6fffad621708c526e71b76f9252cb"
+    "sha256_lf": "baece0691d1197be620b1cbc816598d257e2b8d5de71d0c8d6bbeb34893824e3"
   },
   {
     "name": "20260907000100_private_profile_reads.sql",

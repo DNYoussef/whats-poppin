@@ -15,22 +15,33 @@ MIGRATIONS = (
     ("20260907000200_interaction_visibility.sql", "supabase/migrations/20260907000200_interaction_visibility.sql"),
 )
 
+EXCLUDED = {
+    "src/database/migrations/003_seed_data.sql": "Sample seed data, not a production migration",
+    "supabase/migrations/20251002_event_designs.sql": "Invalid historical grammar replaced by corrected designs",
+}
+
 
 def prepare(destination):
     destination = Path(destination)
     # Validate/read inputs before creating output. Existing paths are never reused.
-    inputs = [(name, (ROOT / source).read_bytes()) for name, source in MIGRATIONS]
+    discovered = {p.relative_to(ROOT).as_posix() for directory in ("src/database/migrations", "supabase/migrations") for p in (ROOT / directory).glob("*.sql")}
+    classified = {source for _, source in MIGRATIONS if not source.startswith("scripts/")} | set(EXCLUDED)
+    if discovered != classified:
+        raise ValueError("Unclassified migration sources")
+    inputs = [(name, (ROOT / source).read_bytes().replace(b"\r\n", b"\n")) for name, source in MIGRATIONS]
     provenance = json.loads((ROOT / "scripts/migrations/manifest.json").read_text())
-    assert [(row['name'], row['source']) for row in provenance] == list(MIGRATIONS), "Manifest mapping drift"
+    if [(row['name'], row['source']) for row in provenance] != list(MIGRATIONS):
+        raise ValueError("Manifest mapping drift")
     for (name, data), row in zip(inputs, provenance):
-        assert hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest() == row['sha256_lf'], f"Source changed: {name}"
+        if hashlib.sha256(data).hexdigest() != row['sha256_lf']:
+            raise ValueError(f"Source changed: {name}")
     destination.mkdir()
     folder = destination / "supabase/migrations"
     folder.mkdir(parents=True)
     for name, data in inputs:
         (folder / name).write_bytes(data)
-    (destination / "provenance.json").write_text(json.dumps([{**row, 'sha256_bytes': hashlib.sha256(data).hexdigest()} for row, (_, data) in zip(provenance, inputs)], indent=2) + "\n", encoding="ascii")
-    (destination / "supabase/config.toml").write_text('project_id = "poppin-application-migrations"\n', encoding="ascii")
+    (destination / "provenance.json").write_text(json.dumps([{**row, 'sha256_bytes': hashlib.sha256(data).hexdigest()} for row, (_, data) in zip(provenance, inputs)], indent=2) + "\n", encoding="ascii", newline="\n")
+    (destination / "supabase/config.toml").write_text('project_id = "poppin-application-migrations"\n', encoding="ascii", newline="\n")
 
 
 if __name__ == "__main__":

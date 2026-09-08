@@ -7,6 +7,7 @@ import hashlib
 import subprocess
 import sys
 import tempfile
+import time
 import uuid
 from pathlib import Path
 
@@ -42,8 +43,10 @@ with tempfile.TemporaryDirectory(prefix="poppin-migrations-") as directory:
     prepare.prepare(project)
     folder = project / "supabase/migrations"
     provenance = json.loads((project / "provenance.json").read_text())
-    for row in provenance:
-        assert hashlib.sha256((folder / row['name']).read_bytes()).hexdigest() == row['sha256_bytes']
+    def verify_provenance():
+        for row in provenance:
+            assert hashlib.sha256((folder / row['name']).read_bytes()).hexdigest() == row['sha256_bytes']
+    verify_provenance()
     entries = sorted(folder.glob("*.sql"))
     versions = [p.name.split("_",1)[0] for p in entries]
     def push(good=True, dry=False):
@@ -58,6 +61,7 @@ with tempfile.TemporaryDirectory(prefix="poppin-migrations-") as directory:
         before = sql(f"SELECT row_to_json(d) FROM public.event_designs d WHERE event_id='{EVENT}';").stdout
         for path, data in held:
             path.write_bytes(data)
+    verify_provenance()
     push(dry=True)
     push()
     if MODE == "fresh":
@@ -67,7 +71,10 @@ with tempfile.TemporaryDirectory(prefix="poppin-migrations-") as directory:
     objects = sql("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename IN ('profiles','venues','events','user_event_interactions','event_recommendations','event_designs') ORDER BY tablename;").stdout.splitlines()
     assert objects == ['event_designs','event_recommendations','events','profiles','user_event_interactions','venues']
     assert sql("SELECT count(*) FROM pg_policies WHERE schemaname='public' AND permissive='RESTRICTIVE' AND policyname IN ('Private profiles are owner readable','Interactions require published events');").stdout.strip() == "2"
-    assert sql("SELECT has_table_privilege('anon','public.event_designs','SELECT') AND NOT has_table_privilege('anon','public.event_designs','UPDATE') AND has_table_privilege('authenticated','public.event_designs','INSERT,UPDATE,DELETE');").stdout.strip() == "t"
+    for role in ("anon", "authenticated", "service_role"):
+        for privilege in ("SELECT", "INSERT", "UPDATE", "DELETE"):
+            expected = "t" if role != "anon" or privilege == "SELECT" else "f"
+            assert sql(f"SELECT has_table_privilege('{role}','public.event_designs','{privilege}');").stdout.strip() == expected
     history = sql("SELECT version FROM supabase_migrations.schema_migrations ORDER BY version;").stdout.splitlines()
     assert history == versions, (history, versions)
     push()
@@ -78,10 +85,24 @@ with tempfile.TemporaryDirectory(prefix="poppin-migrations-") as directory:
     assert broken.returncode != 0 and 'syntax error at or near "WHERE"' in broken.stderr
     for _ in range(2):
         owner(f"INSERT INTO public.event_designs(event_id,theme,description,spec) VALUES ('{EVENT}','inactive','Inactive allowed','{{}}')")
-    def activate(_):
-        return owner(f"INSERT INTO public.event_designs(event_id,theme,description,spec,is_active) VALUES ('{EVENT}','active','Concurrent active','{{}}',true)", good=False)
+    # Observe real database overlap: the second insert must wait on the first
+    # transaction's unique-index lock while the first remains open.
+    winner, loser = "winner_" + uuid.uuid4().hex, "loser_" + uuid.uuid4().hex
+    def activate(name, delay):
+        return owner(f"SET LOCAL application_name='{name}'; INSERT INTO public.event_designs(event_id,theme,description,spec,is_active) VALUES ('{EVENT}','active','Concurrent active','{{}}',true); SELECT pg_sleep({delay})", good=False)
+    def await_activity(name, predicate):
+        for _ in range(60):
+            if sql(f"SELECT count(*) FROM pg_stat_activity WHERE application_name='{name}' AND ({predicate});").stdout.strip() == "1":
+                return
+            time.sleep(0.1)
+        raise AssertionError("Concurrent database activity not observed: " + name)
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-        results = list(pool.map(activate, range(2)))
+        first = pool.submit(activate, winner, 15)
+        await_activity(winner, "wait_event = 'PgSleep'")
+        second = pool.submit(activate, loser, 0)
+        await_activity(loser, "wait_event_type = 'Lock'")
+        results = [first.result(), second.result()]
+    print("ACTIVE_DESIGN_LOCK_OVERLAP_VERIFIED")
     assert sorted(r.returncode == 0 for r in results) == [False, True]
     assert any('duplicate key' in r.stderr for r in results)
     assert sql(f"SELECT count(*) FROM public.event_designs WHERE event_id='{EVENT}' AND is_active;").stdout.strip() == "1"
@@ -116,4 +137,5 @@ with tempfile.TemporaryDirectory(prefix="poppin-migrations-") as directory:
     push()
     assert sql("SELECT id FROM public.failure_canary;").stdout.strip() == "42"
     assert sql("SELECT version FROM supabase_migrations.schema_migrations ORDER BY version;").stdout.splitlines() == history + ['20990101000000']
+    verify_provenance()
 print("APPLICATION_MIGRATIONS_VERIFIED", MODE)

@@ -75,3 +75,4 @@ COMMENT ON TABLE event_designs IS 'AI-generated 3D event page designs with versi
 REVOKE ALL ON event_designs FROM PUBLIC, anon, authenticated;
 GRANT SELECT ON event_designs TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON event_designs TO authenticated;
+GRANT ALL ON event_designs TO service_role;
