@@ -50,10 +50,8 @@ with tempfile.TemporaryDirectory(prefix="poppin-migrations-") as directory:
     verify_provenance()
     entries = sorted(folder.glob("*.sql"))
     versions = [p.name.split("_",1)[0] for p in entries]
-    def push(good=True, dry=False, label=None, project_dir=project):
+    def push(good=True, dry=False, project_dir=project):
         url = "postgresql://postgres:postgres@127.0.0.1:54322/postgres?sslmode=disable"
-        if label:
-            url += "&application_name=" + label
         return command(["supabase", "db", "push", "--db-url", url, "--workdir", str(project_dir), "--yes"] + (["--dry-run"] if dry else []), good=good)
     if MODE == "upgrade":
         held = [(p, p.read_bytes()) for p in entries[3:]]

@@ -46,7 +46,8 @@ return that design for review rather than claiming a separate lock session suffi
 tests/migrations/hosted.py runs tests/migrations/concurrency.py after the existing
 transactional failure/retry control, in both fresh and upgrade matrix jobs. The
 synthetic version 20990101000001 follows the existing 20990101000000 control.
-Two CLI processes use separate copies of identical prepared inputs. A test-only
+Two CLI processes use separate copies of identical prepared inputs. The migration
+sets application_name; observed backend PIDs distinguish the callers. A test-only
 table lock holds the first attempt in flight until the second is observed waiting
 or terminating. Terminal outcomes are classified; unrelated errors, wrong history,
 missing/changed/duplicate canary rows and timeouts fail the probe. A real damaged
