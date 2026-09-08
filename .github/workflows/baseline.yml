@@ -78,6 +78,7 @@ jobs:
         with:
           version: 2.117.0
       - run: python -B tests/migrations/test_prepare.py
+      - run: python -B tests/migrations/test_concurrency.py
       - run: supabase start --workdir tests/hosted
       - run: python -B tests/migrations/hosted.py ${{ matrix.mode }}
       - if: always()
