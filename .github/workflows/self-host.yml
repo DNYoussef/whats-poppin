@@ -29,4 +29,5 @@ jobs:
       - run: npm ci
       - run: node tests/self-host/check-config.mjs
       - run: python -B tests/self-host/run-railway.py --check
+      - run: python -B tests/self-host/test_operator.py
       - run: python -B tests/self-host/run-ci.py
