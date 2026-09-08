@@ -21,7 +21,10 @@ compose = ['docker', 'compose', '-p', 'poppin-selfhost-' + secrets.token_hex(6),
 
 
 def run(args, data=None, expected=0, timeout=300, workdir=None):
-    result = subprocess.run(args, input=data, text=True, capture_output=True, env=env, timeout=timeout, cwd=workdir)
+    try:
+        result = subprocess.run(args, input=data, text=True, capture_output=True, env=env, timeout=timeout, cwd=workdir)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(f'{args[0]} timed out after {timeout}s') from None
     if result.returncode != expected:
         # Do not print command arguments or container logs: either can contain tokens.
         output = result.stdout + result.stderr
@@ -31,8 +34,8 @@ def run(args, data=None, expected=0, timeout=300, workdir=None):
     return result.stdout.strip()
 
 
-def sql(query, database='postgres'):
-    return run(compose + ['exec', '-T', 'db', 'psql', '-XAtq', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres', '-d', database], query)
+def sql(query, database='postgres', timeout=300):
+    return run(compose + ['exec', '-T', 'db', 'psql', '-XAtq', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres', '-d', database], query, timeout=timeout)
 
 
 def ready():

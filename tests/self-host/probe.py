@@ -65,16 +65,23 @@ def verify(api, anon, admin, secret, sql, mail, migrate, restart):
     request('/rest/v1/', key='invalid-key', expected=401)
     request('/unsupported', expected=404)
     request('/rest/v1/', method='OPTIONS', key=None, expected=204)
-    _, allowed = request('/auth/v1/health', extra_headers={'Origin': 'http://localhost:3000'})
-    _, denied = request('/auth/v1/health', extra_headers={'Origin': 'https://untrusted.invalid'})
-    print('SELF_HOST_CORS_HEADERS', json.dumps({
-        'allowed': allowed.get_all('Access-Control-Allow-Origin', []),
-        'denied': denied.get_all('Access-Control-Allow-Origin', []),
-    }), flush=True)
-    assert allowed.get('Access-Control-Allow-Origin') == 'http://localhost:3000'
-    assert denied.get('Access-Control-Allow-Origin') is None
+    def cors(actual, expected):
+        assert actual == expected, f'Unexpected CORS origin headers: {actual!r}'
+    for actual, expected in [(['*'], []), (['*', 'http://localhost:3000'], ['http://localhost:3000'])]:
+        try:
+            cors(actual, expected)
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError('Unsafe CORS control accepted')
+    for path in ['/auth/v1/health', '/rest/v1/']:
+        for method, status in [('GET', 200), ('OPTIONS', 204)]:
+            for origin, expected in [('http://localhost:3000', ['http://localhost:3000']), ('https://untrusted.invalid', [])]:
+                _, headers = request(path, method=method, expected=status, extra_headers={'Origin': origin})
+                cors(headers.get_all('Access-Control-Allow-Origin', []), expected)
+    print('SELF_HOST_CORS_VERIFIED', flush=True)
 
-    extensions = json.loads(sql("CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS vector; CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"; SELECT json_object_agg(extname, extversion) FROM pg_extension WHERE extname IN ('postgis','vector','uuid-ossp');").splitlines()[-1])
+    extensions = json.loads(sql("CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS vector; CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"; SELECT json_object_agg(extname, extversion) FROM pg_extension WHERE extname IN ('postgis','vector','uuid-ossp');", timeout=300).splitlines()[-1])
     assert set(extensions) == {'postgis', 'vector', 'uuid-ossp'}
     print('SELF_HOST_EXTENSIONS', json.dumps(extensions, sort_keys=True))
     suffix = secrets.token_hex(6)
@@ -214,9 +221,9 @@ def migration_probe(suffix, sql, run, db_url):
         def absent():
             assert sql("SELECT to_regclass('public.probe') IS NULL", database) == 't'
         absent()
-        run(push + ['--dry-run'])
+        run(push + ['--dry-run'], timeout=300)
         absent()
-        run(push)
+        run(push, timeout=300)
         assert sql('SELECT value FROM public.probe', database) == suffix
         try:
             absent()
@@ -226,10 +233,10 @@ def migration_probe(suffix, sql, run, db_url):
             raise AssertionError('Dry-run absence oracle accepted a populated table')
         history = sql('SELECT version FROM supabase_migrations.schema_migrations ORDER BY version', database)
         assert history == '20260907000001'
-        run(push)
+        run(push, timeout=300)
         assert sql('SELECT version FROM supabase_migrations.schema_migrations ORDER BY version', database) == history
         (folder / 'migrations/20260907000002_forward.sql').write_text("ALTER TABLE public.probe ADD COLUMN note text NOT NULL DEFAULT 'schema-forward'; UPDATE public.probe SET value = value || '-forward';\n")
-        run(push)
+        run(push, timeout=300)
 
     def check():
         assert sql('SELECT note FROM public.probe', database) == 'schema-forward'

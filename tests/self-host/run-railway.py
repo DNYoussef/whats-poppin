@@ -28,6 +28,13 @@ def check_query(query):
     assert query.count('{') == query.count('}'), 'Unbalanced GraphQL query'
 
 
+def check_toggle(before, after, disabled):
+    expected = {key: value for key, value in before.items() if not key.startswith('RAILWAY_')}
+    assert {'GOTRUE_DB_DATABASE_URL', 'GOTRUE_JWT_SECRET', 'API_EXTERNAL_URL'} <= expected.keys(), 'Auth configuration incomplete'
+    expected['GOTRUE_DISABLE_SIGNUP'] = str(disabled).lower()
+    assert all(key in after and after[key] == value for key, value in expected.items()), 'Auth variables changed unexpectedly'
+
+
 if sys.argv[1:] == ['--check']:
     check_query(project_query('fixture', 'fixture', {'db': 'fixture'}))
     try:
@@ -36,6 +43,16 @@ if sys.argv[1:] == ['--check']:
         pass
     else:
         raise AssertionError('Malformed-query control accepted')
+    before = dict(GOTRUE_DB_DATABASE_URL='fixture-db', GOTRUE_JWT_SECRET='fixture-jwt', API_EXTERNAL_URL='fixture-url', GOTRUE_DISABLE_SIGNUP='true')
+    after = {**before, 'GOTRUE_DISABLE_SIGNUP': 'false'}
+    check_toggle(before, after, False)
+    for bad in [before, {'GOTRUE_DISABLE_SIGNUP': 'false'}, {**after, 'GOTRUE_JWT_SECRET': 'changed'}]:
+        try:
+            check_toggle(before, bad, False)
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError('Destructive-toggle control accepted')
     print('SELF_HOST_OPERATOR_QUERY_VERIFIED')
     sys.exit(0)
 
@@ -59,7 +76,10 @@ databases = []
 
 def run(args, data="", timeout=30):
     executable = shutil.which(args[0] + '.cmd') or shutil.which(args[0]) or args[0]
-    result = subprocess.run([executable, *args[1:]], input=data or '', capture_output=True, text=True, env=env, timeout=timeout)
+    try:
+        result = subprocess.run([executable, *args[1:]], input=data or '', capture_output=True, text=True, env=env, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        raise AssertionError(f'{Path(args[0]).name} timed out after {timeout}s') from None
     if result.returncode != 0:
         output = result.stdout + result.stderr
         for value in credentials.values():
@@ -92,7 +112,7 @@ def inventory():
         assert not instance['domains']['customDomains']
         if name in ['db', 'gateway']:
             assert instance['source']['repo'] == 'DNYoussef/whats-poppin'
-            assert (instance.get('latestDeployment') or {}).get('meta', {}).get('commitHash') == state['sourceSha']
+            assert ((instance.get('latestDeployment') or {}).get('meta') or {}).get('commitHash') == state['sourceSha']
         else:
             assert instance['source']['image'] == state['images'][name]
     domains = instances[services['gateway']]['domains']['serviceDomains']
@@ -108,12 +128,12 @@ assert run(['supabase', '--version']) == '2.117.0'
 print('SELF_HOST_OPERATOR_CLI', run([railway, '--version']))
 
 
-def ssh(service, command, data=""):
-    return run([railway, 'ssh', '--project', project, '--environment', environment, '--service', services[service], '--', *command], data)
+def ssh(service, command, data="", timeout=30):
+    return run([railway, 'ssh', '--project', project, '--environment', environment, '--service', services[service], '--', *command], data, timeout=timeout)
 
 
-def sql(query, database='postgres'):
-    result = ssh('db', ['psql', '-XAtq', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres', '-d', database], query)
+def sql(query, database='postgres', timeout=30):
+    result = ssh('db', ['psql', '-XAtq', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres', '-d', database], query, timeout=timeout)
     if query.startswith('CREATE DATABASE self_host_migration_probe_'):
         databases.append(query.removeprefix('CREATE DATABASE ').strip().rstrip(';'))
     return result
@@ -132,8 +152,11 @@ def signup(disabled):
         except (AssertionError, OSError):
             pass
     old = inventory()[services['auth']]['latestDeployment']['id']
-    mutation = 'mutation { variableCollectionUpsert(input:{projectId:"' + project + '",environmentId:"' + environment + '",serviceId:"' + services['auth'] + '",skipDeploys:false,variables:{GOTRUE_DISABLE_SIGNUP:"' + str(disabled).lower() + '"}}) }'
+    query = 'query { variables(projectId:"' + project + '",environmentId:"' + environment + '",serviceId:"' + services['auth'] + '",unrendered:true) }'
+    before = api(query)['variables']
+    mutation = 'mutation { variableCollectionUpsert(input:{projectId:"' + project + '",environmentId:"' + environment + '",serviceId:"' + services['auth'] + '",replace:false,skipDeploys:false,variables:{GOTRUE_DISABLE_SIGNUP:"' + str(disabled).lower() + '"}}) }'
     assert api(mutation)['variableCollectionUpsert']
+    check_toggle(before, api(query)['variables'], disabled)
     for _ in range(90):
         deployment = inventory()[services['auth']]['latestDeployment']
         if deployment and deployment['id'] != old and deployment['status'] == 'SUCCESS':
