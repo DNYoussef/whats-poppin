@@ -12,3 +12,5 @@ Build round 1 / inspection 1: diagnostic only. External artifacts: C:/Users/1717
 Build round 2 / inspection 2 approved CI only at 333fcb2; deployment blocked on follow-up findings and actual runtime. Build round 3 / inspection 3 closes readiness timeout handling, credential-state validation and procedure drift. Live Builder schema saved in external builder-schema.json; Dockerfile detection is verified through build logs, not an unsupported enum.
 
 Build round 4 / inspection 4: private SMTP fixture compatibility and per-service diagnostics. No public mail endpoint, real SMTP delivery or Auth-autoconfirm shortcut is introduced. Full signup-confirm-login remains the acceptance gate.
+
+Build round 5 / inspection 5: signup-disable readiness race. Core lifecycle now passed on GitHub, but the final closure gate remains open until this exact source is re-executed.

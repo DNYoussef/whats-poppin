@@ -260,6 +260,7 @@ def assert_signup_disabled(api, anon):
     try:
         urllib.request.urlopen(request, timeout=20)
     except urllib.error.HTTPError as error:
+        assert error.code in [403, 422], f'Unexpected signup status: {error.code}'
         body = json.loads(error.read())
         denied(error.code, body)
     else:

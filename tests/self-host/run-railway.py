@@ -162,6 +162,12 @@ def signup(disabled):
     for _ in range(90):
         deployment = inventory()[services['auth']]['latestDeployment']
         if deployment and deployment['id'] != old and deployment['status'] == 'SUCCESS':
+            if disabled:
+                try:
+                    assert_signup_disabled(state['api'], credentials['ANON_KEY'])
+                except (AssertionError, OSError):
+                    time.sleep(2)
+                    continue
             print('SELF_HOST_SIGNUP_DISABLED' if disabled else 'SELF_HOST_SIGNUP_PROBE_OPEN', deployment['id'])
             return
         time.sleep(2)
