@@ -1,0 +1,51 @@
+map $http_apikey $valid_key {
+    default 0;
+    "${ANON_KEY}" 1;
+    "${SERVICE_ROLE_KEY}" 1;
+}
+map $http_origin $cors_origin {
+    default "";
+    "http://localhost:3000" $http_origin;
+}
+server {
+    listen 8080;
+    listen [::]:8080;
+    server_tokens off;
+    access_log off;
+    error_log /dev/stderr crit;
+    client_max_body_size 1m;
+    resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;
+    proxy_connect_timeout 5s;
+    proxy_read_timeout 30s;
+    proxy_send_timeout 30s;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+    add_header Access-Control-Allow-Origin $cors_origin always;
+    add_header Vary Origin always;
+    add_header Access-Control-Allow-Methods "GET,POST,PATCH,PUT,DELETE,OPTIONS" always;
+    add_header Access-Control-Allow-Headers "authorization,apikey,content-type,x-client-info,x-supabase-api-version,prefer,range,accept-profile,content-profile" always;
+    add_header Access-Control-Expose-Headers "content-range" always;
+
+    location = /healthz { return 200 'gateway-ready'; }
+    # Email links do not carry an apikey header; GoTrue validates the token.
+    location = /auth/v1/verify {
+        set $auth_upstream http://${SB_AUTH_HOST}:9999;
+        rewrite ^/auth/v1/(.*)$ /$1 break;
+        proxy_pass $auth_upstream;
+    }
+    location /auth/v1/ {
+        if ($request_method = OPTIONS) { return 204; }
+        if ($valid_key = 0) { return 401; }
+        set $auth_upstream http://${SB_AUTH_HOST}:9999;
+        rewrite ^/auth/v1/(.*)$ /$1 break;
+        proxy_pass $auth_upstream;
+    }
+    location /rest/v1/ {
+        if ($request_method = OPTIONS) { return 204; }
+        if ($valid_key = 0) { return 401; }
+        set $rest_upstream http://${SB_REST_HOST}:3000;
+        rewrite ^/rest/v1/(.*)$ /$1 break;
+        proxy_pass $rest_upstream;
+    }
+    location / { return 404; }
+}

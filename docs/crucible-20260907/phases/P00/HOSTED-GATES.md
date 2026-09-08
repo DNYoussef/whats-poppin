@@ -8,8 +8,11 @@ Scope: Results required before P00 backend completion and P01 database wiring. L
 - [ ] H2: Supabase Auth, RLS and API integration isolate two users and organizers, with published/draft/cancelled events across cities/timezones.
   EVIDENCE: partial only; PROFILE-GATES.md records real Auth/PostgREST profile isolation and published event controls in run 34156690206 at 2f22a8d. EVENT-ISOLATION-GATES.md additionally records organizer mutations and two-city published/draft/cancelled/completed fixtures in run 34158466905 at 12873d4. Fixed January timestamp instants are verified; actual timezone scheduling and application API integration remain pending.
 
-- [ ] H3: Remote migration dry-run/apply and compatibility rehearsal pass against an explicitly named non-production target using its own migration history.
-  EVIDENCE: pending; target not identified and CLI project discovery lacks authenticated access. Require trusted-branch workflow URL, commit SHA, non-secret project reference/schema version, dry-run/apply output and recovery evidence. The earlier C11 migration and dual migration directories still prevent treating the directory as a working push sequence. Release stays blocked while absent.
+- [ ] H3b: Remote migration dry-run/apply and compatibility rehearsal pass against an explicitly named non-production target using its own migration history.
+  EVIDENCE: pending; the user selected self-hosted Railway Supabase; H3a owns target capability and H3b owns the full application migration sequence. Require trusted-branch workflow URL, commit SHA, non-secret project reference/schema version, dry-run/apply output and recovery evidence. The earlier C11 migration and dual migration directories still prevent treating the directory as a working push sequence. Release stays blocked while absent.
 
 - [ ] H4: GitHub/Railway deployment gate rejects failed or missing required hosted results and prevents untrusted PR code from receiving remote credentials.
   EVIDENCE: pending; require actual configuration and failed-check control. Disposable PR tests use no remote-project secrets; credentialed rehearsal uses a non-production GitHub Environment from reviewed trusted-branch code.
+
+- [ ] H3a: Named self-hosted Railway staging target has real Auth, required extensions, private database access and isolated probe migration dry-run/apply/no-op/forward/persistence evidence. This unblocks P01 reconciliation, not production release.
+  EVIDENCE: pending under SELF-HOST-GATES.md. Probe migration history must be separate from the application database.
