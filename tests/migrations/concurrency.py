@@ -2,10 +2,13 @@
 import concurrent.futures
 import os
 import shutil
+import subprocess
 import sys
 import time
 import uuid
 
+if not __debug__:
+    raise SystemExit('Refusing to run with assertions disabled')
 
 def require_hosted(platform, environment):
     if platform != "linux" or environment.get("GITHUB_ACTIONS") != "true":
@@ -14,7 +17,7 @@ def require_hosted(platform, environment):
 
 def verify_outcome(results, history, expected_history, rows, token):
     assert history == expected_history, (history, expected_history)
-    assert rows == [token], rows
+    assert rows == [token], "Canary row mismatch"
     assert len(results) == 2
     failures = [result for result in results if result.returncode != 0]
     if not failures:
@@ -23,6 +26,25 @@ def verify_outcome(results, history, expected_history, rows, token):
     error = failures[0].stdout + failures[0].stderr
     assert "duplicate key" in error and "migration_concurrency_canary_pkey" in error, error
     return "duplicate_retry_required"
+
+
+def activity(sql, name, future, excluded_pid=0, allow_completed=False):
+    deadline = time.monotonic() + 30
+    while (remaining := deadline - time.monotonic()) > 0:
+        try:
+            observed = sql(f"SELECT pid || ':' || wait_event_type FROM pg_stat_activity WHERE application_name='{name}' AND pid <> {excluded_pid} AND (wait_event='PgSleep' OR cardinality(pg_blocking_pids(pid))>0);", timeout=min(5, remaining)).stdout.strip()
+        except subprocess.TimeoutExpired:
+            continue
+        if observed:
+            assert len(observed.splitlines()) == 1, "Expected one matching backend: " + observed
+            pid, wait = observed.split(':')
+            return int(pid), wait
+        if future.done():
+            if allow_completed:
+                return 0, "completed_before_release"
+            raise AssertionError("Caller exited before overlap: " + name)
+        time.sleep(0.1)
+    raise AssertionError("Database overlap observation timed out: " + name)
 
 
 def exercise(sql, push, folder, previous_history, mode):
@@ -39,30 +61,15 @@ def exercise(sql, push, folder, previous_history, mode):
     shutil.copytree(folder.parents[1], other)
     expected_history = previous_history + [version]
 
-    def activity(name, future, excluded_pid=0, allow_completed=False):
-        deadline = time.monotonic() + 30
-        while time.monotonic() < deadline:
-            observed = sql(f"SELECT pid || ':' || wait_event_type FROM pg_stat_activity WHERE application_name='{name}' AND pid <> {excluded_pid} AND (wait_event='PgSleep' OR cardinality(pg_blocking_pids(pid))>0);", timeout=5).stdout.strip()
-            if observed:
-                assert len(observed.splitlines()) == 1, "Expected one matching backend: " + observed
-                pid, wait = observed.split(':')
-                return int(pid), wait
-            if future.done():
-                if allow_completed:
-                    return 0, "completed_before_release"
-                raise AssertionError("Caller exited before overlap: " + name)
-            time.sleep(0.1)
-        raise AssertionError("Database overlap observation timed out: " + name)
-
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
         barrier = pool.submit(sql, f"BEGIN; SET LOCAL application_name='{holder}'; LOCK TABLE public.migration_concurrency_canary IN ACCESS EXCLUSIVE MODE; SELECT pg_sleep(120); COMMIT;", False)
         try:
-            assert activity(holder, barrier)[1] == "Timeout"
+            assert activity(sql, holder, barrier)[1] == "Timeout"
             a = pool.submit(push, good=False)
-            first_pid, first_wait = activity(migration, a)
+            first_pid, first_wait = activity(sql, migration, a)
             assert first_wait == "Lock"
             b = pool.submit(push, good=False, project_dir=other)
-            second_pid, observed = activity(migration, b, excluded_pid=first_pid, allow_completed=True)
+            second_pid, observed = activity(sql, migration, b, excluded_pid=first_pid, allow_completed=True)
             assert observed in ("Lock", "completed_before_release"), observed
             assert sql(f"SELECT pg_cancel_backend(pid) FROM pg_stat_activity WHERE application_name='{holder}';").stdout.strip() == "t"
             released = barrier.result()
@@ -83,8 +90,8 @@ def exercise(sql, push, folder, previous_history, mode):
     sql("UPDATE public.migration_concurrency_canary SET value='wrong';")
     try:
         verify_outcome(results, history(), expected_history, rows(), token)
-    except AssertionError:
-        pass
+    except AssertionError as error:
+        assert str(error) == "Canary row mismatch", error
     else:
         raise AssertionError("Corrupted database row accepted")
     sql(f"UPDATE public.migration_concurrency_canary SET value='{token}';")

@@ -1,6 +1,7 @@
 # P01c migration deployment boundary
 
 P01b installed the canonical application schema in the existing staging database.
+Its activation evidence is C:/Users/17175/.codex-work/poppin-p01b-run-20260908/HANDOFF.md.
 Do not rerun its install procedure. P01c adds a hosted concurrency characterization;
 it does not activate a Railway migration hook or finish parent P01.
 
@@ -69,10 +70,15 @@ transactional DDL tested, not arbitrary future nontransactional migrations.
 History-corruption rejection is tested against the shared oracle offline; the
 live-database corruption control changes the canary row. The migration body is
 non-idempotent; an idempotent-body concurrency variant is not characterized here.
+The losing caller's duplicate error comes from the fixture's canary primary key;
+the CLI's own history-insert behavior for concurrent identical versions is not
+characterized. A completed_before_release outcome supplies no observed overlap
+for the second caller; the emitted outcome preserves this distinction.
 The canary table is created by fixture setup outside the synthetic migration;
 its test-only history entry is not a standalone replayable application migration.
 Both caller directories are pushed again after repair, including whichever lost
-the original race. Activity polling gives each database query a five-second limit.
+the original race. Activity polling gives each database query a five-second limit
+and retries a timed-out query within the thirty-second observation deadline.
 
 ## Deployment location
 
@@ -95,7 +101,11 @@ and variables from the imported graph. The importer uses image.contains("postgre
 which also matches "postgrest". Correct that resource from measured service state
 and verify preservation of all resources, variables and sources before any apply;
 the current import is not a safe deployment plan. Evidence and the rejecting
-source-preservation check are recorded in the external P01c IAC-IMPORT-HANDOFF.md.
+source-preservation check are recorded in
+C:/Users/17175/.codex-work/poppin-p01c-run-20260908/IAC-IMPORT-HANDOFF.md.
+The original diagnosis is bound by that run's snapshot4.json, identifier
+e4edd13de501da47799a80a96c2afe656ec90b10996f711d12df219b51d0c2f6;
+the current snapshot.json and HANDOFF.md identify subsequent guard repairs.
 
 Sources: https://docs.railway.com/deployments/pre-deploy-command and
 https://github.com/supabase/cli/blob/v2.117.0/apps/cli/src/command-internal/legacy-db-push-core.ts

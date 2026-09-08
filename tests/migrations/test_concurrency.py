@@ -2,6 +2,7 @@
 import subprocess
 import sys
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 import concurrency
 
@@ -35,5 +36,15 @@ for results, actual_history, actual_rows in (
 for platform, environment in (("win32", {"GITHUB_ACTIONS": "true"}), ("linux", {}), ("linux", {"GITHUB_ACTIONS": "false"})):
     rejected(lambda: concurrency.require_hosted(platform, environment))
 concurrency.require_hosted("linux", {"GITHUB_ACTIONS": "true"})
+future = Mock()
+future.done.return_value = False
+sql = Mock(side_effect=[subprocess.TimeoutExpired('poll', 5), subprocess.CompletedProcess([], 0, '12:Lock', '')])
+with patch.object(concurrency.time, 'monotonic', side_effect=[0, 0, 5]):
+    assert concurrency.activity(sql, 'canary', future) == (12, 'Lock')
+assert sql.call_count == 2
+sql = Mock(side_effect=subprocess.TimeoutExpired('poll', 5))
+with patch.object(concurrency.time, 'monotonic', side_effect=[0, 0, 31]):
+    rejected(lambda: concurrency.activity(sql, 'canary', future))
+assert sql.call_count == 1
 subprocess.run([sys.executable, "-B", str(Path(__file__).with_name("test_prepare.py"))], check=True)
 print("MIGRATION_CONCURRENCY_CONTROLS_VERIFIED")
