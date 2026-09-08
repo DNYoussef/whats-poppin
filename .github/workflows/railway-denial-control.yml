@@ -1,0 +1,13 @@
+name: Railway denial control
+run-name: Railway denial control A
+on:
+  push:
+    branches: ['control/railway-ci-73b3cfef']
+permissions:
+  contents: read
+jobs:
+  deliberate-failure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - run: exit 1
