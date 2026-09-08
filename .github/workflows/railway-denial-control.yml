@@ -1,5 +1,5 @@
 name: Railway denial control
-run-name: Railway denial control A
+run-name: Railway denial control B
 on:
   push:
     branches: ['control/railway-ci-73b3cfef']
