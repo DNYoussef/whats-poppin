@@ -1,5 +1,7 @@
 # Railway inventory, refreshed September 8 2026
 
+Latest setup: staging 241b46e7-3a5d-489a-824e-57cd2618784f now exists in industrious-compassion. It has empty sb-db, sb-auth, sb-rest, sb-gateway and sb-mail instances; exact IDs and fresh verification are in SELF-HOST-HANDOFF.md. No backend source, variable, volume, domain, TCP proxy or deployment is attached. Production and its pending patch matched the original private baseline after setup. The configuration observations below describe the earlier pre-setup inventory; the GitHub main connection remains unchanged.
+
 Re-read through the authenticated Railway MCP on September 8. Project industrious-compassion (b5dc8a11-2f0a-4956-a8ca-0899a0364649), service whats-poppin (ccc86351-94ec-4e97-80a8-78932ba45d46), production environment ca92fc09-72e1-4d21-a8e4-5b1480d58b73. The project's service/environment listing currently contains this one service and production environment; no staging or worker was listed.
 
 Effective source is DNYoussef/whats-poppin, branch main, checkSuites false (Wait for CI disabled). Builder is RAILPACK; deployment runtime V2, one us-east4-eqdc4a replica. Domain whats-poppin-production.up.railway.app targets port 8080. The returned deploy configuration contains no cron or healthcheck setting. This is a configuration observation, not a runtime health or scheduling test.

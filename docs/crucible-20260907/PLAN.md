@@ -196,8 +196,8 @@ Verified source: https://github.com/DNYoussef/whats-poppin, branch main, is conn
 | Component | Deployment placement |
 | --- | --- |
 | Production website/shared API | Existing whats-poppin Railway service, repository root on main |
-| Staging website/API | Planned staging environment within this SAME project; same repository, reviewed staging source; IDs not yet assigned |
-| Staging Supabase | Same project's staging environment: sb-db, sb-auth, sb-rest, sb-gateway and private sb-mail; persistent DB volume, only gateway public |
+| Staging website/API | Staging environment 241b46e7-3a5d-489a-824e-57cd2618784f now exists in this SAME project; website instance and reviewed staging source remain planned |
+| Staging Supabase | Empty sb-db, sb-auth, sb-rest, sb-gateway and sb-mail instances now exist in that staging environment; DB volume, private configuration and sole public gateway remain to be deployed; actual IDs in phases/P00/SELF-HOST-HANDOFF.md |
 | DB/gateway builds | Same GitHub repository, frozen deploy/supabase-staging-<sha-prefix> branch; roots /infra/supabase/db and /infra/supabase/gateway; other core components use pinned upstream image digests |
 | Production Supabase | Future isolated production instances in this project, separate data/secrets and real SMTP; H3b/H4 and reviewed cutover required |
 | Ingestion/browser worker | P05 creates one worker service definition from the same repository, with its own instance and schedule in each environment; entrypoint and IDs remain to be implemented |

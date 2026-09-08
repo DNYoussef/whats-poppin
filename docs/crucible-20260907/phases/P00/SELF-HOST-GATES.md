@@ -1,5 +1,7 @@
 # Self-hosted Supabase gates
 
+September 8 continuation: source 902064a4a825dfa6be72fc55b5d3b0c798fd6132 passed self-host34225484904, baseline34225484893, mobile34225484902 and native34225484883 (both platforms). Operator target/tunnel fixes are implemented and code/CI reviewed. Empty staging core exists within the original project; exact IDs, personal operator key and private state are in SELF-HOST-HANDOFF.md. No backend deployed yet: S3/S4 and H3a remain open. Four inspection rounds ended with approval only for code/CI and empty-staging/key setup; actual configuration/deployment needs the next bounded review. Earlier evidence below remains historical.
+
 Scope: SELF-HOST-PLAN.md. Prior unit: four build rounds and four inspection rounds; resumed continuation: six build rounds and six inspection rounds; user authorized Railway staging provisioning. This does not complete the application's P01 migration work or authorize production cutover.
 
 - [x] S1: Core deployment configuration rejects missing secrets, unpinned images, public internal services and disabled email confirmation; valid fixture configuration passes.

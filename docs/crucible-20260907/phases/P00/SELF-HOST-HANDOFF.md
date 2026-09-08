@@ -1,5 +1,29 @@
 # Supabase staging handoff
 
+## Latest implementation handoff: September 8 operator and empty staging
+
+Tested and pushed source: 902064a4a825dfa6be72fc55b5d3b0c798fd6132 on implement/whats-poppin-p00-20260907. Native SSH forwarding and existing-project staging guards are implemented; the old code-blocker paragraphs below are historical. No live backend or private SSH acceptance has been claimed.
+
+All required workflows passed on that exact source: baseline https://github.com/DNYoussef/whats-poppin/actions/runs/34225484893, mobile https://github.com/DNYoussef/whats-poppin/actions/runs/34225484902, self-host https://github.com/DNYoussef/whats-poppin/actions/runs/34225484904, native https://github.com/DNYoussef/whats-poppin/actions/runs/34225484883. Native includes successful iOS and Android release compilation. Hosted self-host logs include operator controls and full Auth/RLS/migration/persistence/closure markers. These are hosted disposable results, not Railway backend acceptance.
+
+The EXISTING industrious-compassion project b5dc8a11-2f0a-4956-a8ca-0899a0364649 now contains staging environment 241b46e7-3a5d-489a-824e-57cd2618784f. Empty core instances were created by staging and committing only patch 975303f7-7829-4e51-afcb-344454e562c2 with skipDeploys=true:
+
+- sb-db: 31c6f075-0e7e-4b5f-82ed-47a0aa90aaf6
+- sb-auth: 9511acfa-8263-4541-aae2-10a22b4b13a0
+- sb-rest: a0f3930b-7d95-4aaa-b5dc-f62c57445b99
+- sb-gateway: 8ebf2f7b-f89d-47b4-8dd1-d3f5adc6a7a7
+- sb-mail: a07c3c33-eae4-4d05-a0e6-64278d42e14e
+
+Final live readback: no core sources, variables, volumes, domains, TCP proxies or deployments. Production deployed configuration, active deployment IDs/statuses and staged patch 0ee7b900-20d4-4c4f-8818-7c5976779075 exactly match this unit's private baseline. One read returned degraded:[networking] and omitted networking; setup halted until a subsequent complete response matched the ORIGINAL baseline exactly. Never normalize away real domain differences or silently replace the baseline.
+
+External run: C:/Users/17175/.codex-work/poppin-operator-7cbdfe512dc64fc2b0cccae619d03589. private/staging-state.json now reuses the unpublished credentials with the actual new IDs and sshIdentityFile. sourceSha is PENDING and api absent until reviewed configuration. Private directory/files were verified owner-only. A dedicated personal Railway public key is registered as 11d83ec3-bc90-4093-86af-05414c9076e2, fingerprint SHA256:6NdzcNl4N5EzAHXi5VPpER1dLmu/mr2++vpzZApNhZs. It is account-scoped, not Railway-enforced staging-only; protect and revoke it when operator access ends. CLI keys add cannot load this external path; registration used sshPublicKeyCreate, with personal ownership and fingerprint read back. Windows ssh-keygen added default admin/system ACLs; these were removed and owner-only ACL verified after public-key registration, before any SSH use. Use icacls for these explicit ACEs; Set-Acl attempted a privilege unavailable to this process.
+
+Review record: four declared edit/review rounds consumed. Opus high served claude-opus-5; inspection 2 approved code/secret-free CI snapshot 92801c3912c9695aa82da29339acbbfd13b87ab3e54786783b542cc6fb14014d. Inspection 4 approved only empty-staging/key setup snapshot bddf77031d0b074d8f13fedeb2b27a22ab14d9704c8774207c9c68f86499df05. Raw reviews, manifests, source/schema, private before/after evidence, setup-state.json and GATES.md are in the external run. No approval covers backend activation yet. Residual low code notes: post-connect child-liveness race has inspection coverage but no dedicated race control; migration callback could additionally check child liveness immediately before opening the URL. Existing controls reject occupied ports and prove child/listener cleanup.
+
+Next bounded unit in the SAME plan: prepare and review the concrete configuration for THESE existing staging instances; do not create another environment/project/core set or rerun empty-service creation. Registering another key or regenerating credentials is unnecessary. Follow SELF-HOST-DEPLOY for frozen GitHub source, Wait for CI and deliberate failing-check control, roots, image pins, private variables, DB volume and sole gateway domain. Include complete target/config/credential-placement and known-host verification in the next review. Supply the pinned Supabase CLI from the earlier run's bin directory without changing its version. Then run full live operator acceptance, fix actual runtime failures within the next declared review budget, and only close S3/S4/H3a from evidence. H3b/H4, real SMTP, application migration rehearsal and production cutover remain open.
+
+All sections below record earlier units and are superseded where they describe current targets or unfinished operator implementation.
+
 ## September 8 resumed documentation unit
 
 The previous unit paused at the weekly Opus limit. The user resumed this morning with Opus high; reviewer confinement preflight now passes. The main PLAN.md Railway section now saves the verified existing project, connected DNYoussef/whats-poppin repository/main branch and placement for web/API, Supabase, worker and native apps. See PLACEMENT-AUDIT.md for the new documentation review result; it does not approve the unchanged operator implementation.
