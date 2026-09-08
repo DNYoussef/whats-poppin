@@ -1,5 +1,7 @@
 # Self-host continuation
 
+Historical September 7 implementation log. Resource-reuse instructions below describe the pre-correction unit only; current placement and next actions are in SELF-HOST-HANDOFF.md and SELF-HOST-DEPLOY.md. The extra project is not the intended target.
+
 Continuation of SELF-HOST-HANDOFF.md in the same P00 plan. New user request resumes the exhausted prior unit with six build rounds and six inspection rounds. Codex authors; confined Opus high independently reviews. No local Docker. Existing isolated staging resources are reused.
 
 1. Diagnostic gate: preserve current CORS assertions and capture every origin header for both origins in secret-free hosted CI. Existing run 34175136268 is red; actual header values remain unobserved until diagnostic execution.
