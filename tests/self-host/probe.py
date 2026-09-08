@@ -234,3 +234,23 @@ def migration_probe(suffix, sql, run, db_url):
     check()
     print('SELF_HOST_MIGRATIONS_VERIFIED')
     return check
+
+
+def assert_signup_disabled(api, anon):
+    def denied(status, body):
+        assert status in [403, 422] and body.get('error_code') == 'signup_disabled', 'Unexpected signup denial'
+    try:
+        denied(403, {'error_code': 'unrelated_error'})
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError('Wrong-error control was accepted')
+    request = urllib.request.Request(api + '/auth/v1/signup', method='POST', headers={'apikey': anon, 'Content-Type': 'application/json'}, data=b'{"email":"disabled-control@poppin.invalid","password":"unused-probe-password"}')
+    try:
+        urllib.request.urlopen(request, timeout=20)
+    except urllib.error.HTTPError as error:
+        body = json.loads(error.read())
+        denied(error.code, body)
+    else:
+        raise AssertionError('Signup still enabled')
+    print('SELF_HOST_SIGNUP_DENIAL_VERIFIED')

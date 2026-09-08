@@ -15,6 +15,8 @@ const verify = (config, files = dockerfiles) => {
     if (name !== 'gateway') assert.equal(service.ports, undefined);
   }
   assert.deepEqual(config.services.gateway.ports, ['127.0.0.1:54329:8080']);
+  assert.equal(config.services.mail.environment.MP_SMTP_BIND_ADDR, '[::]:1025');
+  assert.equal(config.services.mail.environment.MP_UI_BIND_ADDR, '[::]:8025');
   assert.equal(config.services.auth.environment.GOTRUE_DISABLE_SIGNUP, 'false');
   assert.equal(config.services.auth.environment.GOTRUE_RATE_LIMIT_EMAIL_SENT, '2');
   assert.equal(config.services.auth.environment.GOTRUE_SMTP_MAX_FREQUENCY, '1s');
@@ -35,6 +37,7 @@ const verify = (config, files = dockerfiles) => {
 const config = yaml.load(readFileSync('infra/supabase/compose.yml', 'utf8'));
 verify(config);
 for (const mutate of [
+  copy => { copy.services.mail.environment.MP_SMTP_BIND_ADDR = '127.0.0.1:1025'; },
   copy => { copy.services.mail.image = 'axllent/mailpit:v1.27'; },
   copy => { copy.services.gateway.ports = ['54329:8080']; },
   copy => { copy.services.rest.environment.PGRST_JWT_SECRET = 'hardcoded'; },
@@ -66,10 +69,12 @@ const verifyWorkflow = text => {
   }
   assert(job.steps.some(step => step.run === 'node tests/self-host/check-config.mjs'));
   assert(job.steps.some(step => step.run === 'python -B tests/self-host/run-ci.py'));
+  assert(job.steps.some(step => step.run === 'python -B tests/self-host/run-railway.py --check'));
 };
 const workflow = readFileSync('.github/workflows/self-host.yml', 'utf8');
 verifyWorkflow(workflow);
 for (const bad of [
+  workflow.replace('python -B tests/self-host/run-railway.py --check', 'echo skipped'),
   workflow.replace('node tests/self-host/check-config.mjs', 'echo skipped'),
   workflow.replace('pull_request:', 'pull_request_target:'),
   workflow.replace('contents: read', 'contents: write'),

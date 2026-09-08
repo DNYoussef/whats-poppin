@@ -6,8 +6,10 @@ import re
 import subprocess
 import sys
 import time
+import tempfile
+from pathlib import Path
 
-from probe import jwt, verify, migration_probe
+from probe import jwt, verify, migration_probe, assert_signup_disabled
 
 assert sys.platform == 'linux' and os.environ.get('GITHUB_ACTIONS') == 'true', 'GitHub Linux only'
 assert not any(os.environ.get(key) for key in ['RAILWAY_TOKEN', 'SUPABASE_ACCESS_TOKEN']), 'No platform credentials allowed'
@@ -77,6 +79,18 @@ try:
         bad = subprocess.run(compose + ['run', '--rm', '--no-deps', '-e', key + '=' + value, 'gateway', 'nginx', '-t'], env=env, capture_output=True, timeout=60)
         assert bad.returncode != 0, 'Gateway injection control was accepted'
     verify(env['API_URL'], env['ANON_KEY'], env['SERVICE_ROLE_KEY'], env['JWT_SECRET'], sql, mail, migrate, restart)
+    with tempfile.TemporaryDirectory(prefix='poppin-disabled-') as directory:
+        override = Path(directory) / 'disabled.json'
+        override.write_text(json.dumps({'services': {'auth': {'environment': {'GOTRUE_DISABLE_SIGNUP': 'true'}}}}))
+        run(compose + ['-f', str(override), 'up', '-d', '--no-deps', '--force-recreate', 'auth'])
+        for _ in range(60):
+            try:
+                assert_signup_disabled(env['API_URL'], env['ANON_KEY'])
+                break
+            except (AssertionError, OSError):
+                time.sleep(2)
+        else:
+            raise AssertionError('Disabled Auth never ready')
 except Exception:
     logs = subprocess.run(compose + ['logs', '--no-color', '--tail', '60'], env=env, capture_output=True, text=True, timeout=30)
     output = logs.stdout + logs.stderr
